@@ -1,5 +1,5 @@
 import { inngest } from "./client";
-import { supabaseAdmin } from "../supabase/admin";
+import { getSupabaseAdmin } from "../supabase/admin";
 import { analyzeContractPDF } from "../gemini";
 import { validateIssues } from "../grounding";
 
@@ -10,6 +10,7 @@ export const analyzeContract = inngest.createFunction(
 
     // ── Step 1: Initialize Job ──────────────────────────────
     const job = await step.run("initialize-job", async () => {
+      const supabaseAdmin = getSupabaseAdmin();
       // Create a job record linked to this document
       const { data, error } = await supabaseAdmin
         .from("jobs")
@@ -34,6 +35,7 @@ export const analyzeContract = inngest.createFunction(
 
     // ── Step 2: Fetch PDF from Storage ──────────────────────
     const pdfBase64 = await step.run("fetch-document", async () => {
+      const supabaseAdmin = getSupabaseAdmin();
       // Get the document's storage path
       const { data: doc, error: docErr } = await supabaseAdmin
         .from("documents")
@@ -67,6 +69,7 @@ export const analyzeContract = inngest.createFunction(
 
     // ── Step 4: Validate & Store Issues ─────────────────────
     const result = await step.run("validate-and-store", async () => {
+      const supabaseAdmin = getSupabaseAdmin();
       const { valid, dropped } = validateIssues(extraction.issues);
 
       // Insert each validated issue into the DB (triggers Realtime)
@@ -91,6 +94,7 @@ export const analyzeContract = inngest.createFunction(
 
     // ── Step 5: Finalize Job ────────────────────────────────
     await step.run("finalize-job", async () => {
+      const supabaseAdmin = getSupabaseAdmin();
       await supabaseAdmin
         .from("jobs")
         .update({
@@ -132,6 +136,7 @@ export const handleAnalysisFailure = inngest.createFunction(
     if (!documentId) return;
 
     await step.run("mark-job-failed", async () => {
+      const supabaseAdmin = getSupabaseAdmin();
       const errorMessage =
         (event.data as any)?.error?.message || "Unknown error during analysis";
 

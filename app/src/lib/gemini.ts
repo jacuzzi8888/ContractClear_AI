@@ -6,7 +6,13 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { GEMINI_MODEL } from "./constants";
 import type { LLMExtractionResult } from "@/types";
 
-const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+function getGenAI() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not set in environment variables.");
+  }
+  return new GoogleGenAI({ apiKey });
+}
 
 // ── System Prompt ────────────────────────────────────────────
 const SYSTEM_PROMPT = `You are ContractClear AI, a senior legal risk analyst.
@@ -56,6 +62,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown fences, no commentary.`;
 export async function analyzeContractPDF(
   pdfBase64: string
 ): Promise<LLMExtractionResult> {
+  const genai = getGenAI();
   const response = await genai.models.generateContent({
     model: GEMINI_MODEL,
     contents: [
@@ -135,6 +142,7 @@ export async function draftNegotiationEmail(
   recommendedAction: string
 ): Promise<{ subject: string; body: string }> {
   try {
+    const genai = getGenAI();
     const response = await genai.models.generateContent({
       model: GEMINI_MODEL,
       contents: [

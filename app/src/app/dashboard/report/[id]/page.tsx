@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { RISK_LEVEL_CONFIG } from "@/lib/constants";
 import type { RiskLevel } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function ReportPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const supabase = await createClient();
