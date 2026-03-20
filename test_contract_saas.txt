@@ -1,0 +1,35 @@
+SAAS SUBSCRIPTION AGREEMENT
+
+This SaaS Subscription Agreement ("Agreement") is entered into as of March 20, 2026 (the "Effective Date"), by and between CloudScale AI Solutions, Inc. ("Provider") and the entity executing this Agreement ("Customer").
+
+1. SERVICES.
+Provider shall provide Customer with access to the CloudScale AI Platform (the "Service") as described in the applicable Order Form.
+
+2. FEES AND PAYMENT.
+Customer shall pay all fees specified in Order Forms. All payment obligations are non-cancelable and fees paid are non-refundable. Late payments shall bear interest at the rate of 5% per month or the maximum rate permitted by law, whichever is higher.
+
+3. DATA OWNERSHIP.
+Customer retains all rights to Customer Data. However, Customer hereby grants Provider a perpetual, irrevocable, worldwide, royalty-free license to use, copy, modify, and distribute Customer Data for any purpose, including training Provider's machine learning models and creating derivative works.
+
+4. LIMITATION OF LIABILITY.
+IN NO EVENT SHALL PROVIDER'S AGGREGATE LIABILITY ARISING OUT OF OR RELATED TO THIS AGREEMENT EXCEED THE TOTAL AMOUNT PAID BY CUSTOMER HEREUNDER IN THE TWELVE MONTHS PRECEDING THE FIRST INCIDENT OUT OF WHICH THE LIABILITY AROSE. NOTWITHSTANDING THE FOREGOING, CUSTOMER'S LIABILITY TO PROVIDER FOR ANY BREACH OF SECTION 5 (CONFIDENTIALITY) OR SECTION 7 (INTELLECTUAL PROPERTY) SHALL BE UNLIMITED.
+
+5. TERM AND TERMINATION.
+This Agreement commences on the Effective Date and continues for a period of three (3) years. This Agreement shall automatically renew for additional three-year terms unless Customer provides written notice of non-renewal at least 180 days prior to the end of the then-current term.
+
+6. NON-COMPETE.
+During the Term and for a period of twenty-four (24) months thereafter, Customer shall not, directly or indirectly, develop, market, or sell any product or service that competes with the CloudScale AI Platform within the United States or any other country where Provider conducts business.
+
+7. INDEMNIFICATION.
+Customer shall defend, indemnify, and hold harmless Provider from and against any and all third-party claims, damages, and liabilities arising out of Customer's use of the Service or breach of this Agreement. Provider shall have no obligation to indemnify Customer for any intellectual property infringement claims.
+
+---
+SIGNATURES:
+
+BY: CloudScale AI Solutions, Inc.
+Name: John Doe
+Title: CEO
+
+BY: [Customer Name]
+Name:
+Title:

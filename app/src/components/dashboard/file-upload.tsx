@@ -74,7 +74,10 @@ export function FileUpload({ onJobStart }: FileUploadProps) {
         body: JSON.stringify({ documentId }),
       });
 
-      if (!jobRes.ok) throw new Error("Analysis trigger failed");
+      if (!jobRes.ok) {
+        const errorData = await jobRes.json().catch(() => ({}));
+        throw new Error(errorData.details || errorData.error || "Analysis trigger failed");
+      }
       
       setStatus("success");
       setProgress(100);

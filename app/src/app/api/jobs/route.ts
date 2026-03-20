@@ -33,18 +33,36 @@ export async function POST(request: Request) {
       .update({ status: "queued" })
       .eq("id", documentId);
 
-    // 4. Trigger Inngest background job
-    await inngest.send({
-      name: "contract/analyze",
-      data: {
-        documentId: doc.id,
-        ownerId: user.id,
-        fileName: doc.file_name,
-      },
-    });
+    // 4. Trigger Inngest background job (Ensure event key is configured)
+    if (!process.env.INNGEST_EVENT_KEY && process.env.NODE_ENV === "production") {
+      console.error("CRITICAL: INNGEST_EVENT_KEY is missing in production.");
+    }
+
+    try {
+      await inngest.send({
+        name: "contract/analyze",
+        data: {
+          documentId: doc.id,
+          ownerId: user.id,
+          fileName: doc.file_name,
+        },
+      });
+    } catch (inngestErr: any) {
+      console.error("Inngest send failure:", inngestErr);
+      return NextResponse.json({ 
+        error: "Inngest trigger failed", 
+        details: inngestErr.message,
+        hint: !process.env.INNGEST_EVENT_KEY ? "Check INNGEST_EVENT_KEY" : undefined
+      }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, message: "Analysis queued" });
-  } catch (err) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  } catch (err: any) {
+    console.error("Full /api/jobs handler error:", err);
+    return NextResponse.json({ 
+      error: "Internal Server Error", 
+      message: err.message,
+      stack: process.env.NODE_ENV === "development" ? err.stack : undefined
+    }, { status: 500 });
   }
 }
