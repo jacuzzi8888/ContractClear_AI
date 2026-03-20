@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { RISK_LEVEL_CONFIG } from "@/lib/constants";
+import { PrintButton } from "@/components/dashboard/print-button";
 import type { RiskLevel } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -47,14 +48,7 @@ export default async function ReportPage(props: { params: Promise<{ id: string }
       
       {/* Print Button (hidden when printing) */}
       <div className="mb-8 flex justify-end print:hidden">
-        <button 
-          onClick={() => {
-            if (typeof window !== "undefined") window.print();
-          }}
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition-all"
-        >
-          Print to PDF
-        </button>
+        <PrintButton />
       </div>
 
       <header className="border-b-2 border-slate-200 pb-8 mb-8">
@@ -166,7 +160,7 @@ export default async function ReportPage(props: { params: Promise<{ id: string }
       </footer>
 
       {/* Global Print Styles to force background colors in Chrome/Safari/Edge */}
-      <style dangerouslySetInnerHTML={{ __html: "@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { margin: 1cm; } }" }} />
+      <style>{`@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { margin: 1cm; } }`}</style>
     </div>
   );
 }
