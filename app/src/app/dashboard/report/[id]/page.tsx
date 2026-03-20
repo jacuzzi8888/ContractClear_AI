@@ -27,7 +27,7 @@ export default async function ReportPage(props: { params: Promise<{ id: string }
 
   // Basic check and ownership protection
   if (jobError || !job) return notFound();
-  if (job.documents.user_id !== user.id) return notFound();
+  if (job.documents.owner_id !== user.id) return notFound();
 
   // Sort issues by risk level (critical first, then high, medium, low, info)
   const severityOrder: Record<string, number> = {
