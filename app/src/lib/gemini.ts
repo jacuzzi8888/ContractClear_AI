@@ -122,10 +122,8 @@ export async function analyzeContractPDF(
     },
   });
 
-  // extraction text safely using the SDK's text method or raw parts as fallback
-  const text = (response.text && typeof response.text === 'function') 
-    ? response.text() 
-    : (response.candidates?.[0]?.content?.parts?.[0] as any)?.text || "";
+  // extraction text safely using the SDK's text getter
+  const text = response.text || "";
 
   // Parse the structured JSON response
   const result: LLMExtractionResult = JSON.parse(text);
@@ -180,9 +178,7 @@ export async function draftNegotiationEmail(
       },
     });
 
-    const text = (response.text && typeof response.text === 'function') 
-      ? response.text() 
-      : (response.candidates?.[0]?.content?.parts?.[0] as any)?.text || "";
+    const text = response.text || "";
     const result = JSON.parse(text);
     return result;
   } catch (error) {
