@@ -15,9 +15,10 @@ import { cn } from "@/lib/utils";
 
 interface FileUploadProps {
   onJobStart: (jobId: string) => void;
+  isExternalProcessing?: boolean;
 }
 
-export function FileUpload({ onJobStart }: FileUploadProps) {
+export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "uploading" | "processing" | "success" | "error">("idle");
   const [progress, setProgress] = useState(0);
@@ -186,7 +187,7 @@ export function FileUpload({ onJobStart }: FileUploadProps) {
               </div>
             )}
 
-            {status === "success" && (
+            {status === "success" && !isExternalProcessing && (
               <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4 flex items-center gap-3 text-green-400">
                 <CheckCircle2 size={24} />
                 <div className="flex-1">

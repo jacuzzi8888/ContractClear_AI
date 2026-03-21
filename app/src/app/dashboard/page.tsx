@@ -98,31 +98,122 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!activeJobId) return;
 
+    console.info(`%c[Realtime] Initializing listeners for document: ${activeJobId}`, "color: #818cf8; font-weight: bold;");
     setIsProcessing(true);
     setFindings([]);
     setSelectedJobId(null);
     setPastFindings([]);
 
-    const channel = supabase
-      .channel(`job-findings-${activeJobId}`)
+    // 1. Listen for Document Status changes
+    const docChannel = supabase
+      .channel(`doc-status-${activeJobId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "documents",
+          filter: `id=eq.${activeJobId}`,
+        },
+        (payload) => {
+          console.info(`[Realtime] Document status update: ${payload.new.status}`);
+          if (payload.new.status === "completed" || payload.new.status === "failed") {
+            setIsProcessing(false);
+            fetchRecentDocs();
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.info(`[Realtime] Document channel status: ${status}`);
+      });
+
+    // 2. Listen for Job creation & Issues
+    let issuesChannel: any = null;
+
+    const setupIssuesListener = (jobId: string) => {
+      console.info(`%c[Realtime] Connecting to issues for job: ${jobId}`, "color: #34d399; font-weight: bold;");
+      if (issuesChannel) supabase.removeChannel(issuesChannel);
+      
+      issuesChannel = supabase
+        .channel(`job-findings-${jobId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "issues",
+            filter: `job_id=eq.${jobId}`,
+          },
+          (payload) => {
+            console.info("[Realtime] New finding received", payload.new);
+            setFindings((prev) => [payload.new, ...prev]);
+          }
+        )
+        .subscribe((status) => {
+          console.info(`[Realtime] Issues channel (${jobId}) status: ${status}`);
+        });
+    };
+
+    // Listen for Job insertion and status updates
+    const jobChannel = supabase
+      .channel(`job-tracking-${activeJobId}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
-          table: "issues",
-          filter: `job_id=eq.${activeJobId}`,
+          table: "jobs",
+          filter: `document_id=eq.${activeJobId}`,
         },
         (payload) => {
-          setFindings((prev) => [payload.new, ...prev]);
+          console.info("[Realtime] Job record created:", payload.new.id);
+          setupIssuesListener(payload.new.id);
         }
       )
-      .subscribe();
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "jobs",
+          filter: `document_id=eq.${activeJobId}`,
+        },
+        (payload) => {
+          console.info(`[Realtime] Job status update: ${payload.new.status}`);
+          if (payload.new.status === "completed" || payload.new.status === "failed") {
+            setIsProcessing(false);
+            fetchRecentDocs();
+          }
+        }
+      )
+      .subscribe(async (status) => {
+        console.info(`[Realtime] Job tracking channel status: ${status}`);
+        if (status === "SUBSCRIBED") {
+          // Check if job already exists (avoid race condition)
+          const { data } = await supabase
+            .from("jobs")
+            .select("id")
+            .eq("document_id", activeJobId)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          
+          if (data) {
+            console.info("[Realtime] Found existing job pulse:", data.id);
+            setupIssuesListener(data.id);
+          } else {
+            console.info("[Realtime] Waiting for job creation event...");
+          }
+        }
+      });
 
     return () => {
-      supabase.removeChannel(channel);
+      console.info("[Realtime] Cleaning up listeners");
+      supabase.removeChannel(docChannel);
+      supabase.removeChannel(jobChannel);
+      if (issuesChannel) supabase.removeChannel(issuesChannel);
     };
-  }, [activeJobId, supabase]);
+  }, [activeJobId, supabase, fetchRecentDocs]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -266,7 +357,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Upload & Actions */}
           <div className="lg:col-span-2 space-y-12">
-            <FileUpload onJobStart={handleJobStart} />
+            <FileUpload onJobStart={handleJobStart} isExternalProcessing={isProcessing} />
 
             {/* Findings Viewer (Active job OR past analysis) */}
             {showFindingsViewer && (
