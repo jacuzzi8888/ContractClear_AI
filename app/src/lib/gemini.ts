@@ -2,16 +2,16 @@
 // ContractClear AI — Gemini Integration Module
 // ============================================================
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { createClient } from "@google/genai";
 import { GEMINI_MODEL } from "./constants";
 import type { LLMExtractionResult } from "@/types";
 
-function getGenAI() {
+function getClient() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not set in environment variables.");
   }
-  return new GoogleGenAI({ apiKey });
+  return createClient({ apiKey });
 }
 
 // ── System Prompt ────────────────────────────────────────────
@@ -62,50 +62,9 @@ IMPORTANT: Return ONLY the JSON object, no markdown fences, no commentary.`;
 export async function analyzeContractPDF(
   pdfBase64: string
 ): Promise<LLMExtractionResult> {
-  const genai = getGenAI();
-  const model = genai.getGenerativeModel({
+  const client = getClient();
+  const response = await client.models.generateContent({
     model: GEMINI_MODEL,
-    systemInstruction: SYSTEM_PROMPT,
-    generationConfig: {
-      temperature: 0.1,
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          issues: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                risk_level: {
-                  type: Type.STRING,
-                  enum: ["critical", "high", "medium", "low", "info"],
-                },
-                quote: { type: Type.STRING },
-                page_number: { type: Type.INTEGER },
-                explanation: { type: Type.STRING },
-                recommended_action: { type: Type.STRING },
-                confidence: { type: Type.NUMBER },
-              },
-              required: [
-                "risk_level",
-                "quote",
-                "page_number",
-                "explanation",
-                "recommended_action",
-                "confidence",
-              ],
-            },
-          },
-          summary: { type: Type.STRING },
-          totalPages: { type: Type.INTEGER },
-        },
-        required: ["issues", "summary", "totalPages"],
-      },
-    },
-  });
-
-  const response = await model.generateContent({
     contents: [
       {
         role: "user",
@@ -122,6 +81,45 @@ export async function analyzeContractPDF(
         ],
       },
     ],
+    config: {
+      systemInstruction: SYSTEM_PROMPT,
+      temperature: 0.1,
+      responseMimeType: "application/json",
+      // Note: We use the raw schema object for @google/genai
+      responseSchema: {
+        type: "OBJECT",
+        properties: {
+          issues: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                risk_level: {
+                  type: "STRING",
+                  enum: ["critical", "high", "medium", "low", "info"],
+                },
+                quote: { type: "STRING" },
+                page_number: { type: "INTEGER" },
+                explanation: { type: "STRING" },
+                recommended_action: { type: "STRING" },
+                confidence: { type: "NUMBER" },
+              },
+              required: [
+                "risk_level",
+                "quote",
+                "page_number",
+                "explanation",
+                "recommended_action",
+                "confidence",
+              ],
+            },
+          },
+          summary: { type: "STRING" },
+          totalPages: { type: "INTEGER" },
+        },
+        required: ["issues", "summary", "totalPages"],
+      },
+    },
   });
 
   const text = response.text();
@@ -145,25 +143,9 @@ export async function draftNegotiationEmail(
   recommendedAction: string
 ): Promise<{ subject: string; body: string }> {
   try {
-    const genai = getGenAI();
-    const model = genai.getGenerativeModel({
+    const client = getClient();
+    const response = await client.models.generateContent({
       model: GEMINI_MODEL,
-      systemInstruction: EMAIL_PROMPT,
-      generationConfig: {
-        temperature: 0.3,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            subject: { type: Type.STRING },
-            body: { type: Type.STRING },
-          },
-          required: ["subject", "body"],
-        },
-      },
-    });
-
-    const response = await model.generateContent({
       contents: [
         {
           role: "user",
@@ -180,6 +162,19 @@ export async function draftNegotiationEmail(
           ]
         }
       ],
+      config: {
+        systemInstruction: EMAIL_PROMPT,
+        temperature: 0.3,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            subject: { type: "STRING" },
+            body: { type: "STRING" },
+          },
+          required: ["subject", "body"],
+        },
+      },
     });
 
     const text = response.text();
