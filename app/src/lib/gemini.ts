@@ -2,7 +2,7 @@
 // ContractClear AI — Gemini Integration Module
 // ============================================================
 
-import { createClient } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { GEMINI_MODEL } from "./constants";
 import type { LLMExtractionResult } from "@/types";
 
@@ -11,7 +11,7 @@ function getClient() {
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not set in environment variables.");
   }
-  return createClient({ apiKey });
+  return new GoogleGenAI({ apiKey });
 }
 
 // ── System Prompt ────────────────────────────────────────────
