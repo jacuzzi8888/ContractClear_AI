@@ -5,6 +5,7 @@ import { validateIssues } from "../grounding";
 
 export const analyzeContract = inngest.createFunction(
   { id: "analyze-contract", retries: 2 },
+  { event: "contract/analyze" },
   async ({ event, step }) => {
     const { documentId, ownerId, fileName } = event.data as any;
 
@@ -126,6 +127,7 @@ export const analyzeContract = inngest.createFunction(
 // ── Failure Handler ───────────────────────────────────────────
 export const handleAnalysisFailure = inngest.createFunction(
   { id: "handle-analysis-failure" },
+  { event: "inngest/function.failed" },
   async ({ event, step }) => {
     // Only handle failures from our analyze function
     const fnId = (event as any).data?.function_id;
