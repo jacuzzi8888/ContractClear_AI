@@ -11,5 +11,5 @@ export const { GET, POST, PUT } = serve({
     analyzeContract,
     handleAnalysisFailure,
   ],
-  streaming: "allow", // Help bypass Vercel 10s timeout on some plans
+  streaming: true, // Help bypass Vercel 10s timeout on some plans
 });
