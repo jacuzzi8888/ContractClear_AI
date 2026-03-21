@@ -63,26 +63,10 @@ export async function analyzeContractPDF(
   pdfBase64: string
 ): Promise<LLMExtractionResult> {
   const genai = getGenAI();
-  const response = await genai.models.generateContent({
+  const model = genai.getGenerativeModel({
     model: GEMINI_MODEL,
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            inlineData: {
-              mimeType: "application/pdf",
-              data: pdfBase64,
-            },
-          },
-          {
-            text: "Analyze this contract for legal risks following the protocol.",
-          },
-        ],
-      },
-    ],
-    config: {
-      systemInstruction: SYSTEM_PROMPT,
+    systemInstruction: SYSTEM_PROMPT,
+    generationConfig: {
       temperature: 0.1,
       responseMimeType: "application/json",
       responseSchema: {
@@ -121,7 +105,26 @@ export async function analyzeContractPDF(
     },
   });
 
-  const text = response.text ?? "";
+  const response = await model.generateContent({
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            inlineData: {
+              mimeType: "application/pdf",
+              data: pdfBase64,
+            },
+          },
+          {
+            text: "Analyze this contract for legal risks following the protocol.",
+          },
+        ],
+      },
+    ],
+  });
+
+  const text = response.text();
 
   // Parse the structured JSON response
   const result: LLMExtractionResult = JSON.parse(text);
@@ -143,8 +146,24 @@ export async function draftNegotiationEmail(
 ): Promise<{ subject: string; body: string }> {
   try {
     const genai = getGenAI();
-    const response = await genai.models.generateContent({
+    const model = genai.getGenerativeModel({
       model: GEMINI_MODEL,
+      systemInstruction: EMAIL_PROMPT,
+      generationConfig: {
+        temperature: 0.3,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            subject: { type: Type.STRING },
+            body: { type: Type.STRING },
+          },
+          required: ["subject", "body"],
+        },
+      },
+    });
+
+    const response = await model.generateContent({
       contents: [
         {
           role: "user",
@@ -161,22 +180,9 @@ export async function draftNegotiationEmail(
           ]
         }
       ],
-      config: {
-        systemInstruction: EMAIL_PROMPT,
-        temperature: 0.3,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            subject: { type: Type.STRING },
-            body: { type: Type.STRING },
-          },
-          required: ["subject", "body"],
-        },
-      },
     });
 
-    const text = response.text ?? "";
+    const text = response.text();
     const result = JSON.parse(text);
     return result;
   } catch (error) {
