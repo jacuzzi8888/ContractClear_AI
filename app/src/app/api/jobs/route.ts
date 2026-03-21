@@ -33,13 +33,15 @@ export async function POST(request: Request) {
       .update({ status: "queued" })
       .eq("id", documentId);
 
-    // 4. Trigger Inngest background job (Ensure event key is configured)
-    if (!process.env.INNGEST_EVENT_KEY && process.env.NODE_ENV === "production") {
-      console.error("CRITICAL: INNGEST_EVENT_KEY is missing in production.");
-    }
+    // 4. Trigger Inngest background job
+    const hasEventKey = !!process.env.INNGEST_EVENT_KEY;
+    const hasSigningKey = !!process.env.INNGEST_SIGNING_KEY;
+    
+    console.info(`[Inngest/Jobs] Triggering analysis for doc: ${documentId}`);
+    console.info(`[Inngest/Jobs] Keys Check - EventKey: ${hasEventKey}, SigningKey: ${hasSigningKey}`);
 
     try {
-      await inngest.send({
+      const sendResult = await inngest.send({
         name: "contract/analyze",
         data: {
           documentId: doc.id,
@@ -47,12 +49,18 @@ export async function POST(request: Request) {
           fileName: doc.file_name,
         },
       });
+      
+      console.info("[Inngest/Jobs] Event sent successfully:", sendResult);
     } catch (inngestErr: any) {
-      console.error("Inngest send failure:", inngestErr);
+      console.error("[Inngest/Jobs] CRITICAL: Inngest send failure:", inngestErr);
       return NextResponse.json({ 
         error: "Inngest trigger failed", 
         details: inngestErr.message,
-        hint: !process.env.INNGEST_EVENT_KEY ? "Check INNGEST_EVENT_KEY" : undefined
+        env_diagnostics: {
+          hasEventKey,
+          hasSigningKey,
+          nodeEnv: process.env.NODE_ENV
+        }
       }, { status: 500 });
     }
 
