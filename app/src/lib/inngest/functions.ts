@@ -7,9 +7,11 @@ export const analyzeContract = inngest.createFunction(
   { id: "analyze-contract", retries: 2, triggers: [{ event: "contract/analyze" }] },
   async ({ event, step }) => {
     const { documentId, ownerId, fileName } = event.data as any;
+    console.info(`[Inngest] >>> STARTING ANALYSIS for: ${fileName} (Doc: ${documentId})`);
 
     // ── Step 1: Initialize Job ──────────────────────────────
     const job = await step.run("initialize-job", async () => {
+      console.info("[Inngest] Step: initialize-job");
       const supabaseAdmin = getSupabaseAdmin();
       // Create a job record linked to this document
       const { data, error } = await supabaseAdmin
@@ -35,6 +37,7 @@ export const analyzeContract = inngest.createFunction(
 
     // ── Step 2: Fetch PDF from Storage ──────────────────────
     const pdfBase64 = await step.run("fetch-document", async () => {
+      console.info("[Inngest] Step: fetch-document");
       const supabaseAdmin = getSupabaseAdmin();
       // Get the document's storage path
       const { data: doc, error: docErr } = await supabaseAdmin
@@ -64,6 +67,7 @@ export const analyzeContract = inngest.createFunction(
 
     // ── Step 3: Analyze with Gemini ─────────────────────────
     const extraction = await step.run("analyze-with-gemini", async () => {
+      console.info("[Inngest] Step: analyze-with-gemini (calling LLM)");
       return await analyzeContractPDF(pdfBase64);
     });
 
@@ -94,6 +98,7 @@ export const analyzeContract = inngest.createFunction(
 
     // ── Step 5: Finalize Job ────────────────────────────────
     await step.run("finalize-job", async () => {
+      console.info("[Inngest] Step: finalize-job");
       const supabaseAdmin = getSupabaseAdmin();
       await supabaseAdmin
         .from("jobs")
@@ -113,6 +118,8 @@ export const analyzeContract = inngest.createFunction(
         })
         .eq("id", documentId);
     });
+
+    console.info(`[Inngest] <<< ANALYSIS COMPLETE for: ${documentId}`);
 
     return {
       message: `Analysis of "${fileName}" complete.`,
