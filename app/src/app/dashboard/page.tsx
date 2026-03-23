@@ -42,6 +42,7 @@ interface RecentDocument {
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
+  const [hasMounted, setHasMounted] = useState(false);
   const [isSignOutLoading, setIsSignOutLoading] = useState(false);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [findings, setFindings] = useState<any[]>([]);
@@ -230,6 +231,7 @@ export default function DashboardPage() {
       }
     };
     getUser();
+    setHasMounted(true);
   }, [router, supabase, fetchRecentDocs]);
 
   const handleSignOut = async () => {
@@ -259,18 +261,21 @@ export default function DashboardPage() {
   const [stats, setStats] = useState({ totalDocs: 0, totalIssues: 0, dominantRisk: "—" });
 
   useEffect(() => {
-    const fetchStats = async () => {
-      // Fetch real totals instead of just from the 5 recent docs
-      const { count: docsCount } = await supabase.from("documents").select("*", { count: "exact", head: true });
-      const { data: jobsData } = await supabase.from("jobs").select("issue_count, issues(risk_level)").order("created_at", { ascending: false });
+      try {
+        // Fetch real totals instead of just from the 5 recent docs
+        const { count: docsCount, error: dErr } = await supabase.from("documents").select("*", { count: "exact", head: true });
+        const { data: jobsData, error: jErr } = await supabase.from("jobs").select("issue_count, issues(risk_level)").order("created_at", { ascending: false });
 
-      if (jobsData) {
-        const issuesCount = jobsData.reduce((sum, j) => sum + (j.issue_count || 0), 0);
-        const allRisks = jobsData.flatMap((j: any) => j.issues?.map((i: any) => i.risk_level) || []);
-        const counts: Record<string, number> = {};
-        allRisks.forEach(r => counts[r] = (counts[r] || 0) + 1);
-        const domRisk = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
-        setStats({ totalDocs: docsCount || 0, totalIssues: issuesCount, dominantRisk: domRisk });
+        if (!dErr && !jErr && jobsData) {
+          const issuesCount = jobsData.reduce((sum, j) => sum + (j.issue_count || 0), 0);
+          const allRisks = jobsData.flatMap((j: any) => (Array.isArray(j.issues) ? j.issues : []).map((i: any) => i.risk_level));
+          const counts: Record<string, number> = {};
+          allRisks.forEach(r => { if (r) counts[r] = (counts[r] || 0) + 1; });
+          const domRisk = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
+          setStats({ totalDocs: docsCount || 0, totalIssues: issuesCount, dominantRisk: domRisk });
+        }
+      } catch (err) {
+        console.error("Error fetching stats:", err);
       }
     };
     if (user) fetchStats();
@@ -477,7 +482,7 @@ export default function DashboardPage() {
                             <div className="flex items-center gap-3 mt-1">
                               <span className="text-[10px] text-gray-500 flex items-center gap-1">
                                 <Clock size={10} />
-                                {new Date(doc.created_at).toLocaleDateString()}
+                                {hasMounted ? new Date(doc.created_at).toLocaleDateString() : "—"}
                               </span>
                               {doc.page_count && (
                                 <span className="text-[10px] text-gray-500">
