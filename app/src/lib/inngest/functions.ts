@@ -142,10 +142,10 @@ export const analyzeContract = inngest.createFunction(
         .eq("id", documentId);
     });
 
-    console.log(`[Inngest] <<< ANALYSIS COMPLETE for: ${documentId}`);
+    console.info(`[Inngest] <<< ANALYSIS COMPLETE for: ${documentId}`);
 
     return {
-      message: `Analysis complete.`,
+      message: `Analysis of "${fileName}" complete.`,
       issuesFound: result.stored,
       issuesDropped: result.dropped,
       summary: extraction.summary,
@@ -157,16 +157,6 @@ export const analyzeContract = inngest.createFunction(
 }
 );
 
-    console.info(`[Inngest] <<< ANALYSIS COMPLETE for: ${documentId}`);
-
-    return {
-      message: `Analysis of "${fileName}" complete.`,
-      issuesFound: result.stored,
-      issuesDropped: result.dropped,
-      summary: extraction.summary,
-    };
-  }
-);
 
 // ── Failure Handler ───────────────────────────────────────────
 export const handleAnalysisFailure = inngest.createFunction(
