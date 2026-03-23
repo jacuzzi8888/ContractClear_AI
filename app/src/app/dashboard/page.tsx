@@ -118,7 +118,7 @@ export default function DashboardPage() {
           table: "documents",
           filter: `id=eq.${activeJobId}`,
         },
-        (payload) => {
+        (payload: any) => {
           console.info(`[Realtime] Document status update: ${payload.new.status}`);
           if (payload.new.status === "completed" || payload.new.status === "failed") {
             setIsProcessing(false);
@@ -126,7 +126,7 @@ export default function DashboardPage() {
           }
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         console.info(`[Realtime] Document channel status: ${status}`);
       });
 
@@ -147,12 +147,12 @@ export default function DashboardPage() {
             table: "issues",
             filter: `job_id=eq.${jobId}`,
           },
-          (payload) => {
+          (payload: any) => {
             console.info("[Realtime] New finding received", payload.new);
             setFindings((prev) => [payload.new, ...prev]);
           }
         )
-        .subscribe((status) => {
+        .subscribe((status: string) => {
           console.info(`[Realtime] Issues channel (${jobId}) status: ${status}`);
         });
     };
@@ -168,7 +168,7 @@ export default function DashboardPage() {
           table: "jobs",
           filter: `document_id=eq.${activeJobId}`,
         },
-        (payload) => {
+        (payload: any) => {
           console.info("[Realtime] Job record created:", payload.new.id);
           setupIssuesListener(payload.new.id);
         }
@@ -181,7 +181,7 @@ export default function DashboardPage() {
           table: "jobs",
           filter: `document_id=eq.${activeJobId}`,
         },
-        (payload) => {
+        (payload: any) => {
           console.info(`[Realtime] Job status update: ${payload.new.status}`);
           if (payload.new.status === "completed" || payload.new.status === "failed") {
             setIsProcessing(false);
@@ -189,7 +189,7 @@ export default function DashboardPage() {
           }
         }
       )
-      .subscribe(async (status) => {
+      .subscribe(async (status: string) => {
         console.info(`[Realtime] Job tracking channel status: ${status}`);
         if (status === "SUBSCRIBED") {
           // Check if job already exists (avoid race condition)
@@ -277,10 +277,10 @@ export default function DashboardPage() {
         const { data: jobsData, error: jErr } = await supabase.from("jobs").select("issue_count, issues(risk_level)").order("created_at", { ascending: false });
 
         if (!dErr && !jErr && jobsData) {
-          const issuesCount = jobsData.reduce((sum, j) => sum + (j.issue_count || 0), 0);
+          const issuesCount = jobsData.reduce((sum: number, j: any) => sum + (j.issue_count || 0), 0);
           const allRisks = jobsData.flatMap((j: any) => (Array.isArray(j.issues) ? j.issues : []).map((i: any) => i.risk_level));
           const counts: Record<string, number> = {};
-          allRisks.forEach(r => { if (r) counts[r] = (counts[r] || 0) + 1; });
+          allRisks.forEach((r: string) => { if (r) counts[r] = (counts[r] || 0) + 1; });
           const domRisk = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
           setStats({ totalDocs: docsCount || 0, totalIssues: issuesCount, dominantRisk: domRisk });
         }
