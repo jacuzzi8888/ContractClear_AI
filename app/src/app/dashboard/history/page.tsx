@@ -35,6 +35,28 @@ const RiskIcon = ({ level }: { level: string }) => {
 export default async function HistoryPage() {
   const supabase = await createClient();
 
+  if (!supabase) {
+    return (
+      <div className="min-h-screen bg-[var(--color-surface-950)] flex flex-col items-center justify-center p-6 text-center">
+        <div className="glass-card p-10 rounded-3xl border border-red-500/30 bg-red-500/5 max-w-lg">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-6" />
+          <h1 className="text-2xl font-bold text-white mb-3">Deployment Configuration Error</h1>
+          <p className="text-gray-400 text-sm leading-relaxed mb-8">
+            The History page requires Supabase authentication, but the environment variables 
+            <code className="mx-1 px-1.5 py-0.5 bg-white/5 rounded text-indigo-400 font-mono">NEXT_PUBLIC_SUPABASE_URL</code> 
+            and <code className="mx-1 px-1.5 py-0.5 bg-white/5 rounded text-indigo-400 font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> 
+            are not set in your Vercel Project Settings.
+          </p>
+          <div className="flex flex-col gap-3">
+            <Link href="/" className="btn-primary py-3 rounded-2xl font-bold">
+              Check Project Settings
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
