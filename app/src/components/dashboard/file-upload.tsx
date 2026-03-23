@@ -52,6 +52,7 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
         body: JSON.stringify({
           fileName: file.name,
           contentType: file.type,
+          fileSize: file.size,
         }),
       });
 

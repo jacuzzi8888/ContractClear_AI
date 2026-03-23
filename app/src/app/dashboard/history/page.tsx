@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { RISK_LEVEL_CONFIG } from "@/lib/constants";
@@ -50,7 +51,8 @@ export default async function HistoryPage() {
       )
     `
     )
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .order("created_at", { foreignTable: "jobs", ascending: false });
 
   const docs = (documents || []) as any[];
 
@@ -67,19 +69,19 @@ export default async function HistoryPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[var(--color-surface-950)]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-8">
-            <a href="/" className="flex items-center gap-2.5">
+            <Link href="/" className="flex items-center gap-2.5">
               <Shield className="h-6 w-6 text-[var(--color-brand-400)]" />
               <span className="text-lg font-bold tracking-tight">
                 Contract<span className="gradient-text">Clear</span>
               </span>
-            </a>
+            </Link>
             <div className="hidden md:flex items-center gap-1 p-1 bg-white/5 rounded-lg">
-              <a
+              <Link
                 href="/dashboard"
                 className="px-3 py-1.5 text-xs font-medium rounded-md text-gray-400 hover:text-white transition-colors"
               >
                 Dashboard
-              </a>
+              </Link>
               <span className="px-3 py-1.5 text-xs font-medium rounded-md bg-[var(--color-brand-500)]/10 text-[var(--color-brand-400)]">
                 History
               </span>
@@ -126,13 +128,13 @@ export default async function HistoryPage() {
               Upload your first contract from the dashboard to see your analysis
               history here.
             </p>
-            <a
+            <Link
               href="/dashboard"
               className="inline-flex items-center gap-2 px-6 py-3 btn-primary rounded-2xl text-sm font-bold"
             >
               Go to Dashboard
               <ArrowRight size={16} />
-            </a>
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">
@@ -246,13 +248,13 @@ export default async function HistoryPage() {
 
                     {/* Summary & Actions */}
                     {job && (
-                      <a
+                      <Link
                         href={`/dashboard/report/${job.id}`}
                         className="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 text-xs font-semibold text-white transition-colors flex-shrink-0"
                       >
                         <BarChart3 size={14} />
                         View Report
-                      </a>
+                      </Link>
                     )}
                   </div>
 

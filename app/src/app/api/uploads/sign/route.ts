@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: Request) {
   try {
-    const { fileName, contentType } = await request.json();
+    const { fileName, contentType, fileSize } = await request.json();
     const supabase = await createClient();
 
     // 1. Get current user
@@ -16,11 +16,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2. Generate unique path: user_id/uuid.pdf
+    // 2. Server-side validation
+    if (contentType !== "application/pdf") {
+      return NextResponse.json({ error: "Only PDF files are accepted." }, { status: 400 });
+    }
+
+    const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+    if (fileSize && fileSize > MAX_SIZE) {
+      return NextResponse.json({ error: "File exceeds the 50MB limit." }, { status: 400 });
+    }
+
+    // 3. Generate unique path: owner_id/uuid.pdf
     const fileId = uuidv4();
     const filePath = `${user.id}/${fileId}.pdf`;
 
-    // 3. Create signed upload URL (valid for 10 minutes)
+    // 4. Create signed upload URL (valid for 10 minutes)
     const { data, error } = await supabase.storage
       .from("contracts")
       .createSignedUploadUrl(filePath);
@@ -29,7 +39,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // 4. Create pending document record
+    // 5. Create pending document record
     const { data: doc, error: docError } = await supabase
       .from("documents")
       .insert({

@@ -13,7 +13,30 @@ export const analyzeContract = inngest.createFunction(
     const job = await step.run("initialize-job", async () => {
       console.info("[Inngest] Step: initialize-job");
       const supabaseAdmin = getSupabaseAdmin();
-      // Create a job record linked to this document
+
+      // 1. Re-validate ownership even with service role (Defense in depth)
+      const { data: doc, error: docCheckErr } = await supabaseAdmin
+        .from("documents")
+        .select("owner_id, status")
+        .eq("id", documentId)
+        .single();
+
+      if (docCheckErr || !doc) throw new Error(`Document access verification failed`);
+      if (doc.owner_id !== ownerId) throw new Error(`Document ownership mismatch for document ${documentId}`);
+
+      // 2. Check for existing active jobs (Idempotency)
+      const { data: existingJobs } = await supabaseAdmin
+        .from("jobs")
+        .select("id, status")
+        .eq("document_id", documentId)
+        .in("status", ["queued", "processing"]);
+
+      if (existingJobs && existingJobs.length > 0) {
+        console.warn(`[Inngest] Analysis already in progress for doc: ${documentId}. Skipping init.`);
+        return existingJobs[0];
+      }
+
+      // 3. Create a job record linked to this document
       const { data, error } = await supabaseAdmin
         .from("jobs")
         .insert({
@@ -34,6 +57,11 @@ export const analyzeContract = inngest.createFunction(
 
       return data;
     });
+
+    // If step 1 returned an already completed or processing job from someone else's race, we could handle it, 
+    // but here we just proceed with the job found or created.
+    if (job.status === "completed") return { message: "Analysis already completed." };
+
 
     // ── Step 2: Fetch PDF from Storage ──────────────────────
     const pdfBase64 = await step.run("fetch-document", async () => {
@@ -77,6 +105,7 @@ export const analyzeContract = inngest.createFunction(
       const { valid, dropped } = validateIssues(extraction.issues);
 
       // Insert each validated issue into the DB (triggers Realtime)
+      let storedCount = 0;
       for (const issue of valid) {
         const { error } = await supabaseAdmin.from("issues").insert({
           job_id: job.id,
@@ -90,10 +119,12 @@ export const analyzeContract = inngest.createFunction(
 
         if (error) {
           console.error(`Failed to insert issue: ${error.message}`);
+        } else {
+          storedCount++;
         }
       }
 
-      return { stored: valid.length, dropped };
+      return { stored: storedCount, dropped };
     });
 
     // ── Step 5: Finalize Job ────────────────────────────────
@@ -140,6 +171,7 @@ export const handleAnalysisFailure = inngest.createFunction(
 
     const originalEvent = (event.data as any)?.event;
     const documentId = originalEvent?.data?.documentId;
+    const jobId = originalEvent?.data?.jobId || originalEvent?.data?.job?.id; // Attempt to get job ID from context if possible
     if (!documentId) return;
 
     await step.run("mark-job-failed", async () => {
@@ -147,17 +179,23 @@ export const handleAnalysisFailure = inngest.createFunction(
       const errorMessage =
         (event.data as any)?.error?.message || "Unknown error during analysis";
 
-      // Mark the latest job for this document as failed
-      await supabaseAdmin
+      // If we have a specific job ID, use it. Otherwise find the latest processing job for this doc.
+      let query = supabaseAdmin
         .from("jobs")
         .update({
           status: "failed",
           finished_at: new Date().toISOString(),
           error_code: "ANALYSIS_ERROR",
           error_message: errorMessage,
-        })
-        .eq("document_id", documentId)
-        .eq("status", "processing");
+        });
+
+      if (jobId) {
+        query = query.eq("id", jobId);
+      } else {
+        query = query.eq("document_id", documentId).eq("status", "processing");
+      }
+
+      await query;
 
       await supabaseAdmin
         .from("documents")

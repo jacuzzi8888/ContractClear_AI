@@ -40,7 +40,10 @@ export function timeAgo(dateString: string): string {
   return `${days}d ago`;
 }
 
-/** Classname merge helper (simple version). */
-export function cn(...classes: (string | boolean | undefined | null)[]): string {
-  return classes.filter(Boolean).join(" ");
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+/** Classname merge helper. */
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }

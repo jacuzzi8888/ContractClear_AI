@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Shield,
   FileSearch,
@@ -19,9 +20,9 @@ export default function HomePage() {
               Contract<span className="gradient-text">Clear</span>
             </span>
           </div>
-          <a href="/dashboard" className="btn-primary text-sm">
+          <Link href="/dashboard" className="btn-primary text-sm">
             Launch App <ArrowRight className="h-4 w-4" />
-          </a>
+          </Link>
         </div>
       </nav>
 
@@ -54,13 +55,13 @@ export default function HomePage() {
           </p>
 
           <div className="mt-10 flex items-center justify-center gap-4">
-            <a href="/dashboard" className="btn-primary text-base px-6 py-3">
+            <Link href="/dashboard" className="btn-primary text-base px-6 py-3">
               <Upload className="h-5 w-5" />
               Analyze a Contract
-            </a>
-            <button className="btn-secondary text-base px-6 py-3">
+            </Link>
+            <Link href="/dashboard" className="btn-secondary text-base px-6 py-3">
               See Demo
-            </button>
+            </Link>
           </div>
         </div>
 

@@ -15,10 +15,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2. Verify document ownership
+    // 2. Verify document ownership and check for active jobs
     const { data: doc, error: docError } = await supabase
       .from("documents")
-      .select("*")
+      .select(`
+        *,
+        jobs ( id, status )
+      `)
       .eq("id", documentId)
       .eq("owner_id", user.id)
       .single();
@@ -27,21 +30,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Document not found" }, { status: 404 });
     }
 
-    // 3. Update status to queued
-    await supabase
-      .from("documents")
-      .update({ status: "queued" })
-      .eq("id", documentId);
+    // Check for existing active jobs (idempotency)
+    const activeJobs = doc.jobs?.filter((j: any) => j.status === "queued" || j.status === "processing") || [];
+    if (activeJobs.length > 0) {
+      return NextResponse.json({ 
+        success: true, 
+        message: "Analysis already in progress",
+        jobId: activeJobs[0].id 
+      });
+    }
 
-    // 4. Trigger Inngest background job
-    const hasEventKey = !!process.env.INNGEST_EVENT_KEY;
-    const hasSigningKey = !!process.env.INNGEST_SIGNING_KEY;
+    // 3. Trigger Inngest background job (Send FIRST to avoid stranded "queued" status)
+    const isProd = process.env.NODE_ENV === "production";
     
-    console.info(`[Inngest/Jobs] Triggering analysis for doc: ${documentId}`);
-    console.info(`[Inngest/Jobs] Keys Check - EventKey: ${hasEventKey}, SigningKey: ${hasSigningKey}`);
-
     try {
-      const sendResult = await inngest.send({
+      await inngest.send({
         name: "contract/analyze",
         data: {
           documentId: doc.id,
@@ -50,27 +53,27 @@ export async function POST(request: Request) {
         },
       });
       
-      console.info("[Inngest/Jobs] Event sent successfully:", sendResult);
+      // 4. Update status to queued ONLY after successful send
+      await supabase
+        .from("documents")
+        .update({ status: "queued" })
+        .eq("id", documentId);
+
     } catch (inngestErr: any) {
-      console.error("[Inngest/Jobs] CRITICAL: Inngest send failure:", inngestErr);
+      console.error("[Inngest/Jobs] Inngest send failure:", inngestErr);
       return NextResponse.json({ 
-        error: "Inngest trigger failed", 
-        details: inngestErr.message,
-        env_diagnostics: {
-          hasEventKey,
-          hasSigningKey,
-          nodeEnv: process.env.NODE_ENV
-        }
+        error: "Failed to queue analysis. Please try again.", 
+        details: isProd ? undefined : inngestErr.message,
       }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, message: "Analysis queued" });
+    return NextResponse.json({ success: true, message: "Analysis initialized" });
   } catch (err: any) {
     console.error("Full /api/jobs handler error:", err);
+    const isProd = process.env.NODE_ENV === "production";
     return NextResponse.json({ 
       error: "Internal Server Error", 
-      message: err.message,
-      stack: process.env.NODE_ENV === "development" ? err.stack : undefined
+      message: isProd ? "An unexpected error occurred" : err.message,
     }, { status: 500 });
   }
 }

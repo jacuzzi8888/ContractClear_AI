@@ -123,11 +123,26 @@ export async function analyzeContractPDF(
   });
 
   // extraction text safely using the SDK's text getter
-  const text = response.text || "";
+  const text = (response.text || "").replace(/```json\n?|```/g, "").trim();
 
-  // Parse the structured JSON response
-  const result: LLMExtractionResult = JSON.parse(text);
-  return result;
+  try {
+    // Parse the structured JSON response
+    const result: LLMExtractionResult = JSON.parse(text);
+    
+    // Basic validation of required fields
+    if (!result.issues || !Array.isArray(result.issues)) {
+      throw new Error("Invalid issues format in model response");
+    }
+    
+    return {
+      issues: result.issues,
+      summary: result.summary || "No summary provided.",
+      totalPages: result.totalPages || 0
+    };
+  } catch (err) {
+    console.error("LLM JSON Parse Error:", err, "Raw text:", text);
+    throw new Error("Failed to parse contract analysis. The model response was malformed.");
+  }
 }
 
 // ── Email Generation Function ────────────────────────────────
@@ -136,7 +151,8 @@ Write an email to the counterparty drafting a request to change or remove a spec
 
 Tone: Firm, polite, professional, and clear.
 Do not use placeholders like [Your Name], just write the core message that the user can copy.
-Reference the verbatim quote provided and explain concisely why it is unacceptable or needs modification based on the provided explanation.`;
+Reference the verbatim quote provided and explain concisely why it is unacceptable or needs modification based on the provided explanation.
+Return your response as JSON with "subject" and "body" keys.`;
 
 export async function draftNegotiationEmail(
   quote: string,
@@ -178,9 +194,17 @@ export async function draftNegotiationEmail(
       },
     });
 
-    const text = response.text || "";
-    const result = JSON.parse(text);
-    return result;
+    const text = (response.text || "").replace(/```json\n?|```/g, "").trim();
+    try {
+      const result = JSON.parse(text);
+      return {
+        subject: result.subject || "Contract Revision Request",
+        body: result.body || "Please review the attached contract revision request."
+      };
+    } catch (parseErr) {
+       console.error("Email Parsing Error:", parseErr, "Raw text:", text);
+       throw new Error("Failed to parse generated email.");
+    }
   } catch (error) {
     console.error("Error generating email:", error);
     throw new Error("Failed to generate negotiation email.");

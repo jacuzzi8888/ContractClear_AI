@@ -34,7 +34,7 @@ export async function POST(
           id,
           documents!inner (
             id,
-            user_id
+            owner_id
           )
         )
       `)
@@ -47,7 +47,7 @@ export async function POST(
 
     // Double check ownership (though RLS should handle this, it's good practice)
     const issueWithRelations = issue as any;
-    if (issueWithRelations.jobs?.documents?.user_id !== user.id) {
+    if (issueWithRelations.jobs?.documents?.owner_id !== user.id) {
        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

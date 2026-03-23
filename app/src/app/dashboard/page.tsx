@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
   Shield,
@@ -62,11 +63,12 @@ export default function DashboardPage() {
       .select(`
         id, file_name, page_count, status, created_at,
         jobs (
-          id, status, issue_count, summary, finished_at,
+          id, status, issue_count, summary, finished_at, created_at,
           issues ( id, risk_level )
         )
       `)
       .order("created_at", { ascending: false })
+      .order("created_at", { foreignTable: "jobs", ascending: false })
       .limit(5);
 
     if (!error && data) {
@@ -254,23 +256,27 @@ export default function DashboardPage() {
   if (!user) return null;
 
   // ── Compute live stats ─────────────────────────────────────
-  const totalDocs = recentDocs.length;
-  const totalIssues = recentDocs.reduce(
-    (sum, d) => sum + (d.jobs?.[0]?.issue_count || 0),
-    0
-  );
+  const [stats, setStats] = useState({ totalDocs: 0, totalIssues: 0, dominantRisk: "—" });
 
-  const allIssueRisks = recentDocs.flatMap(
-    (d) => d.jobs?.[0]?.issues?.map((i) => i.risk_level) || []
-  );
+  useEffect(() => {
+    const fetchStats = async () => {
+      // Fetch real totals instead of just from the 5 recent docs
+      const { count: docsCount } = await supabase.from("documents").select("*", { count: "exact", head: true });
+      const { data: jobsData } = await supabase.from("jobs").select("issue_count, issues(risk_level)").order("created_at", { ascending: false });
 
-  const riskCounts: Record<string, number> = {};
-  allIssueRisks.forEach((r) => {
-    riskCounts[r] = (riskCounts[r] || 0) + 1;
-  });
+      if (jobsData) {
+        const issuesCount = jobsData.reduce((sum, j) => sum + (j.issue_count || 0), 0);
+        const allRisks = jobsData.flatMap((j: any) => j.issues?.map((i: any) => i.risk_level) || []);
+        const counts: Record<string, number> = {};
+        allRisks.forEach(r => counts[r] = (counts[r] || 0) + 1);
+        const domRisk = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
+        setStats({ totalDocs: docsCount || 0, totalIssues: issuesCount, dominantRisk: domRisk });
+      }
+    };
+    if (user) fetchStats();
+  }, [user, supabase, recentDocs]);
 
-  const dominantRisk =
-    Object.entries(riskCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
+  const { totalDocs, totalIssues, dominantRisk } = stats;
 
   const dominantRiskColor =
     dominantRisk !== "—"
@@ -287,12 +293,12 @@ export default function DashboardPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[var(--color-surface-950)]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-8">
-            <a href="/" className="flex items-center gap-2.5">
+            <Link href="/" className="flex items-center gap-2.5">
               <Shield className="h-6 w-6 text-[var(--color-brand-400)]" />
               <span className="text-lg font-bold tracking-tight">
                 Contract<span className="gradient-text">Clear</span>
               </span>
-            </a>
+            </Link>
             <div className="hidden md:flex items-center gap-1 p-1 bg-white/5 rounded-lg">
               <button
                 onClick={clearSelection}
@@ -300,12 +306,12 @@ export default function DashboardPage() {
               >
                 Dashboard
               </button>
-              <a
+              <Link
                 href="/dashboard/history"
                 className="px-3 py-1.5 text-xs font-medium rounded-md text-gray-400 hover:text-white transition-colors"
               >
                 History
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -392,7 +398,7 @@ export default function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold">Recent Extractions</h2>
-                  <a
+                  <Link
                     href="/dashboard/history"
                     className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1 group"
                   >
@@ -401,7 +407,7 @@ export default function DashboardPage() {
                       size={14}
                       className="group-hover:translate-x-0.5 transition-transform"
                     />
-                  </a>
+                  </Link>
                 </div>
 
                 {isLoadingDocs ? (
@@ -543,21 +549,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="glass-card p-6 rounded-3xl border border-white/10">
-              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">
-                System Health
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-white/5 rounded-2xl text-center">
-                  <p className="text-[10px] text-gray-500 mb-1">OCR Status</p>
-                  <p className="text-xs font-bold text-green-400">Active</p>
-                </div>
-                <div className="p-4 bg-white/5 rounded-2xl text-center">
-                  <p className="text-[10px] text-gray-500 mb-1">LLM Latency</p>
-                  <p className="text-xs font-bold text-green-400">Low</p>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       </main>
