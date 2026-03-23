@@ -138,49 +138,33 @@ export default function DashboardPage() {
     setSelectedJobId(null);
     setPastFindings([]);
 
-    // 1. Listen for Document Status changes
-    const docChannel = supabase
-      .channel(`doc-status-${activeJobId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "documents",
-          filter: `id=eq.${activeJobId}`,
-        },
-        (payload: any) => {
-          console.info(`[Realtime] Document status update: ${payload.new.status}`);
-          if (payload.new.status === "completed") {
-            setIsProcessing(false);
-            setAnalysisStatus("completed");
-            setAnalysisError(null);
-            toast.success("Analysis complete", {
-              description: `${findings.length || "Issues"} found in your contract.`,
-            });
-            fetchRecentDocs();
-          } else if (payload.new.status === "failed") {
-            setIsProcessing(false);
-            setAnalysisStatus("failed");
-            setAnalysisError("Document processing failed.");
-            toast.error("Analysis failed", {
-              description: "Something went wrong during document processing.",
-            });
-            fetchRecentDocs();
-          }
-        }
-      )
-      .subscribe((status: string) => {
-        console.info(`[Realtime] Document channel status: ${status}`);
-      });
-
-    // 2. Listen for Job creation & Issues
     let issuesChannel: any = null;
+    let done = false;
+
+    // Shared completion handler — only runs once
+    const markComplete = (status: "completed" | "failed", detail?: { count?: number; errMsg?: string }) => {
+      if (done) return;
+      done = true;
+      setIsProcessing(false);
+      setAnalysisStatus(status);
+      if (status === "completed") {
+        setAnalysisError(null);
+        toast.success("Analysis complete", {
+          description: `${detail?.count ?? 0} issue${(detail?.count ?? 0) !== 1 ? "s" : ""} found in your contract.`,
+        });
+      } else {
+        setAnalysisError(detail?.errMsg || "Document processing failed.");
+        toast.error("Analysis failed", {
+          description: detail?.errMsg || "Something went wrong during document processing.",
+        });
+      }
+      fetchRecentDocs();
+    };
 
     const setupIssuesListener = (jobId: string) => {
       console.info(`%c[Realtime] Connecting to issues for job: ${jobId}`, "color: #34d399; font-weight: bold;");
       if (issuesChannel) supabase.removeChannel(issuesChannel);
-      
+
       issuesChannel = supabase
         .channel(`job-findings-${jobId}`)
         .on(
@@ -201,7 +185,31 @@ export default function DashboardPage() {
         });
     };
 
-    // Listen for Job insertion and status updates
+    // 1. Listen for Document Status changes
+    const docChannel = supabase
+      .channel(`doc-status-${activeJobId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "documents",
+          filter: `id=eq.${activeJobId}`,
+        },
+        (payload: any) => {
+          console.info(`[Realtime] Document status update: ${payload.new.status}`);
+          if (payload.new.status === "completed") {
+            markComplete("completed");
+          } else if (payload.new.status === "failed") {
+            markComplete("failed");
+          }
+        }
+      )
+      .subscribe((status: string) => {
+        console.info(`[Realtime] Document channel status: ${status}`);
+      });
+
+    // 2. Listen for Job insertion and status updates
     const jobChannel = supabase
       .channel(`job-tracking-${activeJobId}`)
       .on(
@@ -228,49 +236,92 @@ export default function DashboardPage() {
         (payload: any) => {
           console.info(`[Realtime] Job status update: ${payload.new.status}`);
           if (payload.new.status === "completed") {
-            setIsProcessing(false);
-            setAnalysisStatus("completed");
-            setAnalysisError(null);
-            const count = payload.new.issue_count ?? findings.length;
-            toast.success("Analysis complete", {
-              description: `${count} issue${count !== 1 ? "s" : ""} found in your contract.`,
-            });
-            fetchRecentDocs();
+            markComplete("completed", { count: payload.new.issue_count });
           } else if (payload.new.status === "failed") {
-            setIsProcessing(false);
-            setAnalysisStatus("failed");
-            const errMsg = payload.new.error_message || "The analysis pipeline encountered an error.";
-            setAnalysisError(errMsg);
-            toast.error("Analysis failed", {
-              description: errMsg,
-            });
-            fetchRecentDocs();
+            markComplete("failed", { errMsg: payload.new.error_message || "The analysis pipeline encountered an error." });
           }
         }
       )
       .subscribe(async (status: string) => {
         console.info(`[Realtime] Job tracking channel status: ${status}`);
         if (status === "SUBSCRIBED") {
-          // Check if job already exists (avoid race condition)
           const { data } = await supabase
             .from("jobs")
-            .select("id")
+            .select("id, status, issue_count, error_message")
             .eq("document_id", activeJobId)
             .order("created_at", { ascending: false })
             .limit(1)
             .maybeSingle();
-          
+
           if (data) {
-            console.info("[Realtime] Found existing job pulse:", data.id);
+            console.info("[Realtime] Found existing job:", data.id, data.status);
             setupIssuesListener(data.id);
+            // If the job already finished before we subscribed, handle it now
+            if (data.status === "completed") {
+              markComplete("completed", { count: data.issue_count });
+            } else if (data.status === "failed") {
+              markComplete("failed", { errMsg: data.error_message });
+            }
           } else {
             console.info("[Realtime] Waiting for job creation event...");
           }
         }
       });
 
+    // 3. Polling fallback — catches missed realtime events
+    const pollTimer = setInterval(async () => {
+      if (done) return;
+
+      const { data: docData } = await supabase
+        .from("documents")
+        .select("status")
+        .eq("id", activeJobId)
+        .maybeSingle();
+
+      if (!docData || (docData.status !== "completed" && docData.status !== "failed")) return;
+
+      console.info(`[Poll] Detected document status: ${docData.status}`);
+
+      if (docData.status === "completed") {
+        const { data: jobData } = await supabase
+          .from("jobs")
+          .select("id, issue_count")
+          .eq("document_id", activeJobId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        // Back-fill findings if realtime missed some
+        if (jobData) {
+          const { data: allIssues } = await supabase
+            .from("issues")
+            .select("*")
+            .eq("job_id", jobData.id)
+            .order("created_at", { ascending: true });
+
+          if (allIssues && allIssues.length > 0) {
+            setFindings(allIssues);
+          }
+          markComplete("completed", { count: jobData.issue_count ?? allIssues?.length ?? 0 });
+        } else {
+          markComplete("completed");
+        }
+      } else {
+        const { data: jobData } = await supabase
+          .from("jobs")
+          .select("error_message")
+          .eq("document_id", activeJobId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        markComplete("failed", { errMsg: jobData?.error_message });
+      }
+    }, 4000);
+
     return () => {
       console.info("[Realtime] Cleaning up listeners");
+      clearInterval(pollTimer);
       supabase.removeChannel(docChannel);
       supabase.removeChannel(jobChannel);
       if (issuesChannel) supabase.removeChannel(issuesChannel);
