@@ -13,7 +13,7 @@ export const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
 export const ACCEPTED_FILE_TYPES = ["application/pdf"];
 
 /** The Gemini model used for extraction. */
-export const GEMINI_MODEL = "gemini-2.0-flash";
+export const GEMINI_MODEL = "gemini-3-flash-preview";
 
 /** Minimum confidence threshold — issues below this are dropped. */
 export const MIN_CONFIDENCE_THRESHOLD = 0.6;
