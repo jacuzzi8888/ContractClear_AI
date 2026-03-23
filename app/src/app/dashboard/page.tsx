@@ -52,12 +52,37 @@ export default function DashboardPage() {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [pastFindings, setPastFindings] = useState<any[]>([]);
   const [isLoadingFindings, setIsLoadingFindings] = useState(false);
+  const [stats, setStats] = useState({ totalDocs: 0, totalIssues: 0, dominantRisk: "—" });
 
   const router = useRouter();
   const supabase = createClient();
 
+  // ── Compute live stats ─────────────────────────────────────
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Fetch real totals instead of just from the 5 recent docs
+        const { count: docsCount, error: dErr } = await supabase.from("documents").select("*", { count: "exact", head: true });
+        const { data: jobsData, error: jErr } = await supabase.from("jobs").select("issue_count, issues(risk_level)").order("created_at", { ascending: false });
+
+        if (!dErr && !jErr && jobsData) {
+          const issuesCount = jobsData.reduce((sum: number, j: any) => sum + (j.issue_count || 0), 0);
+          const allRisks = jobsData.flatMap((j: any) => (Array.isArray(j.issues) ? j.issues : []).map((i: any) => i.risk_level));
+          const counts: Record<string, number> = {};
+          allRisks.forEach((r: string) => { if (r) counts[r] = (counts[r] || 0) + 1; });
+          const domRisk = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
+          setStats({ totalDocs: docsCount || 0, totalIssues: issuesCount, dominantRisk: domRisk });
+        }
+      } catch (err) {
+        console.error("Error fetching stats:", err);
+      }
+    };
+    if (user) fetchStats();
+  }, [user, supabase, recentDocs]);
+
   // ── Fetch recent documents on load ──────────────────────────
   const fetchRecentDocs = useCallback(async () => {
+    if (!supabase) return;
     setIsLoadingDocs(true);
     const { data, error } = await supabase
       .from("documents")
@@ -80,6 +105,7 @@ export default function DashboardPage() {
 
   // ── Load past findings for a selected job ───────────────────
   const loadPastFindings = useCallback(async (jobId: string) => {
+    if (!supabase) return;
     setSelectedJobId(jobId);
     setIsLoadingFindings(true);
     setActiveJobId(null); // clear any active real-time job
@@ -220,6 +246,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const getUser = async () => {
+      if (!supabase) return;
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -258,38 +285,29 @@ export default function DashboardPage() {
   if (!user || !hasMounted) {
     return (
       <div className="min-h-screen bg-[var(--color-surface-950)] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
-          <p className="text-gray-500 text-sm font-medium animate-pulse">Initializing Secure Dashboard...</p>
-        </div>
+        {!supabase ? (
+          <div className="glass-card p-8 rounded-3xl border border-red-500/30 bg-red-500/5 text-center max-w-md">
+            <AlertTriangle className="h-10 w-10 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-white mb-2">Configuration Error</h2>
+            <p className="text-gray-400 text-sm mb-6">
+              Supabase environment variables are missing. Please ensure 
+              <code className="mx-1 px-1 py-0.5 bg-white/5 rounded text-indigo-300">NEXT_PUBLIC_SUPABASE_URL</code> 
+              and <code className="mx-1 px-1 py-0.5 bg-white/5 rounded text-indigo-300">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> 
+              are set in Vercel settings.
+            </p>
+            <button onClick={() => window.location.reload()} className="btn-secondary text-xs">
+              Retry Connection
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+            <p className="text-gray-500 text-sm font-medium animate-pulse">Initializing Secure Dashboard...</p>
+          </div>
+        )}
       </div>
     );
   }
-
-  // ── Compute live stats ─────────────────────────────────────
-  const [stats, setStats] = useState({ totalDocs: 0, totalIssues: 0, dominantRisk: "—" });
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // Fetch real totals instead of just from the 5 recent docs
-        const { count: docsCount, error: dErr } = await supabase.from("documents").select("*", { count: "exact", head: true });
-        const { data: jobsData, error: jErr } = await supabase.from("jobs").select("issue_count, issues(risk_level)").order("created_at", { ascending: false });
-
-        if (!dErr && !jErr && jobsData) {
-          const issuesCount = jobsData.reduce((sum: number, j: any) => sum + (j.issue_count || 0), 0);
-          const allRisks = jobsData.flatMap((j: any) => (Array.isArray(j.issues) ? j.issues : []).map((i: any) => i.risk_level));
-          const counts: Record<string, number> = {};
-          allRisks.forEach((r: string) => { if (r) counts[r] = (counts[r] || 0) + 1; });
-          const domRisk = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
-          setStats({ totalDocs: docsCount || 0, totalIssues: issuesCount, dominantRisk: domRisk });
-        }
-      } catch (err) {
-        console.error("Error fetching stats:", err);
-      }
-    };
-    if (user) fetchStats();
-  }, [user, supabase, recentDocs]);
 
   const { totalDocs, totalIssues, dominantRisk } = stats;
 
