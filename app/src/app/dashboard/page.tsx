@@ -270,6 +270,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState({ totalDocs: 0, totalIssues: 0, dominantRisk: "—" });
 
   useEffect(() => {
+    const fetchStats = async () => {
       try {
         // Fetch real totals instead of just from the 5 recent docs
         const { count: docsCount, error: dErr } = await supabase.from("documents").select("*", { count: "exact", head: true });
