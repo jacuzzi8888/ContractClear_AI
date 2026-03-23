@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   AlertCircle, 
   AlertTriangle, 
@@ -12,7 +12,8 @@ import {
   Loader2,
   Copy,
   Check,
-  FileText
+  FileText,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RISK_LEVEL_CONFIG } from "@/lib/constants";
@@ -33,6 +34,8 @@ interface RealTimeFinding {
 interface FindingsViewerProps {
   findings: RealTimeFinding[];
   isProcessing: boolean;
+  status?: "idle" | "processing" | "completed" | "failed";
+  errorMessage?: string | null;
 }
 
 const RiskIcon = ({ level }: { level: RiskLevel }) => {
@@ -193,13 +196,76 @@ function FindingCard({ finding }: { finding: RealTimeFinding }) {
   );
 }
 
-export function FindingsViewer({ findings, isProcessing }: FindingsViewerProps) {
-  if (findings.length === 0 && !isProcessing) return null;
+export function FindingsViewer({ findings, isProcessing, status = "idle", errorMessage }: FindingsViewerProps) {
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [showFailed, setShowFailed] = useState(false);
+
+  useEffect(() => {
+    if (status === "completed") {
+      setShowCompleted(true);
+      setShowFailed(false);
+      const timer = setTimeout(() => setShowCompleted(false), 8000);
+      return () => clearTimeout(timer);
+    }
+    if (status === "failed") {
+      setShowFailed(true);
+      setShowCompleted(false);
+    }
+  }, [status]);
+
+  if (findings.length === 0 && !isProcessing && status !== "completed" && status !== "failed") return null;
 
   const jobId = findings.length > 0 ? findings[0].job_id : null;
 
   return (
     <div className="space-y-6 animate-fade-in-up">
+      {/* Status banner: completed */}
+      {showCompleted && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-green-500/10 border border-green-500/20 rounded-2xl animate-fade-in-up">
+          <CheckCircle2 className="text-green-400 flex-shrink-0" size={20} />
+          <div className="flex-1">
+            <p className="text-sm font-bold text-green-400">Analysis Complete</p>
+            <p className="text-xs text-green-400/70">
+              {findings.length} issue{findings.length !== 1 ? "s" : ""} found in your contract.
+            </p>
+          </div>
+          {jobId && (
+            <a
+              href={`/dashboard/report/${jobId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-300 text-xs font-semibold rounded-lg transition-colors"
+            >
+              <FileText size={13} />
+              Export Report
+            </a>
+          )}
+          <button
+            onClick={() => setShowCompleted(false)}
+            className="p-1 text-green-400/50 hover:text-green-400 transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* Status banner: failed */}
+      {showFailed && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl animate-fade-in-up">
+          <AlertTriangle className="text-red-400 flex-shrink-0" size={20} />
+          <div className="flex-1">
+            <p className="text-sm font-bold text-red-400">Analysis Failed</p>
+            <p className="text-xs text-red-400/70">{errorMessage || "An unexpected error occurred."}</p>
+          </div>
+          <button
+            onClick={() => setShowFailed(false)}
+            className="p-1 text-red-400/50 hover:text-red-400 transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold">Risk Analysis</h2>
@@ -221,7 +287,7 @@ export function FindingsViewer({ findings, isProcessing }: FindingsViewerProps) 
               </span>
             </div>
           )}
-          {jobId && !isProcessing && (
+          {jobId && !isProcessing && status !== "completed" && (
             <a
               href={`/dashboard/report/${jobId}`}
               target="_blank"

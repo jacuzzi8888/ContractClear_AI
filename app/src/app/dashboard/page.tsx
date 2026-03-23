@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import {
   Shield,
@@ -53,6 +54,8 @@ export default function DashboardPage() {
   const [pastFindings, setPastFindings] = useState<any[]>([]);
   const [isLoadingFindings, setIsLoadingFindings] = useState(false);
   const [stats, setStats] = useState({ totalDocs: 0, totalIssues: 0, dominantRisk: "—" });
+  const [analysisStatus, setAnalysisStatus] = useState<"idle" | "processing" | "completed" | "failed">("idle");
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const router = useRouter();
   const supabase = createClient();
@@ -129,6 +132,8 @@ export default function DashboardPage() {
 
     console.info(`%c[Realtime] Initializing listeners for document: ${activeJobId}`, "color: #818cf8; font-weight: bold;");
     setIsProcessing(true);
+    setAnalysisStatus("processing");
+    setAnalysisError(null);
     setFindings([]);
     setSelectedJobId(null);
     setPastFindings([]);
@@ -146,8 +151,21 @@ export default function DashboardPage() {
         },
         (payload: any) => {
           console.info(`[Realtime] Document status update: ${payload.new.status}`);
-          if (payload.new.status === "completed" || payload.new.status === "failed") {
+          if (payload.new.status === "completed") {
             setIsProcessing(false);
+            setAnalysisStatus("completed");
+            setAnalysisError(null);
+            toast.success("Analysis complete", {
+              description: `${findings.length || "Issues"} found in your contract.`,
+            });
+            fetchRecentDocs();
+          } else if (payload.new.status === "failed") {
+            setIsProcessing(false);
+            setAnalysisStatus("failed");
+            setAnalysisError("Document processing failed.");
+            toast.error("Analysis failed", {
+              description: "Something went wrong during document processing.",
+            });
             fetchRecentDocs();
           }
         }
@@ -209,8 +227,23 @@ export default function DashboardPage() {
         },
         (payload: any) => {
           console.info(`[Realtime] Job status update: ${payload.new.status}`);
-          if (payload.new.status === "completed" || payload.new.status === "failed") {
+          if (payload.new.status === "completed") {
             setIsProcessing(false);
+            setAnalysisStatus("completed");
+            setAnalysisError(null);
+            const count = payload.new.issue_count ?? findings.length;
+            toast.success("Analysis complete", {
+              description: `${count} issue${count !== 1 ? "s" : ""} found in your contract.`,
+            });
+            fetchRecentDocs();
+          } else if (payload.new.status === "failed") {
+            setIsProcessing(false);
+            setAnalysisStatus("failed");
+            const errMsg = payload.new.error_message || "The analysis pipeline encountered an error.";
+            setAnalysisError(errMsg);
+            toast.error("Analysis failed", {
+              description: errMsg,
+            });
             fetchRecentDocs();
           }
         }
@@ -272,6 +305,8 @@ export default function DashboardPage() {
     setActiveJobId(id);
     setSelectedJobId(null);
     setPastFindings([]);
+    setAnalysisStatus("processing");
+    setAnalysisError(null);
   };
 
   const clearSelection = () => {
@@ -280,6 +315,8 @@ export default function DashboardPage() {
     setActiveJobId(null);
     setFindings([]);
     setIsProcessing(false);
+    setAnalysisStatus("idle");
+    setAnalysisError(null);
   };
 
   if (!user || !hasMounted) {
@@ -418,6 +455,8 @@ export default function DashboardPage() {
                   <FindingsViewer
                     findings={displayFindings}
                     isProcessing={isProcessing}
+                    status={analysisStatus}
+                    errorMessage={analysisError}
                   />
                 )}
               </div>
