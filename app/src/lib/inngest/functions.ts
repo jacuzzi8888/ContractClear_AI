@@ -6,79 +6,68 @@ import { validateIssues } from "../grounding";
 export const analyzeContract = inngest.createFunction(
   { id: "analyze-contract", retries: 2, triggers: [{ event: "contract/analyze" }] },
   async ({ event, step }) => {
-    const { documentId, ownerId, fileName } = event.data as any;
-    console.info(`[Inngest] >>> STARTING ANALYSIS for: ${fileName} (Doc: ${documentId})`);
+    try {
+      const { documentId, ownerId, fileName } = event.data;
+      console.log(`[Inngest] >>> Starting analysis for "${fileName}" (Doc: ${documentId})`);
 
-    // ── Step 1: Initialize Job ──────────────────────────────
-    const job = await step.run("initialize-job", async () => {
-      console.info("[Inngest] Step: initialize-job");
+      // 1. Re-validate ownership
+      const doc = await step.run("revalidate-ownership", async () => {
+        const supabaseAdmin = getSupabaseAdmin();
+        const { data, error } = await supabaseAdmin
+          .from("documents")
+          .select("*")
+          .eq("id", documentId)
+          .eq("owner_id", ownerId)
+          .single();
+        
+        if (error || !data) {
+          console.error(`[Inngest] Ownership check failed for doc ${documentId}. Error: ${error?.message}`);
+          throw new Error("Unauthorized: Document ownership mismatch");
+        }
+        return data;
+      });
+
+      // 2. Initialize Job
+      const job = await step.run("initialize-job", async () => {
+        const supabaseAdmin = getSupabaseAdmin();
+        const { data: existing } = await supabaseAdmin
+          .from("jobs")
+          .select("id, status")
+          .eq("document_id", documentId)
+          .in("status", ["queued", "processing"])
+          .limit(1);
+
+        if (existing && existing.length > 0) {
+          console.info(`[Inngest] Resuming existing active job: ${existing[0].id}`);
+          return existing[0];
+        }
+
+        const { data, error } = await supabaseAdmin
+          .from("jobs")
+          .insert({ document_id: documentId, status: "processing" })
+          .select()
+          .single();
+
+        if (error) throw new Error(`Job creation failed: ${error.message}`);
+        console.info(`[Inngest] Created new job: ${data.id}`);
+        return data;
+      });
+
+    // ── Step 2: Update Document Status ──────────────────────
+    await step.run("update-doc-status", async () => {
+      console.log(`[Inngest] Updating document status to processing: ${documentId}`);
       const supabaseAdmin = getSupabaseAdmin();
-
-      // 1. Re-validate ownership even with service role (Defense in depth)
-      const { data: doc, error: docCheckErr } = await supabaseAdmin
-        .from("documents")
-        .select("owner_id, status")
-        .eq("id", documentId)
-        .single();
-
-      if (docCheckErr || !doc) throw new Error(`Document access verification failed`);
-      if (doc.owner_id !== ownerId) throw new Error(`Document ownership mismatch for document ${documentId}`);
-
-      // 2. Check for existing active jobs (Idempotency)
-      const { data: existingJobs } = await supabaseAdmin
-        .from("jobs")
-        .select("id, status")
-        .eq("document_id", documentId)
-        .in("status", ["queued", "processing"]);
-
-      if (existingJobs && existingJobs.length > 0) {
-        console.warn(`[Inngest] Analysis already in progress for doc: ${documentId}. Skipping init.`);
-        return existingJobs[0];
-      }
-
-      // 3. Create a job record linked to this document
-      const { data, error } = await supabaseAdmin
-        .from("jobs")
-        .insert({
-          document_id: documentId,
-          status: "processing",
-          started_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
-
-      if (error) throw new Error(`Job init failed: ${error.message}`);
-
-      // Mark document as processing
       await supabaseAdmin
         .from("documents")
         .update({ status: "processing" })
         .eq("id", documentId);
-
-      return data;
     });
 
-    // If step 1 returned an already completed or processing job from someone else's race, we could handle it, 
-    // but here we just proceed with the job found or created.
-    if (job.status === "completed") return { message: "Analysis already completed." };
-
-
-    // ── Step 2: Fetch PDF from Storage ──────────────────────
+    // ── Step 3: Fetch PDF from Storage ──────────────────────
     const pdfBase64 = await step.run("fetch-document", async () => {
-      console.info("[Inngest] Step: fetch-document");
+      console.log(`[Inngest] Fetching PDF from storage: ${doc.file_url}`);
       const supabaseAdmin = getSupabaseAdmin();
-      // Get the document's storage path
-      const { data: doc, error: docErr } = await supabaseAdmin
-        .from("documents")
-        .select("file_url")
-        .eq("id", documentId)
-        .single();
-
-      if (docErr || !doc?.file_url) {
-        throw new Error(`Document not found: ${docErr?.message}`);
-      }
-
-      // Download the file from Supabase Storage
+      
       const { data: fileData, error: downloadErr } = await supabaseAdmin.storage
         .from("contracts")
         .download(doc.file_url);
@@ -87,24 +76,27 @@ export const analyzeContract = inngest.createFunction(
         throw new Error(`File download failed: ${downloadErr?.message}`);
       }
 
-      // Convert Blob → ArrayBuffer → base64
       const arrayBuffer = await fileData.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       return buffer.toString("base64");
     });
 
-    // ── Step 3: Analyze with Gemini ─────────────────────────
-    const extraction = await step.run("analyze-with-gemini", async () => {
-      console.info("[Inngest] Step: analyze-with-gemini (calling LLM)");
-      return await analyzeContractPDF(pdfBase64);
+    // ── Step 4: Extract Risks with Gemini ──────────────────
+    const extraction = await step.run("extract-risks", async () => {
+      console.log(`[Inngest] Calling Gemini for contract analysis...`);
+      const result = await analyzeContractPDF(pdfBase64);
+      console.log(`[Inngest] Gemini returned ${result.issues.length} issues.`);
+      return result;
     });
 
-    // ── Step 4: Validate & Store Issues ─────────────────────
+    if (job.status === "completed") return { message: "Analysis already completed." };
+
+    // ── Step 5: Validate & Store Issues ─────────────────────
     const result = await step.run("validate-and-store", async () => {
+      console.log(`[Inngest] Validating and storing issues...`);
       const supabaseAdmin = getSupabaseAdmin();
       const { valid, dropped } = validateIssues(extraction.issues);
 
-      // Insert each validated issue into the DB (triggers Realtime)
       let storedCount = 0;
       for (const issue of valid) {
         const { error } = await supabaseAdmin.from("issues").insert({
@@ -127,9 +119,9 @@ export const analyzeContract = inngest.createFunction(
       return { stored: storedCount, dropped };
     });
 
-    // ── Step 5: Finalize Job ────────────────────────────────
+    // ── Step 6: Finalize Job ────────────────────────────────
     await step.run("finalize-job", async () => {
-      console.info("[Inngest] Step: finalize-job");
+      console.log(`[Inngest] Finalizing job status...`);
       const supabaseAdmin = getSupabaseAdmin();
       await supabaseAdmin
         .from("jobs")
@@ -149,6 +141,21 @@ export const analyzeContract = inngest.createFunction(
         })
         .eq("id", documentId);
     });
+
+    console.log(`[Inngest] <<< ANALYSIS COMPLETE for: ${documentId}`);
+
+    return {
+      message: `Analysis complete.`,
+      issuesFound: result.stored,
+      issuesDropped: result.dropped,
+      summary: extraction.summary,
+    };
+  } catch (err: any) {
+    console.error(`[Inngest] CRITICAL FAILURE for document ${event.data?.documentId}:`, err);
+    throw err; // Re-throw to trigger Inngest failure handler
+  }
+}
+);
 
     console.info(`[Inngest] <<< ANALYSIS COMPLETE for: ${documentId}`);
 
