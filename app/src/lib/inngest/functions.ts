@@ -78,6 +78,13 @@ export const analyzeContract = inngest.createFunction(
 
       const arrayBuffer = await fileData.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
+
+      // Validate PDF magic bytes ("%PDF")
+      const magicBytes = buffer.subarray(0, 5).toString("ascii");
+      if (!magicBytes.startsWith("%PDF")) {
+        throw new Error(`File is not a valid PDF (detected: "${magicBytes}"). Only PDF files can be analyzed.`);
+      }
+
       return buffer.toString("base64");
     });
 
