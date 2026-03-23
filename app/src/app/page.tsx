@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Shield,
@@ -6,9 +9,24 @@ import {
   Quote,
   ArrowRight,
   Upload,
+  Loader2,
 } from "lucide-react";
 
 export default function HomePage() {
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    return (
+      <div className="min-h-screen bg-[var(--color-surface-950)] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* ── Navbar ──────────────────────────────────────────── */}

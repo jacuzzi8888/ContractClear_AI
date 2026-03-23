@@ -255,7 +255,16 @@ export default function DashboardPage() {
     setIsProcessing(false);
   };
 
-  if (!user) return null;
+  if (!user || !hasMounted) {
+    return (
+      <div className="min-h-screen bg-[var(--color-surface-950)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+          <p className="text-gray-500 text-sm font-medium animate-pulse">Initializing Secure Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   // ── Compute live stats ─────────────────────────────────────
   const [stats, setStats] = useState({ totalDocs: 0, totalIssues: 0, dominantRisk: "—" });
