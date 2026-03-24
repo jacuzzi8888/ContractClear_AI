@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import {
   Shield,
   FileSearch,
@@ -20,9 +21,14 @@ import {
 
 export default function HomePage() {
   const [hasMounted, setHasMounted] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
+    const supabase = createClient();
+    supabase.auth.getSession().then((result: any) => {
+      if (result?.data?.session) setIsLoggedIn(true);
+    });
   }, []);
 
   if (!hasMounted) {
@@ -45,9 +51,11 @@ export default function HomePage() {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="btn-secondary text-sm hidden sm:inline-flex">
-              Sign In
-            </Link>
+            {!isLoggedIn && (
+              <Link href="/login" className="btn-secondary text-sm hidden sm:inline-flex">
+                Sign In
+              </Link>
+            )}
             <Link href="/dashboard" className="btn-primary text-sm">
               Launch App <ArrowRight className="h-4 w-4" />
             </Link>
@@ -83,13 +91,21 @@ export default function HomePage() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/dashboard" className="btn-primary text-base px-6 py-3 w-full sm:w-auto">
-              <Upload className="h-5 w-5" />
-              Analyze a Contract
-            </Link>
-            <Link href="/signup" className="btn-secondary text-base px-6 py-3 w-full sm:w-auto">
-              Create Free Account
-            </Link>
+            {isLoggedIn ? (
+              <Link href="/dashboard" className="btn-primary text-base px-6 py-3">
+                Go to Dashboard <ArrowRight className="h-5 w-5" />
+              </Link>
+            ) : (
+              <>
+                <Link href="/dashboard" className="btn-primary text-base px-6 py-3 w-full sm:w-auto">
+                  <Upload className="h-5 w-5" />
+                  Analyze a Contract
+                </Link>
+                <Link href="/signup" className="btn-secondary text-base px-6 py-3 w-full sm:w-auto">
+                  Create Free Account
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -247,24 +263,26 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────────── */}
-      <section className="px-6 py-24 border-t border-white/5">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-            Ready to <span className="gradient-text">clear</span> your contracts?
-          </h2>
-          <p className="text-[var(--color-surface-400)] mb-8 max-w-md mx-auto">
-            Start analyzing contracts in seconds. No credit card required.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/signup" className="btn-primary text-base px-8 py-3 w-full sm:w-auto">
-              Get Started Free <ArrowRight className="h-5 w-5" />
-            </Link>
-            <Link href="/login" className="btn-secondary text-base px-8 py-3 w-full sm:w-auto">
-              Sign In
-            </Link>
+      {!isLoggedIn && (
+        <section className="px-6 py-24 border-t border-white/5">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+              Ready to <span className="gradient-text">clear</span> your contracts?
+            </h2>
+            <p className="text-[var(--color-surface-400)] mb-8 max-w-md mx-auto">
+              Start analyzing contracts in seconds. No credit card required.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/signup" className="btn-primary text-base px-8 py-3 w-full sm:w-auto">
+                Get Started Free <ArrowRight className="h-5 w-5" />
+              </Link>
+              <Link href="/login" className="btn-secondary text-base px-8 py-3 w-full sm:w-auto">
+                Sign In
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Footer ──────────────────────────────────────────── */}
       <footer className="border-t border-white/5 py-8 text-center text-xs text-[var(--color-surface-500)]">
