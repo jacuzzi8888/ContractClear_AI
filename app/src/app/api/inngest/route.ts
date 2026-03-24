@@ -1,10 +1,9 @@
 import { serve } from "inngest/next";
 import { inngest } from "@/lib/inngest/client";
 import { analyzeContract, handleAnalysisFailure } from "@/lib/inngest/functions";
-import { INNGEST_MAX_DURATION } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = INNGEST_MAX_DURATION;
+export const maxDuration = 300; // Must be literal for Next.js route config
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
