@@ -14,7 +14,7 @@ import { FileUpload } from "@/components/dashboard/file-upload";
 import { FindingsViewer } from "@/components/dashboard/findings-viewer";
 import { StatsPanel } from "@/components/dashboard/stats-panel";
 import { useAnalysisSubscription } from "@/hooks/use-analysis-subscription";
-import { RISK_LEVEL_CONFIG } from "@/lib/constants";
+import { RISK_LEVEL_CONFIG, RECENT_DOCS_LIMIT } from "@/lib/constants";
 import type { RiskLevel } from "@/types";
 
 interface RecentDocument {
@@ -59,7 +59,7 @@ export default function DashboardPage() {
       `)
       .order("created_at", { ascending: false })
       .order("created_at", { foreignTable: "jobs", ascending: false })
-      .limit(5);
+      .limit(RECENT_DOCS_LIMIT);
 
     if (!error && data) setRecentDocs(data as unknown as RecentDocument[]);
     setIsLoadingDocs(false);

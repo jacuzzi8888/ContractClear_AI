@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RISK_LEVEL_CONFIG } from "@/lib/constants";
+import { SUCCESS_BANNER_DURATION_MS } from "@/lib/constants";
 import type { RiskLevel } from "@/types";
 
 interface RealTimeFinding {
@@ -216,7 +217,7 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
     if (status === "completed") {
       setShowCompleted(true);
       setShowFailed(false);
-      const timer = setTimeout(() => setShowCompleted(false), 8000);
+      const timer = setTimeout(() => setShowCompleted(false), SUCCESS_BANNER_DURATION_MS);
       return () => clearTimeout(timer);
     }
     if (status === "failed") {

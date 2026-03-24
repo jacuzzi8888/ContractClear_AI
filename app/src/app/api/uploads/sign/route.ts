@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_DISPLAY, ACCEPTED_FILE_TYPES, STORAGE_BUCKET } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +22,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Only PDF files are accepted." }, { status: 400 });
     }
 
-    const MAX_SIZE = 50 * 1024 * 1024; // 50MB
-    if (fileSize && fileSize > MAX_SIZE) {
-      return NextResponse.json({ error: "File exceeds the 50MB limit." }, { status: 400 });
+    if (fileSize && fileSize > MAX_FILE_SIZE_BYTES) {
+      return NextResponse.json({ error: `File exceeds the ${MAX_FILE_SIZE_DISPLAY} limit.` }, { status: 400 });
     }
 
     // 3. Generate unique path: owner_id/uuid.pdf
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
     // 4. Create signed upload URL (valid for 10 minutes)
     const { data, error } = await supabase.storage
-      .from("contracts")
+      .from(STORAGE_BUCKET)
       .createSignedUploadUrl(filePath);
 
     if (error) {

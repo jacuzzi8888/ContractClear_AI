@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { inngest } from "@/lib/inngest/client";
+import { INNGEST_EVENT_NAME } from "@/lib/constants";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
     
     try {
       await inngest.send({
-        name: "contract/analyze",
+        name: INNGEST_EVENT_NAME,
         data: {
           documentId: doc.id,
           ownerId: user.id,

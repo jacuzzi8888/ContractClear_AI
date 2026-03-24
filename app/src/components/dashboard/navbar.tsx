@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 interface NavbarProps {
-  user: { email?: string; user_metadata?: { full_name?: string } } | null;
+  user: { email?: string; user_metadata?: { full_name?: string; role?: string } } | null;
 }
 
 export function Navbar({ user }: NavbarProps) {
@@ -81,7 +81,7 @@ export function Navbar({ user }: NavbarProps) {
                 <span className="text-xs font-medium text-[var(--color-surface-900)]">
                   {user.user_metadata?.full_name || user.email}
                 </span>
-                <span className="text-[10px] text-gray-500">Legal Reviewer</span>
+                <span className="text-[10px] text-[var(--color-surface-500)]">{user.user_metadata?.role || ""}</span>
               </div>
             )}
 
@@ -149,7 +149,7 @@ export function Navbar({ user }: NavbarProps) {
                 <p className="text-sm font-medium text-[var(--color-surface-900)] truncate">
                   {user.user_metadata?.full_name || user.email}
                 </p>
-                <p className="text-[10px] text-gray-500 mt-0.5">Legal Reviewer</p>
+                <p className="text-[10px] text-[var(--color-surface-500)] mt-0.5">{user.user_metadata?.role || ""}</p>
               </div>
             )}
 

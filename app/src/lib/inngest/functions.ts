@@ -2,9 +2,10 @@ import { inngest } from "./client";
 import { getSupabaseAdmin } from "../supabase/admin";
 import { analyzeContractPDF } from "../gemini";
 import { validateIssues } from "../grounding";
+import { STORAGE_BUCKET, INNGEST_FUNCTION_ID, INNGEST_FAILURE_FUNCTION_ID, INNGEST_EVENT_NAME, INNGEST_RETRIES } from "@/lib/constants";
 
 export const analyzeContract = inngest.createFunction(
-  { id: "analyze-contract", retries: 2, triggers: [{ event: "contract/analyze" }] },
+  { id: INNGEST_FUNCTION_ID, retries: INNGEST_RETRIES, triggers: [{ event: INNGEST_EVENT_NAME }] },
   async ({ event, step }) => {
     try {
       const { documentId, ownerId, fileName } = event.data;
@@ -69,7 +70,7 @@ export const analyzeContract = inngest.createFunction(
       const supabaseAdmin = getSupabaseAdmin();
       
       const { data: fileData, error: downloadErr } = await supabaseAdmin.storage
-        .from("contracts")
+        .from(STORAGE_BUCKET)
         .download(doc.file_url);
 
       if (downloadErr || !fileData) {
@@ -166,11 +167,11 @@ export const analyzeContract = inngest.createFunction(
 
 // ── Failure Handler ───────────────────────────────────────────
 export const handleAnalysisFailure = inngest.createFunction(
-  { id: "handle-analysis-failure", triggers: [{ event: "inngest/function.failed" }] },
+  { id: INNGEST_FAILURE_FUNCTION_ID, triggers: [{ event: "inngest/function.failed" }] },
   async ({ event, step }) => {
     // Only handle failures from our analyze function
     const fnId = (event as any).data?.function_id;
-    if (fnId !== "analyze-contract") return;
+    if (fnId !== INNGEST_FUNCTION_ID) return;
 
     const originalEvent = (event.data as any)?.event;
     const documentId = originalEvent?.data?.documentId;

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { POLLING_INTERVAL_MS } from "@/lib/constants";
 
 interface UseAnalysisSubscriptionOptions {
   documentId: string | null;
@@ -192,7 +193,7 @@ export function useAnalysisSubscription({ documentId, onComplete }: UseAnalysisS
 
         markComplete("failed", { errMsg: jobData?.error_message });
       }
-    }, 4000);
+    }, POLLING_INTERVAL_MS);
 
     return () => {
       console.info("[Realtime] Cleaning up listeners");

@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { RISK_LEVEL_CONFIG } from "@/lib/constants";
+import { RISK_LEVEL_CONFIG, HISTORY_ITEMS_PER_PAGE } from "@/lib/constants";
 import type { RiskLevel } from "@/types";
 import {
   FileText,
@@ -37,7 +37,6 @@ interface HistoryDoc {
   }[];
 }
 
-const ITEMS_PER_PAGE = 10;
 
 const RiskIcon = ({ level }: { level: string }) => {
   switch (level) {
@@ -105,8 +104,8 @@ export default function HistoryPage() {
     return result;
   }, [docs, searchQuery, statusFilter, riskFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / HISTORY_ITEMS_PER_PAGE));
+  const paginated = filtered.slice((page - 1) * HISTORY_ITEMS_PER_PAGE, page * HISTORY_ITEMS_PER_PAGE);
 
   // Reset page when filters change
   useEffect(() => { setPage(1); }, [searchQuery, statusFilter, riskFilter]);
@@ -319,7 +318,7 @@ export default function HistoryPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-8 glass-card p-3 rounded-2xl">
               <span className="text-xs text-[var(--color-surface-400)] px-2">
-                Showing {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
+                Showing {(page - 1) * HISTORY_ITEMS_PER_PAGE + 1}–{Math.min(page * HISTORY_ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
               </span>
               <div className="flex items-center gap-1">
                 <button

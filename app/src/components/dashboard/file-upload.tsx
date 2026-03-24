@@ -14,6 +14,7 @@ import {
   File,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MAX_FILE_SIZE_DISPLAY } from "@/lib/constants";
 
 interface FileUploadProps {
   onJobStart: (jobId: string) => void;
@@ -150,7 +151,7 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
                     <HardDrive size={18} className="text-[var(--color-brand-600)]" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-[var(--color-surface-900)]">Up to 50 MB</p>
+                    <p className="text-sm font-semibold text-[var(--color-surface-900)]">Up to {MAX_FILE_SIZE_DISPLAY}</p>
                     <p className="text-xs text-[var(--color-surface-500)]">Supports scanned and text-based PDFs</p>
                   </div>
                 </div>

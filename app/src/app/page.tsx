@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { GEMINI_MODEL_DISPLAY, MAX_FILE_SIZE_DISPLAY } from "@/lib/constants";
 import {
   Shield,
   FileSearch,
@@ -68,7 +69,7 @@ export default function HomePage() {
         <div className="animate-fade-in-up relative z-10 max-w-3xl">
           <div className="status-badge mb-6 inline-flex border border-[var(--color-brand-500)]/30 bg-[var(--color-brand-50)] text-[var(--color-brand-700)]">
             <span className="pulse-dot bg-[var(--color-brand-600)]" />
-            Powered by Gemini 3 Flash
+            Powered by {GEMINI_MODEL_DISPLAY}
           </div>
 
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl text-[var(--color-surface-900)]">
@@ -169,7 +170,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-lg font-bold text-[var(--color-surface-900)] mb-2">Upload Your Contract</h3>
               <p className="text-sm text-[var(--color-surface-600)] leading-relaxed">
-                Drag and drop any legal PDF up to 50MB. We accept NDAs, SaaS agreements, leases, and more.
+                Drag and drop any legal PDF up to {MAX_FILE_SIZE_DISPLAY}. We accept NDAs, SaaS agreements, leases, and more.
               </p>
             </div>
 
@@ -182,7 +183,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-lg font-bold text-[var(--color-surface-900)] mb-2">AI Analyzes Every Clause</h3>
               <p className="text-sm text-[var(--color-surface-600)] leading-relaxed">
-                Gemini 3 Flash reads the full document, identifies risks, and extracts verbatim quotes with page references.
+                {GEMINI_MODEL_DISPLAY} reads the full document, identifies risks, and extracts verbatim quotes with page references.
               </p>
             </div>
 

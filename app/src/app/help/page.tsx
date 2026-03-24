@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { GEMINI_MODEL_DISPLAY, MAX_FILE_SIZE_DISPLAY } from "@/lib/constants";
 import {
   Shield,
   ArrowLeft,
@@ -26,7 +27,7 @@ const faqSections: { title: string; icon: typeof HelpCircle; items: FAQItem[] }[
     items: [
       {
         question: "What file types are supported?",
-        answer: "ContractClear AI accepts PDF files up to 50MB. We process scanned and text-based PDFs. Other formats (Word, images) are not currently supported.",
+        answer: `ContractClear AI accepts PDF files up to ${MAX_FILE_SIZE_DISPLAY}. We process scanned and text-based PDFs. Other formats (Word, images) are not currently supported.`,
       },
       {
         question: "How long does analysis take?",
@@ -44,7 +45,7 @@ const faqSections: { title: string; icon: typeof HelpCircle; items: FAQItem[] }[
     items: [
       {
         question: "How accurate is the AI analysis?",
-        answer: "Our analysis is powered by Gemini 3 Flash, a state-of-the-art AI model. Every identified risk is grounded in a verbatim quote from the document — the AI does not hallucinate or invent clauses. However, the analysis is not infallible and should be reviewed by a qualified legal professional.",
+        answer: `Our analysis is powered by ${GEMINI_MODEL_DISPLAY}, a state-of-the-art AI model. Every identified risk is grounded in a verbatim quote from the document — the AI does not hallucinate or invent clauses. However, the analysis is not infallible and should be reviewed by a qualified legal professional.`,
       },
       {
         question: "What do the risk levels mean?",
