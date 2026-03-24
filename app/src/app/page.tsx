@@ -286,6 +286,13 @@ export default function HomePage() {
 
       {/* ── Footer ──────────────────────────────────────────── */}
       <footer className="border-t border-white/5 py-8 text-center text-xs text-[var(--color-surface-500)]">
+        <div className="flex items-center justify-center gap-4 mb-3">
+          <Link href="/help" className="hover:text-gray-300 transition-colors">Help</Link>
+          <span className="text-white/10">|</span>
+          <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms</Link>
+          <span className="text-white/10">|</span>
+          <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy</Link>
+        </div>
         <p>
           ContractClear AI is not a substitute for legal counsel. All outputs
           are for informational purposes only.

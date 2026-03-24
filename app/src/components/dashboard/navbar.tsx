@@ -13,6 +13,9 @@ import {
   LayoutDashboard,
   History,
   Upload,
+  Settings,
+  BarChart3,
+  HelpCircle,
 } from "lucide-react";
 
 interface NavbarProps {
@@ -38,6 +41,7 @@ export function Navbar({ user }: NavbarProps) {
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/dashboard/history", label: "History", icon: History },
+    { href: "/dashboard/usage", label: "Usage", icon: BarChart3 },
   ];
 
   return (
@@ -82,6 +86,13 @@ export function Navbar({ user }: NavbarProps) {
             )}
 
             {/* Sign out — desktop */}
+            <Link
+              href="/dashboard/settings"
+              className="hidden md:flex p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+              title="Settings"
+            >
+              <Settings className="h-5 w-5 text-gray-400 hover:text-white transition-colors" />
+            </Link>
             <button
               onClick={handleSignOut}
               disabled={isSignOutLoading}
@@ -169,6 +180,29 @@ export function Navbar({ user }: NavbarProps) {
               >
                 <Upload size={18} />
                 New Analysis
+              </Link>
+
+              <div className="border-t border-white/5 my-2" />
+
+              <Link
+                href="/dashboard/settings"
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                  isActive("/dashboard/settings")
+                    ? "bg-[var(--color-brand-500)]/10 text-[var(--color-brand-400)]"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Settings size={18} />
+                Settings
+              </Link>
+              <Link
+                href="/help"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <HelpCircle size={18} />
+                Help
               </Link>
             </div>
 
