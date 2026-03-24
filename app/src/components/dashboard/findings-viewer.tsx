@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   AlertCircle,
   AlertTriangle,
@@ -15,6 +15,8 @@ import {
   FileText,
   X,
   Mails,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RISK_LEVEL_CONFIG } from "@/lib/constants";
@@ -39,31 +41,31 @@ interface FindingsViewerProps {
   errorMessage?: string | null;
 }
 
-const RiskIcon = ({ level }: { level: RiskLevel }) => {
+const RiskIcon = ({ level, size = 20 }: { level: RiskLevel; size?: number }) => {
   switch (level) {
     case "critical":
-      return <AlertTriangle className="text-red-600" size={18} />;
+      return <AlertTriangle className="text-red-600" size={size} />;
     case "high":
-      return <AlertCircle className="text-orange-600" size={18} />;
+      return <AlertCircle className="text-orange-600" size={size} />;
     case "medium":
-      return <AlertCircle className="text-yellow-600" size={18} />;
+      return <AlertCircle className="text-yellow-600" size={size} />;
     case "low":
-      return <CheckCircle2 className="text-green-600" size={18} />;
+      return <CheckCircle2 className="text-green-600" size={size} />;
     case "info":
     default:
-      return <Info className="text-[var(--color-brand-600)]" size={18} />;
+      return <Info className="text-[var(--color-brand-600)]" size={size} />;
   }
 };
 
-const config = (level: RiskLevel) => RISK_LEVEL_CONFIG[level] || RISK_LEVEL_CONFIG.info;
+const cfg = (level: RiskLevel) => RISK_LEVEL_CONFIG[level] || RISK_LEVEL_CONFIG.info;
 
-function FindingCard({ finding }: { finding: RealTimeFinding }) {
+function DeckCard({ finding }: { finding: RealTimeFinding }) {
   const [isDrafting, setIsDrafting] = useState(false);
   const [draftEmail, setDraftEmail] = useState<{ subject: string; body: string } | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const riskConfig = config(finding.risk_level);
+  const riskConfig = cfg(finding.risk_level);
 
   const handleDraftEmail = async () => {
     setIsDrafting(true);
@@ -90,105 +92,109 @@ function FindingCard({ finding }: { finding: RealTimeFinding }) {
 
   return (
     <div
-      className="group relative overflow-hidden glass-card p-6 rounded-2xl border transition-all hover:scale-[1.005] animate-fade-in-up"
+      className="deck-card p-8 border animate-fade-in-up"
       style={{
         borderColor: riskConfig.borderColor,
         background: riskConfig.bgColor,
       }}
     >
-      {/* Header: Risk badge + Confidence */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-2.5">
-          <RiskIcon level={finding.risk_level} />
-          <span
-            className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border"
+      {/* Header row */}
+      <div className="flex items-start justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center border"
             style={{
-              color: riskConfig.color,
               backgroundColor: riskConfig.bgColor,
               borderColor: riskConfig.borderColor,
             }}
           >
-            {riskConfig.label}
-          </span>
-          <span className="text-[10px] text-[var(--color-surface-500)] font-mono">
-            p.{finding.page_number}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-[var(--color-surface-500)]">
-            {Math.round(finding.confidence * 100)}% confidence
-          </span>
-          <button className="p-1 opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)]">
-            <ArrowUpRight size={14} />
-          </button>
+            <RiskIcon level={finding.risk_level} size={24} />
+          </div>
+          <div>
+            <span
+              className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border inline-block"
+              style={{
+                color: riskConfig.color,
+                backgroundColor: riskConfig.bgColor,
+                borderColor: riskConfig.borderColor,
+              }}
+            >
+              {riskConfig.label} Risk
+            </span>
+            <div className="flex items-center gap-3 mt-1.5">
+              <span className="text-xs text-[var(--color-surface-500)] font-mono">
+                Page {finding.page_number}
+              </span>
+              <span className="text-xs text-[var(--color-surface-400)]">·</span>
+              <span className="text-xs text-[var(--color-surface-500)] font-mono">
+                {Math.round(finding.confidence * 100)}% confidence
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Explanation */}
-      <p className="text-sm text-[var(--color-surface-700)] leading-relaxed mb-4">
+      <p className="text-base text-[var(--color-surface-800)] leading-relaxed mb-5">
         {finding.explanation}
       </p>
 
       {/* Verbatim Quote */}
-      <div className="relative p-4 bg-[var(--color-surface-100)] rounded-xl border border-[var(--color-surface-200)] mb-4">
-        <Quote className="absolute top-3 left-3 text-[var(--color-surface-300)]" size={16} />
-        <p className="pl-6 text-[12px] text-[var(--color-surface-500)] font-mono italic leading-relaxed">
+      <div className="relative p-5 bg-[var(--color-surface-50)]/80 rounded-xl border border-[var(--color-surface-200)] mb-5">
+        <Quote className="absolute top-3.5 left-3.5 text-[var(--color-surface-300)]" size={16} />
+        <p className="pl-6 text-sm text-[var(--color-surface-600)] font-mono italic leading-relaxed">
           &ldquo;{finding.quote}&rdquo;
         </p>
       </div>
 
-      {/* Recommended Action & Draft Email Button */}
-      <div className="flex items-start justify-between gap-4 mt-4">
-        {finding.recommended_action && (
-          <div className="flex-1 flex items-start gap-2 p-3 bg-[var(--color-brand-50)] rounded-xl border border-[var(--color-brand-200)]">
-            <CheckCircle2 className="text-[var(--color-brand-600)] mt-0.5 flex-shrink-0" size={14} />
-            <p className="text-[11px] text-[var(--color-brand-700)] leading-relaxed">
-              <span className="font-bold uppercase tracking-wider text-[10px]">
-                Action:{" "}
-              </span>
-              {finding.recommended_action}
-            </p>
-          </div>
-        )}
+      {/* Recommended Action */}
+      {finding.recommended_action && (
+        <div className="flex items-start gap-3 p-4 bg-[var(--color-brand-50)] rounded-xl border border-[var(--color-brand-200)] mb-5">
+          <CheckCircle2 className="text-[var(--color-brand-600)] mt-0.5 flex-shrink-0" size={16} />
+          <p className="text-sm text-[var(--color-brand-700)] leading-relaxed">
+            <span className="font-bold uppercase tracking-wider text-xs block mb-0.5">
+              Recommended Action
+            </span>
+            {finding.recommended_action}
+          </p>
+        </div>
+      )}
 
+      {/* Draft Email */}
+      <div className="flex items-center gap-3">
         <button
           onClick={handleDraftEmail}
           disabled={isDrafting || draftEmail !== null}
-          className="flex items-center gap-2 px-4 py-3 bg-[var(--color-surface-200)] hover:bg-[var(--color-surface-300)] text-[var(--color-surface-900)] text-xs font-semibold rounded-xl border border-[var(--color-surface-300)] transition-colors disabled:opacity-50 flex-shrink-0"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-surface-50)] hover:bg-[var(--color-surface-200)] text-[var(--color-surface-900)] text-sm font-semibold rounded-xl border border-[var(--color-surface-300)] transition-colors disabled:opacity-50"
         >
-          {isDrafting ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <Mail size={14} />
-          )}
-          {isDrafting ? "Drafting..." : draftEmail ? "Draft Created" : "Draft Email"}
+          {isDrafting ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+          {isDrafting ? "Drafting Email..." : draftEmail ? "Email Drafted" : "Draft Email"}
         </button>
       </div>
 
-      {/* Error Message */}
       {error && (
         <p className="text-red-600 text-xs mt-3 flex items-center gap-1">
           <AlertCircle size={12} /> {error}
         </p>
       )}
 
-      {/* Draft Email View */}
+      {/* Draft Email Display */}
       {draftEmail && (
-        <div className="mt-4 p-4 bg-[var(--color-surface-100)] rounded-xl border border-[var(--color-surface-300)] animate-fade-in-up">
+        <div className="mt-5 p-5 bg-[var(--color-surface-50)] rounded-xl border border-[var(--color-surface-300)] animate-fade-in-up">
           <div className="flex items-center justify-between mb-3 pb-3 border-b border-[var(--color-surface-200)]">
-            <p className="text-xs font-semibold text-[var(--color-surface-700)]">
+            <p className="text-sm font-semibold text-[var(--color-surface-700)]">
               <span className="text-[var(--color-surface-500)] font-normal mr-2">Subject:</span>
               {draftEmail.subject}
             </p>
             <button
               onClick={copyToClipboard}
-              className="p-1.5 text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] bg-[var(--color-surface-200)] hover:bg-[var(--color-surface-300)] rounded-md transition-colors"
+              className="p-2 text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] bg-[var(--color-surface-200)] hover:bg-[var(--color-surface-300)] rounded-lg transition-colors"
               title="Copy to clipboard"
             >
-              {isCopied ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+              {isCopied ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
             </button>
           </div>
-          <div className="text-xs text-[var(--color-surface-700)] leading-relaxed whitespace-pre-wrap font-mono [tab-size:2]">
+          <div className="text-sm text-[var(--color-surface-700)] leading-relaxed whitespace-pre-wrap font-mono [tab-size:2]">
             {draftEmail.body}
           </div>
         </div>
@@ -204,6 +210,7 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
   const [summaryEmail, setSummaryEmail] = useState<{ subject: string; body: string } | null>(null);
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [isSummaryCopied, setIsSummaryCopied] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (status === "completed") {
@@ -217,6 +224,28 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
       setShowCompleted(false);
     }
   }, [status]);
+
+  // Reset index when findings change
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [findings.length]);
+
+  // Keyboard navigation
+  const goPrev = useCallback(() => {
+    setCurrentIndex((i) => Math.max(0, i - 1));
+  }, []);
+  const goNext = useCallback(() => {
+    setCurrentIndex((i) => Math.min(findings.length - 1, i + 1));
+  }, [findings.length]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "ArrowRight") goNext();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [goPrev, goNext]);
 
   if (findings.length === 0 && !isProcessing && status !== "completed" && status !== "failed") return null;
 
@@ -249,11 +278,11 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
     <div className="space-y-6 animate-fade-in-up">
       {/* Status banner: completed */}
       {showCompleted && (
-        <div className="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-2xl animate-fade-in-up">
-          <CheckCircle2 className="text-green-600 flex-shrink-0" size={20} />
+        <div className="flex items-center gap-3 px-5 py-4 bg-green-50 border border-green-200 rounded-2xl animate-fade-in-up">
+          <CheckCircle2 className="text-green-600 flex-shrink-0" size={22} />
           <div className="flex-1">
-            <p className="text-sm font-bold text-green-600">Analysis Complete</p>
-            <p className="text-xs text-green-600/70">
+            <p className="text-sm font-bold text-green-700">Analysis Complete</p>
+            <p className="text-xs text-green-600">
               {findings.length} issue{findings.length !== 1 ? "s" : ""} found in your contract.
             </p>
           </div>
@@ -262,16 +291,13 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
               href={`/dashboard/report/${jobId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 hover:bg-green-200 text-green-700 text-xs font-semibold rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 text-xs font-semibold rounded-lg transition-colors"
             >
               <FileText size={13} />
               Export Report
             </a>
           )}
-          <button
-            onClick={() => setShowCompleted(false)}
-            className="p-1 text-green-400 hover:text-green-600 transition-colors"
-          >
+          <button onClick={() => setShowCompleted(false)} className="p-1 text-green-400 hover:text-green-600 transition-colors">
             <X size={14} />
           </button>
         </div>
@@ -279,53 +305,45 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
 
       {/* Status banner: failed */}
       {showFailed && (
-        <div className="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-2xl animate-fade-in-up">
-          <AlertTriangle className="text-red-600 flex-shrink-0" size={20} />
+        <div className="flex items-center gap-3 px-5 py-4 bg-red-50 border border-red-200 rounded-2xl animate-fade-in-up">
+          <AlertTriangle className="text-red-600 flex-shrink-0" size={22} />
           <div className="flex-1">
-            <p className="text-sm font-bold text-red-600">Analysis Failed</p>
-            <p className="text-xs text-red-600/70">{errorMessage || "An unexpected error occurred."}</p>
+            <p className="text-sm font-bold text-red-700">Analysis Failed</p>
+            <p className="text-xs text-red-600">{errorMessage || "An unexpected error occurred."}</p>
           </div>
-          <button
-            onClick={() => setShowFailed(false)}
-            className="p-1 text-red-400 hover:text-red-600 transition-colors"
-          >
+          <button onClick={() => setShowFailed(false)} className="p-1 text-red-400 hover:text-red-600 transition-colors">
             <X size={14} />
           </button>
         </div>
       )}
 
+      {/* Section header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold text-[var(--color-surface-900)]">Risk Analysis</h2>
           {findings.length > 0 && (
-            <span className="text-xs font-mono text-[var(--color-surface-500)] bg-[var(--color-surface-100)] px-2 py-1 rounded-full">
-              {findings.length} issue{findings.length !== 1 ? "s" : ""} found
+            <span className="text-xs font-mono text-[var(--color-surface-500)] bg-red-50 px-2.5 py-1 rounded-full border border-red-100">
+              {findings.length} issue{findings.length !== 1 ? "s" : ""}
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           {isProcessing && (
-            <div className="flex items-center gap-2 px-3 py-1 bg-[var(--color-brand-50)] rounded-full border border-[var(--color-brand-200)]">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 rounded-full border border-red-200">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-brand-400)] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-brand-500)]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
               </span>
-              <span className="text-[10px] font-bold text-[var(--color-brand-700)] uppercase tracking-tighter">
-                Analyzing...
-              </span>
+              <span className="text-[10px] font-bold text-red-700 uppercase tracking-tighter">Analyzing...</span>
             </div>
           )}
           {findings.length > 0 && !isProcessing && (
             <button
               onClick={handleDraftSummaryEmail}
               disabled={isDraftingSummary || summaryEmail !== null}
-              className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-surface-200)] hover:bg-[var(--color-surface-300)] text-[var(--color-surface-900)] text-xs font-semibold rounded-lg border border-[var(--color-surface-300)] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--color-surface-200)] hover:bg-[var(--color-surface-300)] text-[var(--color-surface-900)] text-xs font-semibold rounded-lg border border-[var(--color-surface-300)] transition-colors disabled:opacity-50"
             >
-              {isDraftingSummary ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                <Mails size={14} />
-              )}
+              {isDraftingSummary ? <Loader2 size={14} className="animate-spin" /> : <Mails size={14} />}
               {isDraftingSummary ? "Drafting..." : summaryEmail ? "Summary Draft Created" : "Draft Summary Email"}
             </button>
           )}
@@ -334,7 +352,7 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
               href={`/dashboard/report/${jobId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-brand-50)] hover:bg-[var(--color-brand-100)] text-[var(--color-brand-700)] text-xs font-semibold rounded-lg border border-[var(--color-brand-200)] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[var(--color-surface-50)] hover:bg-[var(--color-surface-200)] text-[var(--color-surface-700)] text-xs font-semibold rounded-lg border border-[var(--color-surface-300)] transition-colors"
             >
               <FileText size={14} />
               Export Report
@@ -343,66 +361,114 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
         </div>
       </div>
 
-      {/* Summary Email Error */}
-      {summaryError && (
-        <p className="text-red-600 text-xs flex items-center gap-1">
-          <AlertCircle size={12} /> {summaryError}
-        </p>
-      )}
+      {/* Summary Email */}
+      {summaryError && <p className="text-red-600 text-xs flex items-center gap-1"><AlertCircle size={12} /> {summaryError}</p>}
 
-      {/* Summary Email Display */}
       {summaryEmail && (
-        <div className="p-4 bg-[var(--color-brand-50)] rounded-2xl border border-[var(--color-brand-200)] animate-fade-in-up">
-          <div className="flex items-center justify-between mb-3 pb-3 border-b border-[var(--color-brand-200)]">
+        <div className="p-5 bg-[var(--color-surface-50)] rounded-2xl border border-[var(--color-surface-300)] animate-fade-in-up">
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-[var(--color-surface-200)]">
             <div className="flex items-center gap-2">
-              <Mails size={14} className="text-[var(--color-brand-600)]" />
-              <p className="text-xs font-semibold text-[var(--color-surface-700)]">
+              <Mails size={16} className="text-[var(--color-surface-500)]" />
+              <p className="text-sm font-semibold text-[var(--color-surface-700)]">
                 <span className="text-[var(--color-surface-500)] font-normal mr-2">Subject:</span>
                 {summaryEmail.subject}
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={copySummaryToClipboard}
-                className="p-1.5 text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] bg-[var(--color-surface-200)] hover:bg-[var(--color-surface-300)] rounded-md transition-colors"
-                title="Copy to clipboard"
-              >
-                {isSummaryCopied ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+              <button onClick={copySummaryToClipboard} className="p-2 text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] bg-[var(--color-surface-200)] hover:bg-[var(--color-surface-300)] rounded-lg transition-colors" title="Copy">
+                {isSummaryCopied ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
               </button>
-              <button
-                onClick={() => setSummaryEmail(null)}
-                className="p-1.5 text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] bg-[var(--color-surface-200)] hover:bg-[var(--color-surface-300)] rounded-md transition-colors"
-                title="Dismiss"
-              >
-                <X size={14} />
+              <button onClick={() => setSummaryEmail(null)} className="p-2 text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] bg-[var(--color-surface-200)] hover:bg-[var(--color-surface-300)] rounded-lg transition-colors" title="Dismiss">
+                <X size={16} />
               </button>
             </div>
           </div>
-          <div className="text-xs text-[var(--color-surface-700)] leading-relaxed whitespace-pre-wrap font-mono [tab-size:2]">
+          <div className="text-sm text-[var(--color-surface-700)] leading-relaxed whitespace-pre-wrap font-mono [tab-size:2]">
             {summaryEmail.body}
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4">
-        {findings.map((finding) => (
-          <FindingCard key={finding.id} finding={finding} />
-        ))}
+      {/* Card Deck */}
+      {findings.length > 0 && (
+        <div className="card-deck">
+          {/* Navigation arrows */}
+          <button
+            onClick={goPrev}
+            disabled={currentIndex === 0}
+            className="deck-nav deck-nav--prev"
+          >
+            <ChevronLeft size={18} className="text-[var(--color-surface-600)]" />
+          </button>
+          <button
+            onClick={goNext}
+            disabled={currentIndex === findings.length - 1}
+            className="deck-nav deck-nav--next"
+          >
+            <ChevronRight size={18} className="text-[var(--color-surface-600)]" />
+          </button>
 
-        {/* Skeleton loader while processing */}
-        {isProcessing && (
-          <div className="glass-card p-6 rounded-2xl border border-dashed border-[var(--color-surface-200)] bg-[var(--color-surface-50)] animate-pulse flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 rounded-full bg-[var(--color-surface-200)]" />
-              <div className="h-4 w-20 bg-[var(--color-surface-200)] rounded-full" />
-              <div className="h-4 w-12 bg-[var(--color-surface-200)] rounded-full" />
+          {/* Active card */}
+          <DeckCard key={findings[currentIndex].id} finding={findings[currentIndex]} />
+
+          {/* Indicator + counter */}
+          <div className="flex items-center justify-center gap-4 mt-5">
+            <button
+              onClick={goPrev}
+              disabled={currentIndex === 0}
+              className="text-xs text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] disabled:opacity-30 transition-colors flex items-center gap-1"
+            >
+              <ChevronLeft size={14} /> Previous
+            </button>
+
+            <div className="flex items-center gap-1.5">
+              {findings.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+                    i === currentIndex
+                      ? "bg-red-500 scale-110"
+                      : "bg-[var(--color-surface-300)] hover:bg-[var(--color-surface-400)]"
+                  }`}
+                />
+              ))}
             </div>
-            <div className="h-4 w-3/4 bg-[var(--color-surface-200)] rounded-full" />
-            <div className="h-16 w-full bg-[var(--color-surface-200)] rounded-xl" />
-            <div className="h-10 w-full bg-[var(--color-surface-200)] rounded-xl" />
+
+            <button
+              onClick={goNext}
+              disabled={currentIndex === findings.length - 1}
+              className="text-xs text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] disabled:opacity-30 transition-colors flex items-center gap-1"
+            >
+              Next <ChevronRight size={14} />
+            </button>
           </div>
-        )}
-      </div>
+
+          <div className="text-center mt-2">
+            <span className="text-xs text-[var(--color-surface-400)] font-mono">
+              {currentIndex + 1} of {findings.length}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Skeleton loader while processing */}
+      {isProcessing && findings.length === 0 && (
+        <div className="card-findings p-8 rounded-2xl animate-pulse flex flex-col gap-5">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-[var(--color-surface-200)]" />
+            <div className="flex-1 space-y-2">
+              <div className="h-5 w-24 bg-[var(--color-surface-200)] rounded-full" />
+              <div className="h-3 w-32 bg-[var(--color-surface-200)] rounded-full" />
+            </div>
+          </div>
+          <div className="h-4 w-3/4 bg-[var(--color-surface-200)] rounded-full" />
+          <div className="h-4 w-1/2 bg-[var(--color-surface-200)] rounded-full" />
+          <div className="h-20 w-full bg-[var(--color-surface-200)] rounded-xl" />
+          <div className="h-12 w-full bg-[var(--color-surface-200)] rounded-xl" />
+          <div className="h-10 w-36 bg-[var(--color-surface-200)] rounded-xl" />
+        </div>
+      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { BarChart3, AlertCircle, AlertTriangle, CheckCircle2, Info, TrendingUp, Clock } from "lucide-react";
+import { FileText, AlertTriangle, TrendingUp, Clock } from "lucide-react";
 import { RISK_LEVEL_CONFIG } from "@/lib/constants";
 import type { RiskLevel } from "@/types";
 
@@ -70,59 +70,55 @@ export function StatsPanel({ refreshKey }: { refreshKey?: number }) {
       ? RISK_LEVEL_CONFIG[dominantRisk as RiskLevel]?.color || "#6B7280"
       : "#6B7280";
 
+  const formattedDate = lastAnalysis
+    ? new Date(lastAnalysis).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    : "—";
+
   const riskOrder: RiskLevel[] = ["critical", "high", "medium", "low", "info"];
   const maxRiskCount = Math.max(1, ...Object.values(riskBreakdown));
 
   return (
     <div className="space-y-6 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-      {/* Stats cards */}
-      <div className="glass-card p-6 rounded-3xl bg-gradient-to-br from-[var(--color-brand-50)] to-[var(--color-surface-100)] border border-[var(--color-surface-200)]">
-        <h3 className="text-sm font-bold text-[var(--color-surface-500)] uppercase tracking-wider mb-4">
-          Activity Snapshot
-        </h3>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-[var(--color-surface-50)] rounded-2xl border border-[var(--color-surface-200)]">
-            <span className="text-xs text-[var(--color-surface-500)] flex items-center gap-2">
-              <BarChart3 size={12} /> Documents
-            </span>
-            <span className="text-sm font-bold text-[var(--color-surface-900)]">{totalDocs}</span>
+      <h3 className="text-sm font-bold text-[var(--color-surface-500)] uppercase tracking-wider">
+        Activity
+      </h3>
+
+      {/* Stat cards — 2×2 grid */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Documents */}
+        <div className="card-stats p-5">
+          <FileText size={20} style={{ color: "var(--color-brand-600)" }} />
+          <div className="stat-number text-[var(--color-surface-900)]">{totalDocs}</div>
+          <div className="stat-label">Documents</div>
+        </div>
+
+        {/* Issues */}
+        <div className="card-stats p-5">
+          <AlertTriangle size={20} style={{ color: "var(--color-accent-600)" }} />
+          <div className="stat-number text-[var(--color-surface-900)]">{totalIssues}</div>
+          <div className="stat-label">Issues Found</div>
+        </div>
+
+        {/* Top Risk */}
+        <div className="card-stats p-5">
+          <TrendingUp size={20} style={{ color: dominantRiskColor }} />
+          <div className="stat-number capitalize" style={{ color: dominantRiskColor }}>
+            {dominantRisk}
           </div>
-          <div className="flex items-center justify-between p-3 bg-[var(--color-surface-50)] rounded-2xl border border-[var(--color-surface-200)]">
-            <span className="text-xs text-[var(--color-surface-500)] flex items-center gap-2">
-              <AlertCircle size={12} /> Issues Found
-            </span>
-            <span className="text-sm font-bold text-[var(--color-surface-900)]">{totalIssues}</span>
-          </div>
-          <div className="flex items-center justify-between p-3 bg-[var(--color-surface-50)] rounded-2xl border border-[var(--color-surface-200)]">
-            <span className="text-xs text-[var(--color-surface-500)] flex items-center gap-2">
-              <TrendingUp size={12} /> Top Risk
-            </span>
-            <span
-              className="text-sm font-bold capitalize"
-              style={{ color: dominantRiskColor }}
-            >
-              {dominantRisk}
-            </span>
-          </div>
-          {lastAnalysis && (
-            <div className="flex items-center justify-between p-3 bg-[var(--color-surface-50)] rounded-2xl border border-[var(--color-surface-200)]">
-              <span className="text-xs text-[var(--color-surface-500)] flex items-center gap-2">
-                <Clock size={12} /> Last Analysis
-              </span>
-              <span className="text-xs font-medium text-[var(--color-surface-700)]">
-                {new Date(lastAnalysis).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </span>
-            </div>
-          )}
+          <div className="stat-label">Top Risk</div>
+        </div>
+
+        {/* Last Run */}
+        <div className="card-stats p-5">
+          <Clock size={20} style={{ color: "var(--color-surface-500)" }} />
+          <div className="stat-number text-[var(--color-surface-700)]">{formattedDate}</div>
+          <div className="stat-label">Last Run</div>
         </div>
       </div>
 
       {/* Risk distribution chart */}
       {Object.keys(riskBreakdown).length > 0 && (
-        <div className="glass-card p-6 rounded-3xl border border-[var(--color-surface-200)]">
+        <div className="card-stats p-6">
           <h3 className="text-sm font-bold text-[var(--color-surface-500)] uppercase tracking-wider mb-4">
             Risk Distribution
           </h3>

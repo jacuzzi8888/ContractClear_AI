@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /* ============================================================
-   ContractClear AI — Design System v2
-   Light, professional, Excel-inspired
+   ContractClear AI — Design System v3
+   Animated dot grid, section-colored cards, card deck
    ============================================================ */
 
 @theme {
@@ -58,6 +58,14 @@
   --color-info-bg: #f0fdfa;
   --color-info-border: #99f6e4;
 
+  /* Section Colors */
+  --color-section-upload: #0d9488;
+  --color-section-upload-bg: #f0fdfa;
+  --color-section-findings: #dc2626;
+  --color-section-findings-bg: #fef2f2;
+  --color-section-stats: #6366f1;
+  --color-section-stats-bg: #eef2ff;
+
   /* Typography */
   --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
@@ -70,7 +78,49 @@
   --radius-2xl: 1.25rem;
 }
 
-/* ---- Base Resets ---- */
+/* ============================================================
+   ANIMATED DOT GRID BACKGROUND
+   ============================================================ */
+
+@keyframes dot-wave {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.35; }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface-100);
+  color: var(--color-surface-800);
+  min-height: 100dvh;
+  line-height: 1.6;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(circle, var(--color-surface-400) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: dot-wave 6s ease-in-out infinite;
+}
+
+/* Make sure content sits above the dot grid */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   BASE RESETS
+   ============================================================ */
+
 *,
 *::before,
 *::after {
@@ -83,28 +133,12 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  font-family: var(--font-sans);
-  background-color: var(--color-surface-100);
-  color: var(--color-surface-800);
-  min-height: 100dvh;
-  line-height: 1.6;
-}
+/* ============================================================
+   SECTION-COLORED CARDS
+   ============================================================ */
 
-/* ---- Cards ---- */
-.card {
-  background: var(--color-surface-50);
-  border: 1px solid var(--color-surface-300);
-  border-radius: var(--radius-xl);
-  transition: all 0.2s ease;
-}
-
-.card:hover {
-  border-color: var(--color-surface-400);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-/* Keep glass-card for backwards compat — now styled as clean card */
+/* Card base — white with border */
+.card,
 .glass-card {
   background: var(--color-surface-50);
   border: 1px solid var(--color-surface-300);
@@ -112,12 +146,144 @@ body {
   transition: all 0.2s ease;
 }
 
+.card:hover,
 .glass-card:hover {
   border-color: var(--color-surface-400);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-/* ---- Gradient Text ---- */
+/* Upload section card — teal accent */
+.card-upload {
+  background: var(--color-surface-50);
+  border: 1px solid var(--color-brand-200);
+  border-top: 4px solid var(--color-brand-600);
+  border-radius: var(--radius-xl);
+  transition: all 0.2s ease;
+}
+
+.card-upload:hover {
+  box-shadow: 0 2px 12px rgba(13, 148, 136, 0.12);
+}
+
+/* Findings section card — red accent */
+.card-findings {
+  background: var(--color-surface-50);
+  border: 1px solid var(--color-critical-border);
+  border-top: 4px solid var(--color-critical);
+  border-radius: var(--radius-xl);
+  transition: all 0.2s ease;
+}
+
+.card-findings:hover {
+  box-shadow: 0 2px 12px rgba(220, 38, 38, 0.08);
+}
+
+/* Stats section card — indigo accent */
+.card-stats {
+  background: var(--color-surface-50);
+  border: 1px solid #c7d2fe;
+  border-top: 4px solid var(--color-section-stats);
+  border-radius: var(--radius-xl);
+  transition: all 0.2s ease;
+}
+
+.card-stats:hover {
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.1);
+}
+
+/* ============================================================
+   CARD DECK NAVIGATION
+   ============================================================ */
+
+.card-deck {
+  position: relative;
+  perspective: 1000px;
+}
+
+.deck-card {
+  background: var(--color-surface-50);
+  border-radius: var(--radius-xl);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.deck-card:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.deck-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface-50);
+  border: 1px solid var(--color-surface-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  opacity: 0;
+}
+
+.card-deck:hover .deck-nav {
+  opacity: 1;
+}
+
+.deck-nav:hover {
+  background: var(--color-surface-200);
+  border-color: var(--color-surface-400);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.deck-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.deck-nav:disabled:hover {
+  background: var(--color-surface-50);
+  transform: translateY(-50%);
+}
+
+.deck-nav--prev {
+  left: -20px;
+}
+
+.deck-nav--next {
+  right: -20px;
+}
+
+/* ============================================================
+   BIG NUMBER STAT CARDS
+   ============================================================ */
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-surface-500);
+  margin-top: 0.375rem;
+}
+
+/* ============================================================
+   GRADIENT TEXT
+   ============================================================ */
+
 .gradient-text {
   background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-700));
   -webkit-background-clip: text;
@@ -125,7 +291,10 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-/* ---- Buttons ---- */
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -172,7 +341,10 @@ body {
   color: var(--color-surface-800);
 }
 
-/* ---- Status Badge ---- */
+/* ============================================================
+   STATUS BADGE
+   ============================================================ */
+
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -185,7 +357,10 @@ body {
   text-transform: uppercase;
 }
 
-/* ---- Pulse Dot Animation ---- */
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(1.5); }
@@ -198,7 +373,6 @@ body {
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
-/* ---- Fade-in Animation ---- */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -214,7 +388,6 @@ body {
   animation: fade-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* ---- Shimmer Skeleton ---- */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -232,7 +405,10 @@ body {
   border-radius: var(--radius-md);
 }
 
-/* ---- Input Styles ---- */
+/* ============================================================
+   INPUT STYLES
+   ============================================================ */
+
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -259,7 +435,10 @@ textarea::placeholder {
   color: var(--color-surface-400);
 }
 
-/* ---- Risk Level Card Styles ---- */
+/* ============================================================
+   RISK LEVEL CARD STYLES
+   ============================================================ */
+
 .risk-critical {
   border-left: 4px solid var(--color-critical);
   background: var(--color-critical-bg);
