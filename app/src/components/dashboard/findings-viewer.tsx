@@ -14,6 +14,7 @@ import {
   Check,
   FileText,
   X,
+  Mails,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RISK_LEVEL_CONFIG } from "@/lib/constants";
@@ -199,6 +200,10 @@ function FindingCard({ finding }: { finding: RealTimeFinding }) {
 export function FindingsViewer({ findings, isProcessing, status = "idle", errorMessage }: FindingsViewerProps) {
   const [showCompleted, setShowCompleted] = useState(false);
   const [showFailed, setShowFailed] = useState(false);
+  const [isDraftingSummary, setIsDraftingSummary] = useState(false);
+  const [summaryEmail, setSummaryEmail] = useState<{ subject: string; body: string } | null>(null);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [isSummaryCopied, setIsSummaryCopied] = useState(false);
 
   useEffect(() => {
     if (status === "completed") {
@@ -216,6 +221,29 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
   if (findings.length === 0 && !isProcessing && status !== "completed" && status !== "failed") return null;
 
   const jobId = findings.length > 0 ? findings[0].job_id : null;
+
+  const handleDraftSummaryEmail = async () => {
+    if (!jobId) return;
+    setIsDraftingSummary(true);
+    setSummaryError(null);
+    try {
+      const res = await fetch(`/api/jobs/${jobId}/email`, { method: "POST" });
+      if (!res.ok) throw new Error("Failed to generate summary email");
+      const data = await res.json();
+      setSummaryEmail(data);
+    } catch (err: any) {
+      setSummaryError(err.message);
+    } finally {
+      setIsDraftingSummary(false);
+    }
+  };
+
+  const copySummaryToClipboard = () => {
+    if (!summaryEmail) return;
+    navigator.clipboard.writeText(`Subject: ${summaryEmail.subject}\n\n${summaryEmail.body}`);
+    setIsSummaryCopied(true);
+    setTimeout(() => setIsSummaryCopied(false), 2000);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in-up">
@@ -287,6 +315,20 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
               </span>
             </div>
           )}
+          {findings.length > 0 && !isProcessing && (
+            <button
+              onClick={handleDraftSummaryEmail}
+              disabled={isDraftingSummary || summaryEmail !== null}
+              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold rounded-lg border border-white/10 transition-colors disabled:opacity-50"
+            >
+              {isDraftingSummary ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Mails size={14} />
+              )}
+              {isDraftingSummary ? "Drafting..." : summaryEmail ? "Summary Draft Created" : "Draft Summary Email"}
+            </button>
+          )}
           {jobId && !isProcessing && status !== "completed" && (
             <a
               href={`/dashboard/report/${jobId}`}
@@ -300,6 +342,47 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
           )}
         </div>
       </div>
+
+      {/* Summary Email Error */}
+      {summaryError && (
+        <p className="text-red-400 text-xs flex items-center gap-1">
+          <AlertCircle size={12} /> {summaryError}
+        </p>
+      )}
+
+      {/* Summary Email Display */}
+      {summaryEmail && (
+        <div className="p-4 bg-indigo-500/5 rounded-2xl border border-indigo-500/20 animate-fade-in-up">
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-indigo-500/10">
+            <div className="flex items-center gap-2">
+              <Mails size={14} className="text-indigo-400" />
+              <p className="text-xs font-semibold text-gray-300">
+                <span className="text-gray-500 font-normal mr-2">Subject:</span>
+                {summaryEmail.subject}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={copySummaryToClipboard}
+                className="p-1.5 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-md transition-colors"
+                title="Copy to clipboard"
+              >
+                {isSummaryCopied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+              </button>
+              <button
+                onClick={() => setSummaryEmail(null)}
+                className="p-1.5 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-md transition-colors"
+                title="Dismiss"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+          <div className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap font-mono [tab-size:2]">
+            {summaryEmail.body}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4">
         {findings.map((finding) => (

@@ -211,3 +211,89 @@ export async function draftNegotiationEmail(
   }
 }
 
+// ── Summary Email Function ──────────────────────────────────
+const SUMMARY_EMAIL_PROMPT = `You are a tough, professional corporate lawyer negotiating a contract.
+Write a single, consolidated email to the counterparty addressing ALL of the following issues.
+
+Tone: Firm, polite, professional, and clear.
+Do not use placeholders like [Your Name], just write the core message that the user can copy.
+Group issues by severity (critical and high issues first). For each issue, reference the verbatim quote, explain why it needs modification, and propose a specific fix.
+Keep it concise — one paragraph per issue is enough. Include a professional opening and closing.
+Return your response as JSON with "subject" and "body" keys.`;
+
+export async function draftSummaryEmail(
+  issues: Array<{
+    risk_level: string;
+    quote: string;
+    explanation: string;
+    recommended_action: string;
+    page_number: number;
+  }>
+): Promise<{ subject: string; body: string }> {
+  if (issues.length === 0) {
+    throw new Error("No issues provided for summary email.");
+  }
+
+  const severityOrder: Record<string, number> = {
+    critical: 0, high: 1, medium: 2, low: 3, info: 4,
+  };
+  const sorted = [...issues].sort(
+    (a, b) => (severityOrder[a.risk_level] ?? 5) - (severityOrder[b.risk_level] ?? 5)
+  );
+
+  const issuesBlock = sorted
+    .map(
+      (i, idx) =>
+        `Issue ${idx + 1} (${i.risk_level.toUpperCase()}, page ${i.page_number}):\n` +
+        `Quote: "${i.quote}"\n` +
+        `Risk: ${i.explanation}\n` +
+        `Recommended Fix: ${i.recommended_action}`
+    )
+    .join("\n\n");
+
+  try {
+    const client = getClient();
+    const response = await client.models.generateContent({
+      model: GEMINI_MODEL,
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `Draft a single consolidated negotiation email addressing all of the following issues found in a contract:\n\n${issuesBlock}`,
+            },
+          ],
+        },
+      ],
+      config: {
+        systemInstruction: SUMMARY_EMAIL_PROMPT,
+        temperature: 0.3,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            subject: { type: "STRING" },
+            body: { type: "STRING" },
+          },
+          required: ["subject", "body"],
+        },
+      },
+    });
+
+    const text = (response.text || "").replace(/```json\n?|```/g, "").trim();
+    try {
+      const result = JSON.parse(text);
+      return {
+        subject: result.subject || `Contract Revision Request — ${issues.length} Issue${issues.length !== 1 ? "s" : ""}`,
+        body: result.body || "Please review the attached contract revision requests.",
+      };
+    } catch (parseErr) {
+      console.error("Summary Email Parsing Error:", parseErr, "Raw text:", text);
+      throw new Error("Failed to parse generated summary email.");
+    }
+  } catch (error) {
+    console.error("Error generating summary email:", error);
+    throw new Error("Failed to generate summary email.");
+  }
+}
+
