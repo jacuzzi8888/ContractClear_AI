@@ -41,11 +41,11 @@ const ITEMS_PER_PAGE = 10;
 
 const RiskIcon = ({ level }: { level: string }) => {
   switch (level) {
-    case "critical": return <AlertTriangle className="text-red-400" size={14} />;
-    case "high": return <AlertCircle className="text-orange-400" size={14} />;
-    case "medium": return <AlertCircle className="text-yellow-400" size={14} />;
-    case "low": return <CheckCircle2 className="text-green-400" size={14} />;
-    default: return <Info className="text-indigo-400" size={14} />;
+    case "critical": return <AlertTriangle className="text-red-600" size={14} />;
+    case "high": return <AlertCircle className="text-orange-600" size={14} />;
+    case "medium": return <AlertCircle className="text-yellow-600" size={14} />;
+    case "low": return <CheckCircle2 className="text-green-600" size={14} />;
+    default: return <Info className="text-[var(--color-brand-600)]" size={14} />;
   }
 };
 
@@ -117,11 +117,11 @@ export default function HistoryPage() {
   const completedDocs = docs.filter((d) => d.status === "completed").length;
 
   const statusColors: Record<string, string> = {
-    completed: "text-green-400",
-    processing: "text-yellow-400",
-    failed: "text-red-400",
-    pending: "text-gray-400",
-    queued: "text-indigo-400",
+    completed: "text-green-600",
+    processing: "text-yellow-600",
+    failed: "text-red-600",
+    pending: "text-[var(--color-surface-400)]",
+    queued: "text-[var(--color-brand-600)]",
   };
 
   return (
@@ -132,23 +132,23 @@ export default function HistoryPage() {
           <h1 className="text-4xl font-bold tracking-tight">
             Analysis <span className="gradient-text">History</span>
           </h1>
-          <p className="mt-2 text-gray-400 max-w-md">
+          <p className="mt-2 text-[var(--color-surface-500)] max-w-md">
             All your previously analyzed contracts and their risk assessments.
           </p>
         </div>
 
         <div className="flex gap-3">
-          <div className="glass-card px-5 py-3 rounded-2xl border border-white/5 text-center">
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest">Documents</p>
+          <div className="glass-card px-5 py-3 rounded-2xl border border-[var(--color-surface-200)] text-center">
+            <p className="text-[10px] text-[var(--color-surface-400)] uppercase tracking-widest">Documents</p>
             <p className="text-xl font-bold">{totalDocs}</p>
           </div>
-          <div className="glass-card px-5 py-3 rounded-2xl border border-white/5 text-center">
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest">Issues</p>
+          <div className="glass-card px-5 py-3 rounded-2xl border border-[var(--color-surface-200)] text-center">
+            <p className="text-[10px] text-[var(--color-surface-400)] uppercase tracking-widest">Issues</p>
             <p className="text-xl font-bold">{totalIssues}</p>
           </div>
-          <div className="glass-card px-5 py-3 rounded-2xl border border-white/5 text-center">
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest">Completed</p>
-            <p className="text-xl font-bold text-green-400">{completedDocs}</p>
+          <div className="glass-card px-5 py-3 rounded-2xl border border-[var(--color-surface-200)] text-center">
+            <p className="text-[10px] text-[var(--color-surface-400)] uppercase tracking-widest">Completed</p>
+            <p className="text-xl font-bold text-green-600">{completedDocs}</p>
           </div>
         </div>
       </div>
@@ -156,25 +156,25 @@ export default function HistoryPage() {
       {/* Search & Filter bar */}
       <div className="glass-card p-4 rounded-2xl mb-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-surface-400)]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by file name..."
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/30 transition-all"
+            className="w-full bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-2.5 pl-10 pr-4 text-sm text-[var(--color-surface-600)] placeholder:text-[var(--color-surface-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/30 focus:border-[var(--color-brand-500)]/30 transition-all"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <Filter size={14} className="text-gray-500 flex-shrink-0" />
+          <Filter size={14} className="text-[var(--color-surface-400)] flex-shrink-0" />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all appearance-none cursor-pointer"
+            className="bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-2.5 px-3 text-xs text-[var(--color-surface-600)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/30 transition-all appearance-none cursor-pointer"
           >
             {statusOptions.map((s) => (
-              <option key={s} value={s} className="bg-[var(--color-surface-900)] text-white">
+              <option key={s} value={s} className="bg-[var(--color-surface-50)] text-[var(--color-surface-600)]">
                 {s === "all" ? "All Statuses" : s.charAt(0).toUpperCase() + s.slice(1)}
               </option>
             ))}
@@ -183,10 +183,10 @@ export default function HistoryPage() {
           <select
             value={riskFilter}
             onChange={(e) => setRiskFilter(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all appearance-none cursor-pointer"
+            className="bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-2.5 px-3 text-xs text-[var(--color-surface-600)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/30 transition-all appearance-none cursor-pointer"
           >
             {riskOptions.map((r) => (
-              <option key={r} value={r} className="bg-[var(--color-surface-900)] text-white">
+              <option key={r} value={r} className="bg-[var(--color-surface-50)] text-[var(--color-surface-600)]">
                 {r === "all" ? "All Risk Levels" : r.charAt(0).toUpperCase() + r.slice(1)}
               </option>
             ))}
@@ -196,19 +196,19 @@ export default function HistoryPage() {
 
       {/* Results */}
       {loading ? (
-        <div className="glass-card p-16 rounded-3xl flex items-center justify-center gap-3 text-gray-400">
-          <Loader2 className="animate-spin" size={20} />
+        <div className="glass-card p-16 rounded-3xl flex items-center justify-center gap-3 text-[var(--color-surface-500)]">
+          <Loader2 className="animate-spin text-[var(--color-brand-600)]" size={20} />
           <span className="text-sm font-medium">Loading history...</span>
         </div>
       ) : filtered.length === 0 ? (
         <div className="glass-card p-16 rounded-3xl text-center">
-          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
-            <FileText className="text-gray-600" size={32} />
+          <div className="w-16 h-16 rounded-full bg-[var(--color-surface-200)] flex items-center justify-center mx-auto mb-6">
+            <FileText className="text-[var(--color-surface-400)]" size={32} />
           </div>
           {docs.length === 0 ? (
             <>
               <h2 className="text-xl font-bold mb-2">No analyses yet</h2>
-              <p className="text-gray-500 text-sm max-w-sm mx-auto mb-6">
+              <p className="text-[var(--color-surface-400)] text-sm max-w-sm mx-auto mb-6">
                 Upload your first contract from the dashboard to see your analysis history here.
               </p>
               <Link href="/dashboard" className="inline-flex items-center gap-2 px-6 py-3 btn-primary rounded-2xl text-sm font-bold">
@@ -218,7 +218,7 @@ export default function HistoryPage() {
           ) : (
             <>
               <h2 className="text-xl font-bold mb-2">No matches</h2>
-              <p className="text-gray-500 text-sm max-w-sm mx-auto">
+              <p className="text-[var(--color-surface-400)] text-sm max-w-sm mx-auto">
                 Try adjusting your search or filters.
               </p>
             </>
@@ -242,23 +242,23 @@ export default function HistoryPage() {
               return (
                 <div
                   key={doc.id}
-                  className="glass-card p-6 rounded-2xl border border-white/5 hover:border-white/10 transition-all group"
+                  className="glass-card p-6 rounded-2xl border border-[var(--color-surface-200)] hover:border-[var(--color-surface-300)] transition-all group"
                 >
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center border flex-shrink-0"
                       style={{
-                        backgroundColor: riskConfig?.bgColor || "rgba(255,255,255,0.05)",
-                        borderColor: riskConfig?.borderColor || "rgba(255,255,255,0.1)",
+                        backgroundColor: riskConfig?.bgColor || "var(--color-surface-100)",
+                        borderColor: riskConfig?.borderColor || "var(--color-surface-300)",
                       }}
                     >
                       <FileText size={22} style={{ color: riskConfig?.color || "#6B7280" }} />
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className="text-base font-semibold text-white truncate">{doc.file_name}</p>
+                      <p className="text-base font-semibold text-[var(--color-surface-700)] truncate">{doc.file_name}</p>
                       <div className="flex flex-wrap items-center gap-3 mt-1.5">
-                        <span className="text-[11px] text-gray-500 flex items-center gap-1">
+                        <span className="text-[11px] text-[var(--color-surface-400)] flex items-center gap-1">
                           <Clock size={11} />
                           {new Date(doc.created_at).toLocaleDateString("en-US", {
                             month: "short", day: "numeric", year: "numeric",
@@ -266,9 +266,9 @@ export default function HistoryPage() {
                           })}
                         </span>
                         {doc.page_count && (
-                          <span className="text-[11px] text-gray-500">{doc.page_count} pages</span>
+                          <span className="text-[11px] text-[var(--color-surface-400)]">{doc.page_count} pages</span>
                         )}
-                        <span className={`text-[11px] font-semibold capitalize ${statusColors[doc.status] || "text-gray-400"}`}>
+                        <span className={`text-[11px] font-semibold capitalize ${statusColors[doc.status] || "text-[var(--color-surface-400)]"}`}>
                           {doc.status}
                         </span>
                       </div>
@@ -297,7 +297,7 @@ export default function HistoryPage() {
                     {job && (
                       <Link
                         href={`/dashboard/report/${job.id}`}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 text-xs font-semibold text-white transition-colors flex-shrink-0"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] rounded-xl border border-[var(--color-surface-300)] text-xs font-semibold text-[var(--color-surface-600)] transition-colors flex-shrink-0"
                       >
                         <BarChart3 size={14} />
                         View Report
@@ -306,7 +306,7 @@ export default function HistoryPage() {
                   </div>
 
                   {job?.summary && (
-                    <p className="mt-4 text-sm text-gray-400 leading-relaxed border-t border-white/5 pt-4 line-clamp-2">
+                    <p className="mt-4 text-sm text-[var(--color-surface-500)] leading-relaxed border-t border-[var(--color-surface-200)] pt-4 line-clamp-2">
                       {job.summary}
                     </p>
                   )}
@@ -318,14 +318,14 @@ export default function HistoryPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-8 glass-card p-3 rounded-2xl">
-              <span className="text-xs text-gray-500 px-2">
+              <span className="text-xs text-[var(--color-surface-400)] px-2">
                 Showing {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
               </span>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 transition-colors"
+                  className="p-2 rounded-lg bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] disabled:opacity-30 disabled:hover:bg-[var(--color-surface-100)] transition-colors"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -335,8 +335,8 @@ export default function HistoryPage() {
                     onClick={() => setPage(p)}
                     className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
                       p === page
-                        ? "bg-[var(--color-brand-500)]/20 text-[var(--color-brand-400)]"
-                        : "bg-white/5 text-gray-400 hover:bg-white/10"
+                        ? "bg-[var(--color-brand-500)]/20 text-[var(--color-brand-600)]"
+                        : "bg-[var(--color-surface-100)] text-[var(--color-surface-500)] hover:bg-[var(--color-surface-200)]"
                     }`}
                   >
                     {p}
@@ -345,7 +345,7 @@ export default function HistoryPage() {
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 transition-colors"
+                  className="p-2 rounded-lg bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] disabled:opacity-30 disabled:hover:bg-[var(--color-surface-100)] transition-colors"
                 >
                   <ChevronRight size={16} />
                 </button>

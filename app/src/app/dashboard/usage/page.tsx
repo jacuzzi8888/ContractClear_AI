@@ -90,7 +90,7 @@ export default function UsagePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-[var(--color-brand-600)] animate-spin" />
       </div>
     );
   }
@@ -104,14 +104,14 @@ export default function UsagePage() {
         <h1 className="text-4xl font-bold tracking-tight">
           Usage & <span className="gradient-text">Billing</span>
         </h1>
-        <p className="mt-2 text-gray-400">
+        <p className="mt-2 text-[var(--color-surface-500)]">
           Track your analysis usage and account activity.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: "Total Documents", value: stats.totalDocs, icon: FileText, color: "text-indigo-400" },
+          { label: "Total Documents", value: stats.totalDocs, icon: FileText, color: "text-[var(--color-brand-700)]" },
           { label: "Issues Found", value: stats.totalIssues, icon: AlertTriangle, color: "text-orange-400" },
           { label: "This Month", value: stats.docsThisMonth, icon: Calendar, color: "text-green-400" },
           { label: "Avg Issues/Doc", value: stats.avgIssuesPerDoc, icon: TrendingUp, color: "text-purple-400" },
@@ -121,7 +121,7 @@ export default function UsagePage() {
             <div key={stat.label} className="glass-card p-5 rounded-2xl">
               <div className="flex items-center gap-2 mb-3">
                 <Icon size={14} className={stat.color} />
-                <span className="text-[10px] text-gray-500 uppercase tracking-widest">{stat.label}</span>
+                <span className="text-[10px] text-[var(--color-surface-500)] uppercase tracking-widest">{stat.label}</span>
               </div>
               <p className="text-3xl font-bold">{stat.value}</p>
             </div>
@@ -132,29 +132,29 @@ export default function UsagePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Success/failure */}
         <div className="glass-card p-6 rounded-2xl">
-          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Analysis Outcomes</h3>
+          <h3 className="text-sm font-bold text-[var(--color-surface-500)] uppercase tracking-wider mb-4">Analysis Outcomes</h3>
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs text-gray-400">Completed</span>
+                <span className="text-xs text-[var(--color-surface-500)]">Completed</span>
                 <span className="text-xs font-mono text-green-400">{stats.completedDocs}</span>
               </div>
-              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-2 bg-[var(--color-surface-200)] rounded-full overflow-hidden">
                 <div className="h-full bg-green-500 rounded-full transition-all duration-500" style={{ width: `${stats.totalDocs ? Math.round((stats.completedDocs / stats.totalDocs) * 100) : 0}%` }} />
               </div>
             </div>
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs text-gray-400">Failed</span>
+                <span className="text-xs text-[var(--color-surface-500)]">Failed</span>
                 <span className="text-xs font-mono text-red-400">{stats.failedDocs}</span>
               </div>
-              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-2 bg-[var(--color-surface-200)] rounded-full overflow-hidden">
                 <div className="h-full bg-red-500 rounded-full transition-all duration-500" style={{ width: `${stats.totalDocs ? Math.round((stats.failedDocs / stats.totalDocs) * 100) : 0}%` }} />
               </div>
             </div>
           </div>
           {stats.lastAnalysis && (
-            <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-xs text-gray-500">
+            <div className="mt-4 pt-4 border-t border-[var(--color-surface-200)] flex items-center gap-2 text-xs text-[var(--color-surface-500)]">
               <Clock size={12} /> Last analysis: {new Date(stats.lastAnalysis).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
             </div>
           )}
@@ -162,9 +162,9 @@ export default function UsagePage() {
 
         {/* Risk distribution */}
         <div className="glass-card p-6 rounded-2xl">
-          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Risk Distribution</h3>
+          <h3 className="text-sm font-bold text-[var(--color-surface-500)] uppercase tracking-wider mb-4">Risk Distribution</h3>
           {Object.keys(stats.riskBreakdown).length === 0 ? (
-            <p className="text-sm text-gray-500 py-8 text-center">No risk data yet. Analyze your first contract to see the breakdown.</p>
+            <p className="text-sm text-[var(--color-surface-500)] py-8 text-center">No risk data yet. Analyze your first contract to see the breakdown.</p>
           ) : (
             <div className="space-y-3">
               {riskOrder.map((level) => {
@@ -176,9 +176,9 @@ export default function UsagePage() {
                   <div key={level} className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold capitalize" style={{ color: config.color }}>{config.label}</span>
-                      <span className="text-xs font-mono text-gray-500">{count}</span>
+                      <span className="text-xs font-mono text-[var(--color-surface-500)]">{count}</span>
                     </div>
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-2 bg-[var(--color-surface-200)] rounded-full overflow-hidden">
                       <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: config.color }} />
                     </div>
                   </div>
@@ -192,15 +192,15 @@ export default function UsagePage() {
       {/* Plan info — placeholder */}
       <div className="glass-card p-6 rounded-2xl mt-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-            <Zap size={18} className="text-indigo-400" />
+          <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] flex items-center justify-center">
+            <Zap size={18} className="text-[var(--color-brand-700)]" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">Free Plan</h3>
-            <p className="text-xs text-gray-500">Unlimited analyses during beta</p>
+            <h3 className="text-base font-bold text-[var(--color-surface-900)]">Free Plan</h3>
+            <p className="text-xs text-[var(--color-surface-500)]">Unlimited analyses during beta</p>
           </div>
         </div>
-        <p className="text-sm text-gray-400 leading-relaxed">
+        <p className="text-sm text-[var(--color-surface-500)] leading-relaxed">
           You&apos;re on the free plan with unlimited contract analyses. We&apos;re currently in beta — enjoy full access while it lasts.
         </p>
       </div>

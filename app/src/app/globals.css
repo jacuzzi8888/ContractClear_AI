@@ -1,47 +1,68 @@
 @import "tailwindcss";
 
 /* ============================================================
-   ContractClear AI — Design System
+   ContractClear AI — Design System v2
+   Light, professional, Excel-inspired
    ============================================================ */
 
 @theme {
-  /* Brand Palette */
-  --color-brand-50: #EEF2FF;
-  --color-brand-100: #E0E7FF;
-  --color-brand-200: #C7D2FE;
-  --color-brand-300: #A5B4FC;
-  --color-brand-400: #818CF8;
-  --color-brand-500: #6366F1;
-  --color-brand-600: #4F46E5;
-  --color-brand-700: #4338CA;
-  --color-brand-800: #3730A3;
-  --color-brand-900: #312E81;
+  /* Brand — Deep Sea Green / Teal */
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
 
   /* Neutral / Surface */
-  --color-surface-50: #F8FAFC;
-  --color-surface-100: #F1F5F9;
-  --color-surface-200: #E2E8F0;
-  --color-surface-300: #CBD5E1;
-  --color-surface-400: #94A3B8;
-  --color-surface-500: #64748B;
-  --color-surface-600: #475569;
-  --color-surface-700: #334155;
-  --color-surface-800: #1E293B;
-  --color-surface-900: #0F172A;
-  --color-surface-950: #020617;
+  --color-surface-50: #ffffff;
+  --color-surface-100: #f8fafc;
+  --color-surface-200: #f1f5f9;
+  --color-surface-300: #e2e8f0;
+  --color-surface-400: #cbd5e1;
+  --color-surface-500: #94a3b8;
+  --color-surface-600: #64748b;
+  --color-surface-700: #475569;
+  --color-surface-800: #334155;
+  --color-surface-900: #1e293b;
+  --color-surface-950: #0f172a;
+
+  /* Accent — Orange */
+  --color-accent-50: #fff7ed;
+  --color-accent-100: #ffedd5;
+  --color-accent-200: #fed7aa;
+  --color-accent-300: #fdba74;
+  --color-accent-400: #fb923c;
+  --color-accent-500: #f97316;
+  --color-accent-600: #ea580c;
+  --color-accent-700: #c2410c;
 
   /* Semantic Colors */
-  --color-critical: #EF4444;
-  --color-high: #F97316;
-  --color-medium: #EAB308;
-  --color-low: #22C55E;
-  --color-info: #6366F1;
+  --color-critical: #dc2626;
+  --color-critical-bg: #fef2f2;
+  --color-critical-border: #fecaca;
+  --color-high: #ea580c;
+  --color-high-bg: #fff7ed;
+  --color-high-border: #fed7aa;
+  --color-medium: #d97706;
+  --color-medium-bg: #fffbeb;
+  --color-medium-border: #fde68a;
+  --color-low: #16a34a;
+  --color-low-bg: #f0fdf4;
+  --color-low-border: #bbf7d0;
+  --color-info: #0d9488;
+  --color-info-bg: #f0fdfa;
+  --color-info-border: #99f6e4;
 
   /* Typography */
   --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 
-  /* Spacing Scale */
+  /* Border Radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -64,57 +85,66 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-surface-950);
-  color: var(--color-surface-100);
+  background-color: var(--color-surface-100);
+  color: var(--color-surface-800);
   min-height: 100dvh;
+  line-height: 1.6;
 }
 
-/* ---- Glass Card ---- */
-.glass-card {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.03) 0%,
-    rgba(255, 255, 255, 0.01) 100%
-  );
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+/* ---- Cards ---- */
+.card {
+  background: var(--color-surface-50);
+  border: 1px solid var(--color-surface-300);
   border-radius: var(--radius-xl);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--color-surface-400);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* Keep glass-card for backwards compat — now styled as clean card */
+.glass-card {
+  background: var(--color-surface-50);
+  border: 1px solid var(--color-surface-300);
+  border-radius: var(--radius-xl);
+  transition: all 0.2s ease;
 }
 
 .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.2);
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.05);
+  border-color: var(--color-surface-400);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 /* ---- Gradient Text ---- */
 .gradient-text {
-  background: linear-gradient(135deg, #818CF8, #6366F1, #4F46E5);
+  background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-700));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* ---- Glow Button ---- */
+/* ---- Buttons ---- */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.625rem 1.25rem;
   font-weight: 600;
   font-size: 0.875rem;
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  background: var(--color-brand-600);
   color: white;
   border: none;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  transition: all 0.15s ease;
 }
 
 .btn-primary:hover {
+  background: var(--color-brand-700);
   transform: translateY(-1px);
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25);
 }
 
 .btn-primary:active {
@@ -125,20 +155,21 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.625rem 1.25rem;
   font-weight: 600;
   font-size: 0.875rem;
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--color-surface-200);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-surface-50);
+  color: var(--color-surface-700);
+  border: 1px solid var(--color-surface-300);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease;
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--color-surface-200);
+  border-color: var(--color-surface-400);
+  color: var(--color-surface-800);
 }
 
 /* ---- Status Badge ---- */
@@ -171,7 +202,7 @@ body {
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -180,7 +211,7 @@ body {
 }
 
 .animate-fade-in-up {
-  animation: fade-in-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: fade-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* ---- Shimmer Skeleton ---- */
@@ -192,11 +223,64 @@ body {
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.03) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03) 75%
+    var(--color-surface-200) 25%,
+    var(--color-surface-300) 50%,
+    var(--color-surface-200) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: var(--radius-md);
+}
+
+/* ---- Input Styles ---- */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+select,
+textarea {
+  background: var(--color-surface-50);
+  border: 1px solid var(--color-surface-300);
+  border-radius: var(--radius-lg);
+  color: var(--color-surface-800);
+  transition: all 0.15s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-surface-400);
+}
+
+/* ---- Risk Level Card Styles ---- */
+.risk-critical {
+  border-left: 4px solid var(--color-critical);
+  background: var(--color-critical-bg);
+}
+
+.risk-high {
+  border-left: 4px solid var(--color-high);
+  background: var(--color-high-bg);
+}
+
+.risk-medium {
+  border-left: 4px solid var(--color-medium);
+  background: var(--color-medium-bg);
+}
+
+.risk-low {
+  border-left: 4px solid var(--color-low);
+  background: var(--color-low-bg);
+}
+
+.risk-info {
+  border-left: 4px solid var(--color-info);
+  background: var(--color-info-bg);
 }

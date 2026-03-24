@@ -80,7 +80,7 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
         const errorData = await jobRes.json().catch(() => ({}));
         throw new Error(errorData.details || errorData.error || "Analysis trigger failed");
       }
-      
+
       setStatus("success");
       setProgress(100);
       onJobStart(documentId);
@@ -106,52 +106,52 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
           {...getRootProps()}
           className={cn(
             "relative group overflow-hidden glass-card rounded-3xl border-2 border-dashed transition-all duration-300 p-12 md:p-20 text-center cursor-pointer",
-            isDragActive 
-              ? "border-[var(--color-brand-400)] bg-[var(--color-brand-500)]/5 scale-[0.99]" 
-              : "border-white/10 hover:border-white/20 hover:bg-white/5"
+            isDragActive
+              ? "border-[var(--color-brand-400)] bg-[var(--color-brand-50)] scale-[0.99]"
+              : "border-[var(--color-surface-300)] hover:border-[var(--color-brand-400)] hover:bg-[var(--color-surface-100)]"
           )}
         >
           <input {...getInputProps()} />
           <div className="relative z-10">
-            <div className="w-20 h-20 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
-              <Upload className="text-[var(--color-brand-400)]" size={32} />
+            <div className="w-20 h-20 bg-gradient-to-br from-[var(--color-brand-50)] to-[var(--color-brand-100)] rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+              <Upload className="text-[var(--color-brand-600)]" size={32} />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2 leading-tight">
+            <h3 className="text-2xl font-bold text-[var(--color-surface-900)] mb-2 leading-tight">
               Ready to clear your contract?
             </h3>
-            <p className="text-gray-400 text-sm max-w-xs mx-auto mb-8">
+            <p className="text-[var(--color-surface-500)] text-sm max-w-xs mx-auto mb-8">
               Drag and drop your contract PDF here to instantly detect hidden risks and legal pitfalls.
             </p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-xs font-bold uppercase tracking-widest group-hover:bg-indigo-500/20 transition-colors">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] rounded-full text-[var(--color-brand-700)] text-xs font-bold uppercase tracking-widest group-hover:bg-[var(--color-brand-100)] transition-colors">
               <FileSearch size={14} />
               Support PDFs up to 50MB
             </div>
           </div>
-          
+
           {/* Animated background glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-indigo-500/5 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[var(--color-brand-50)] blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
         </div>
       ) : (
-        <div className="glass-card rounded-3xl p-6 md:p-8 border border-white/10 relative overflow-hidden">
+        <div className="glass-card rounded-3xl p-6 md:p-8 border border-[var(--color-surface-300)] relative overflow-hidden">
           <div className="flex items-start justify-between relative z-10">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
-                <FileText className="text-indigo-400" size={28} />
+              <div className="w-14 h-14 bg-[var(--color-surface-100)] rounded-2xl flex items-center justify-center border border-[var(--color-surface-300)]">
+                <FileText className="text-[var(--color-brand-600)]" size={28} />
               </div>
               <div>
-                <h4 className="font-bold text-lg text-white truncate max-w-[200px] md:max-w-md">
+                <h4 className="font-bold text-lg text-[var(--color-surface-900)] truncate max-w-[200px] md:max-w-md">
                   {file.name}
                 </h4>
-                <p className="text-sm text-gray-500 uppercase tracking-tighter">
+                <p className="text-sm text-[var(--color-surface-500)] uppercase tracking-tighter">
                   {(file.size / (1024 * 1024)).toFixed(2)} MB • PDF Document
                 </p>
               </div>
             </div>
-            
+
             {(status === "idle" || status === "error") && (
-              <button 
+              <button
                 onClick={reset}
-                className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors"
+                className="p-2 hover:bg-[var(--color-surface-200)] rounded-full text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] transition-colors"
               >
                 <X size={20} />
               </button>
@@ -162,7 +162,7 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
             {status === "idle" && (
               <button
                 onClick={uploadFile}
-                className="w-full btn-primary py-4 rounded-2xl text-lg font-bold shadow-xl shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all active:scale-[0.98]"
+                className="w-full btn-primary py-4 rounded-2xl text-lg font-bold shadow-xl shadow-[var(--color-brand-500)]/10 hover:shadow-[var(--color-brand-500)]/20 transition-all active:scale-[0.98]"
               >
                 Analyze Securely
               </button>
@@ -172,16 +172,16 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
               <div className="space-y-4">
                 <div className="flex justify-between items-end">
                   <div className="flex items-center gap-3">
-                    <Loader2 className="animate-spin text-indigo-400" size={20} />
-                    <span className="text-sm font-bold text-white uppercase tracking-widest">
+                    <Loader2 className="animate-spin text-[var(--color-brand-600)]" size={20} />
+                    <span className="text-sm font-bold text-[var(--color-surface-900)] uppercase tracking-widest">
                       {status === "uploading" ? "Encrypting & Uploading..." : "AI Processing Pipeline..."}
                     </span>
                   </div>
-                  <span className="text-xs font-mono text-gray-500">{progress}%</span>
+                  <span className="text-xs font-mono text-[var(--color-surface-500)]">{progress}%</span>
                 </div>
-                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                  <div 
-                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300 ease-out"
+                <div className="h-2 w-full bg-[var(--color-surface-200)] rounded-full overflow-hidden border border-[var(--color-surface-200)]">
+                  <div
+                    className="h-full bg-gradient-to-r from-[var(--color-brand-500)] to-[var(--color-brand-600)] transition-all duration-300 ease-out"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -189,7 +189,7 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
             )}
 
             {status === "success" && !isExternalProcessing && (
-              <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4 flex items-center gap-3 text-green-400">
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 text-green-600">
                 <CheckCircle2 size={24} />
                 <div className="flex-1">
                   <p className="text-sm font-bold uppercase tracking-wider">Analysis Queued</p>
@@ -199,15 +199,15 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
             )}
 
             {status === "error" && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3 text-red-400 animate-shake">
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 text-red-600 animate-shake">
                 <AlertTriangle size={24} />
                 <div className="flex-1">
                   <p className="text-sm font-bold uppercase tracking-wider">Upload Failed</p>
                   <p className="text-xs opacity-70">{errorMessage}</p>
                 </div>
-                <button 
+                <button
                   onClick={uploadFile}
-                  className="px-4 py-1.5 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-xs font-bold transition-colors"
+                  className="px-4 py-1.5 bg-red-100 hover:bg-red-200 rounded-lg text-xs font-bold transition-colors"
                 >
                   Retry
                 </button>
@@ -216,8 +216,8 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
           </div>
 
           {/* Progress background fill */}
-          <div 
-            className="absolute bottom-0 left-0 h-1 bg-indigo-500/20 blur-sm transition-all duration-300"
+          <div
+            className="absolute bottom-0 left-0 h-1 bg-[var(--color-brand-200)] blur-sm transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>

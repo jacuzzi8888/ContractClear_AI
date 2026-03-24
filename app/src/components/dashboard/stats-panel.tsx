@@ -67,8 +67,8 @@ export function StatsPanel({ refreshKey }: { refreshKey?: number }) {
 
   const dominantRiskColor =
     dominantRisk !== "—"
-      ? RISK_LEVEL_CONFIG[dominantRisk as RiskLevel]?.color || "#9CA3AF"
-      : "#9CA3AF";
+      ? RISK_LEVEL_CONFIG[dominantRisk as RiskLevel]?.color || "#6B7280"
+      : "#6B7280";
 
   const riskOrder: RiskLevel[] = ["critical", "high", "medium", "low", "info"];
   const maxRiskCount = Math.max(1, ...Object.values(riskBreakdown));
@@ -76,25 +76,25 @@ export function StatsPanel({ refreshKey }: { refreshKey?: number }) {
   return (
     <div className="space-y-6 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
       {/* Stats cards */}
-      <div className="glass-card p-6 rounded-3xl bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-white/10">
-        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">
+      <div className="glass-card p-6 rounded-3xl bg-gradient-to-br from-[var(--color-brand-50)] to-[var(--color-surface-100)] border border-[var(--color-surface-200)]">
+        <h3 className="text-sm font-bold text-[var(--color-surface-500)] uppercase tracking-wider mb-4">
           Activity Snapshot
         </h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/5">
-            <span className="text-xs text-gray-400 flex items-center gap-2">
+          <div className="flex items-center justify-between p-3 bg-[var(--color-surface-50)] rounded-2xl border border-[var(--color-surface-200)]">
+            <span className="text-xs text-[var(--color-surface-500)] flex items-center gap-2">
               <BarChart3 size={12} /> Documents
             </span>
-            <span className="text-sm font-bold">{totalDocs}</span>
+            <span className="text-sm font-bold text-[var(--color-surface-900)]">{totalDocs}</span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/5">
-            <span className="text-xs text-gray-400 flex items-center gap-2">
+          <div className="flex items-center justify-between p-3 bg-[var(--color-surface-50)] rounded-2xl border border-[var(--color-surface-200)]">
+            <span className="text-xs text-[var(--color-surface-500)] flex items-center gap-2">
               <AlertCircle size={12} /> Issues Found
             </span>
-            <span className="text-sm font-bold">{totalIssues}</span>
+            <span className="text-sm font-bold text-[var(--color-surface-900)]">{totalIssues}</span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/5">
-            <span className="text-xs text-gray-400 flex items-center gap-2">
+          <div className="flex items-center justify-between p-3 bg-[var(--color-surface-50)] rounded-2xl border border-[var(--color-surface-200)]">
+            <span className="text-xs text-[var(--color-surface-500)] flex items-center gap-2">
               <TrendingUp size={12} /> Top Risk
             </span>
             <span
@@ -105,11 +105,11 @@ export function StatsPanel({ refreshKey }: { refreshKey?: number }) {
             </span>
           </div>
           {lastAnalysis && (
-            <div className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/5">
-              <span className="text-xs text-gray-400 flex items-center gap-2">
+            <div className="flex items-center justify-between p-3 bg-[var(--color-surface-50)] rounded-2xl border border-[var(--color-surface-200)]">
+              <span className="text-xs text-[var(--color-surface-500)] flex items-center gap-2">
                 <Clock size={12} /> Last Analysis
               </span>
-              <span className="text-xs font-medium text-gray-300">
+              <span className="text-xs font-medium text-[var(--color-surface-700)]">
                 {new Date(lastAnalysis).toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
@@ -122,8 +122,8 @@ export function StatsPanel({ refreshKey }: { refreshKey?: number }) {
 
       {/* Risk distribution chart */}
       {Object.keys(riskBreakdown).length > 0 && (
-        <div className="glass-card p-6 rounded-3xl border border-white/10">
-          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">
+        <div className="glass-card p-6 rounded-3xl border border-[var(--color-surface-200)]">
+          <h3 className="text-sm font-bold text-[var(--color-surface-500)] uppercase tracking-wider mb-4">
             Risk Distribution
           </h3>
           <div className="space-y-3">
@@ -138,9 +138,9 @@ export function StatsPanel({ refreshKey }: { refreshKey?: number }) {
                     <span className="text-[11px] font-semibold capitalize" style={{ color: config.color }}>
                       {config.label}
                     </span>
-                    <span className="text-[11px] font-mono text-gray-500">{count}</span>
+                    <span className="text-[11px] font-mono text-[var(--color-surface-500)]">{count}</span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-[var(--color-surface-200)] rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{ width: `${pct}%`, backgroundColor: config.color }}

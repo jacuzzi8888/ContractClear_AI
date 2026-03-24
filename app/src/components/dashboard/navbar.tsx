@@ -46,12 +46,12 @@ export function Navbar({ user }: NavbarProps) {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[var(--color-surface-950)]/80 backdrop-blur-xl">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--color-surface-300)] bg-[var(--color-surface-50)]/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2.5">
-              <Shield className="h-6 w-6 text-[var(--color-brand-400)]" />
-              <span className="text-lg font-bold tracking-tight">
+              <Shield className="h-6 w-6 text-[var(--color-brand-600)]" />
+              <span className="text-lg font-bold tracking-tight text-[var(--color-surface-900)]">
                 Contract<span className="gradient-text">Clear</span>
               </span>
             </Link>
@@ -64,8 +64,8 @@ export function Navbar({ user }: NavbarProps) {
                   href={link.href}
                   className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                     isActive(link.href)
-                      ? "bg-[var(--color-brand-500)]/10 text-[var(--color-brand-400)]"
-                      : "text-gray-400 hover:text-white"
+                      ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)]"
+                      : "text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)]"
                   }`}
                 >
                   {link.label}
@@ -78,7 +78,7 @@ export function Navbar({ user }: NavbarProps) {
             {/* User info — hidden on small screens */}
             {user && (
               <div className="hidden sm:flex flex-col items-end mr-1">
-                <span className="text-xs font-medium text-white">
+                <span className="text-xs font-medium text-[var(--color-surface-900)]">
                   {user.user_metadata?.full_name || user.email}
                 </span>
                 <span className="text-[10px] text-gray-500">Legal Reviewer</span>
@@ -88,28 +88,28 @@ export function Navbar({ user }: NavbarProps) {
             {/* Sign out — desktop */}
             <Link
               href="/dashboard/settings"
-              className="hidden md:flex p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+              className="hidden md:flex p-2 rounded-xl bg-[var(--color-surface-100)] border border-[var(--color-surface-300)] hover:bg-white/10 transition-colors"
               title="Settings"
             >
-              <Settings className="h-5 w-5 text-gray-400 hover:text-white transition-colors" />
+              <Settings className="h-5 w-5 text-[var(--color-surface-500)] hover:text-white transition-colors" />
             </Link>
             <button
               onClick={handleSignOut}
               disabled={isSignOutLoading}
-              className="hidden md:flex p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group"
+              className="hidden md:flex p-2 rounded-xl bg-[var(--color-surface-100)] border border-[var(--color-surface-300)] hover:bg-white/10 transition-colors group"
               title="Sign Out"
             >
               {isSignOutLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <LogOut className="h-5 w-5 text-gray-400 group-hover:text-red-400 transition-colors" />
+                <LogOut className="h-5 w-5 text-[var(--color-surface-500)] group-hover:text-red-500 transition-colors" />
               )}
             </button>
 
             {/* Hamburger — mobile */}
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+              className="md:hidden p-2 rounded-xl bg-[var(--color-surface-100)] border border-[var(--color-surface-300)] hover:bg-white/10 transition-colors"
             >
               <Menu className="h-5 w-5 text-gray-400" />
             </button>
@@ -127,17 +127,17 @@ export function Navbar({ user }: NavbarProps) {
           />
 
           {/* Drawer */}
-          <div className="absolute right-0 top-0 bottom-0 w-72 bg-[var(--color-surface-950)] border-l border-white/10 p-6 flex flex-col animate-fade-in-up">
+          <div className="absolute right-0 top-0 bottom-0 w-72 bg-[var(--color-surface-50)] border-l border-[var(--color-surface-300)] p-6 flex flex-col animate-fade-in-up">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-[var(--color-brand-400)]" />
+                <Shield className="h-5 w-5 text-[var(--color-brand-600)]" />
                 <span className="text-sm font-bold">
                   Contract<span className="gradient-text">Clear</span>
                 </span>
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                className="p-1.5 rounded-lg bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] transition-colors"
               >
                 <X className="h-4 w-4 text-gray-400" />
               </button>
@@ -145,8 +145,8 @@ export function Navbar({ user }: NavbarProps) {
 
             {/* User card */}
             {user && (
-              <div className="p-3 bg-white/5 rounded-xl border border-white/5 mb-6">
-                <p className="text-sm font-medium text-white truncate">
+              <div className="p-3 bg-[var(--color-surface-100)] rounded-xl border border-[var(--color-surface-200)] mb-6">
+                <p className="text-sm font-medium text-[var(--color-surface-900)] truncate">
                   {user.user_metadata?.full_name || user.email}
                 </p>
                 <p className="text-[10px] text-gray-500 mt-0.5">Legal Reviewer</p>
@@ -164,8 +164,8 @@ export function Navbar({ user }: NavbarProps) {
                     onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                       isActive(link.href)
-                        ? "bg-[var(--color-brand-500)]/10 text-[var(--color-brand-400)]"
-                        : "text-gray-400 hover:text-white hover:bg-white/5"
+                        ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)]"
+                        : "text-[var(--color-surface-600)] hover:text-[var(--color-surface-900)] hover:bg-[var(--color-surface-100)]"
                     }`}
                   >
                     <Icon size={18} />
@@ -176,21 +176,21 @@ export function Navbar({ user }: NavbarProps) {
               <Link
                 href="/dashboard"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-surface-600)] hover:text-[var(--color-surface-900)] hover:bg-[var(--color-surface-100)] transition-colors"
               >
                 <Upload size={18} />
                 New Analysis
               </Link>
 
-              <div className="border-t border-white/5 my-2" />
+              <div className="border-t border-[var(--color-surface-200)] my-2" />
 
               <Link
                 href="/dashboard/settings"
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                   isActive("/dashboard/settings")
-                    ? "bg-[var(--color-brand-500)]/10 text-[var(--color-brand-400)]"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                    ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)]"
+                    : "text-[var(--color-surface-600)] hover:text-[var(--color-surface-900)] hover:bg-[var(--color-surface-100)]"
                 }`}
               >
                 <Settings size={18} />
@@ -199,7 +199,7 @@ export function Navbar({ user }: NavbarProps) {
               <Link
                 href="/help"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-surface-600)] hover:text-[var(--color-surface-900)] hover:bg-[var(--color-surface-100)] transition-colors"
               >
                 <HelpCircle size={18} />
                 Help
@@ -210,7 +210,7 @@ export function Navbar({ user }: NavbarProps) {
             <button
               onClick={handleSignOut}
               disabled={isSignOutLoading}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors mt-4 w-full"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors mt-4 w-full"
             >
               {isSignOutLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

@@ -114,28 +114,28 @@ function FAQSection({ title, icon: Icon, items }: { title: string; icon: typeof 
   return (
     <div className="glass-card p-6 rounded-2xl">
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-          <Icon size={16} className="text-indigo-400" />
+        <div className="w-8 h-8 rounded-lg bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] flex items-center justify-center">
+          <Icon size={16} className="text-[var(--color-brand-700)]" />
         </div>
-        <h2 className="text-lg font-bold text-white">{title}</h2>
+        <h2 className="text-lg font-bold text-[var(--color-surface-900)]">{title}</h2>
       </div>
       <div className="space-y-2">
         {items.map((item, index) => (
-          <div key={index} className="border border-white/5 rounded-xl overflow-hidden">
+          <div key={index} className="border border-[var(--color-surface-200)] rounded-xl overflow-hidden">
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-white/[0.03] transition-colors"
+              className="w-full flex items-center justify-between p-4 text-left hover:bg-[var(--color-surface-100)] transition-colors"
             >
-              <span className="text-sm font-medium text-white pr-4">{item.question}</span>
+              <span className="text-sm font-medium text-[var(--color-surface-900)] pr-4">{item.question}</span>
               {openIndex === index ? (
-                <ChevronUp size={16} className="text-gray-500 flex-shrink-0" />
+                <ChevronUp size={16} className="text-[var(--color-surface-500)] flex-shrink-0" />
               ) : (
-                <ChevronDown size={16} className="text-gray-500 flex-shrink-0" />
+                <ChevronDown size={16} className="text-[var(--color-surface-500)] flex-shrink-0" />
               )}
             </button>
             {openIndex === index && (
               <div className="px-4 pb-4 animate-fade-in-up">
-                <p className="text-sm text-gray-400 leading-relaxed">{item.answer}</p>
+                <p className="text-sm text-[var(--color-surface-500)] leading-relaxed">{item.answer}</p>
               </div>
             )}
           </div>
@@ -148,7 +148,7 @@ function FAQSection({ title, icon: Icon, items }: { title: string; icon: typeof 
 export default function HelpPage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[var(--color-surface-950)]/80 backdrop-blur-xl">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--color-surface-200)] bg-[var(--color-surface-50)]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2.5">
             <Shield className="h-6 w-6 text-[var(--color-brand-400)]" />
@@ -156,7 +156,7 @@ export default function HelpPage() {
               Contract<span className="gradient-text">Clear</span>
             </span>
           </Link>
-          <Link href="/" className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+          <Link href="/" className="text-sm text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] transition-colors flex items-center gap-1">
             <ArrowLeft size={14} /> Back to Home
           </Link>
         </div>
@@ -164,13 +164,13 @@ export default function HelpPage() {
 
       <main className="mx-auto max-w-3xl px-6 pt-28 pb-16 animate-fade-in">
         <div className="text-center mb-12">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mx-auto mb-4">
-            <HelpCircle size={28} className="text-indigo-400" />
+          <div className="w-16 h-16 rounded-2xl bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] flex items-center justify-center mx-auto mb-4">
+            <HelpCircle size={28} className="text-[var(--color-brand-700)]" />
           </div>
           <h1 className="text-4xl font-bold tracking-tight mb-2">
             Help & <span className="gradient-text">FAQ</span>
           </h1>
-          <p className="text-gray-400 max-w-md mx-auto">
+          <p className="text-[var(--color-surface-500)] max-w-md mx-auto">
             Find answers to common questions about ContractClear AI.
           </p>
         </div>
@@ -182,23 +182,23 @@ export default function HelpPage() {
         </div>
 
         <div className="mt-12 glass-card p-8 rounded-2xl text-center">
-          <h3 className="text-lg font-bold text-white mb-2">Still have questions?</h3>
-          <p className="text-sm text-gray-400 mb-4 max-w-sm mx-auto">
+          <h3 className="text-lg font-bold text-[var(--color-surface-900)] mb-2">Still have questions?</h3>
+          <p className="text-sm text-[var(--color-surface-500)] mb-4 max-w-sm mx-auto">
             If you can&apos;t find the answer you&apos;re looking for, check our legal pages for more details.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Link href="/terms" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+            <Link href="/terms" className="text-sm text-[var(--color-brand-700)] hover:text-[var(--color-brand-700)] transition-colors">
               Terms of Service
             </Link>
-            <span className="text-gray-600">|</span>
-            <Link href="/privacy" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+            <span className="text-[var(--color-surface-400)]">|</span>
+            <Link href="/privacy" className="text-sm text-[var(--color-brand-700)] hover:text-[var(--color-brand-700)] transition-colors">
               Privacy Policy
             </Link>
           </div>
         </div>
       </main>
 
-      <footer className="border-t border-white/5 py-8 text-center text-xs text-[var(--color-surface-500)]">
+      <footer className="border-t border-[var(--color-surface-200)] py-8 text-center text-xs text-[var(--color-surface-500)]">
         <p>ContractClear AI is not a substitute for legal counsel. All outputs are for informational purposes only.</p>
       </footer>
     </div>

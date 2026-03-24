@@ -151,7 +151,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-[var(--color-brand-600)] animate-spin" />
       </div>
     );
   }
@@ -162,7 +162,7 @@ export default function SettingsPage() {
         <h1 className="text-4xl font-bold tracking-tight">
           Account <span className="gradient-text">Settings</span>
         </h1>
-        <p className="mt-2 text-gray-400">
+        <p className="mt-2 text-[var(--color-surface-500)]">
           Manage your profile, security, and preferences.
         </p>
       </div>
@@ -171,29 +171,29 @@ export default function SettingsPage() {
         {/* ── Profile ─────────────────────────────────── */}
         <div className="glass-card p-6 rounded-2xl">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-              <User size={18} className="text-indigo-400" />
+            <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] flex items-center justify-center">
+              <User size={18} className="text-[var(--color-brand-700)]" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Profile</h2>
-              <p className="text-xs text-gray-500">Your name and display information</p>
+              <h2 className="text-base font-bold text-[var(--color-surface-900)]">Profile</h2>
+              <p className="text-xs text-[var(--color-surface-500)]">Your name and display information</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-gray-400 ml-1 mb-1.5 block">Full Name</label>
+              <label className="text-xs font-medium text-[var(--color-surface-500)] ml-1 mb-1.5 block">Full Name</label>
               <input
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/50 transition-all"
+                className="w-full bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-2.5 px-4 text-sm text-[var(--color-surface-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/40 focus:border-[var(--color-brand-500)]/50 transition-all"
                 placeholder="Your full name"
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-400 ml-1 mb-1.5 block">Email</label>
-              <p className="text-sm text-gray-300 py-2.5 px-4 bg-white/5 rounded-xl border border-white/5">{user?.email}</p>
+              <label className="text-xs font-medium text-[var(--color-surface-500)] ml-1 mb-1.5 block">Email</label>
+              <p className="text-sm text-[var(--color-surface-600)] py-2.5 px-4 bg-[var(--color-surface-50)] rounded-xl border border-[var(--color-surface-200)]">{user?.email}</p>
             </div>
           </div>
 
@@ -213,19 +213,19 @@ export default function SettingsPage() {
               <Lock size={18} className="text-yellow-400" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Password</h2>
-              <p className="text-xs text-gray-500">Update your account password</p>
+              <h2 className="text-base font-bold text-[var(--color-surface-900)]">Password</h2>
+              <p className="text-xs text-[var(--color-surface-500)]">Update your account password</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-gray-400 ml-1 mb-1.5 block">New Password</label>
-              <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/50 transition-all" placeholder="Min 6 characters" />
+              <label className="text-xs font-medium text-[var(--color-surface-500)] ml-1 mb-1.5 block">New Password</label>
+              <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-2.5 px-4 text-sm text-[var(--color-surface-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/40 focus:border-[var(--color-brand-500)]/50 transition-all" placeholder="Min 6 characters" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-400 ml-1 mb-1.5 block">Confirm Password</label>
-              <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/50 transition-all" placeholder="Re-enter new password" />
+              <label className="text-xs font-medium text-[var(--color-surface-500)] ml-1 mb-1.5 block">Confirm Password</label>
+              <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-2.5 px-4 text-sm text-[var(--color-surface-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/40 focus:border-[var(--color-brand-500)]/50 transition-all" placeholder="Re-enter new password" />
             </div>
           </div>
 
@@ -245,14 +245,14 @@ export default function SettingsPage() {
               <Shield size={18} className="text-blue-400" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Change Email</h2>
-              <p className="text-xs text-gray-500">We'll send a confirmation to the new address</p>
+              <h2 className="text-base font-bold text-[var(--color-surface-900)]">Change Email</h2>
+              <p className="text-xs text-[var(--color-surface-500)]">We'll send a confirmation to the new address</p>
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-medium text-gray-400 ml-1 mb-1.5 block">New Email Address</label>
-            <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/50 transition-all" placeholder="new@email.com" />
+            <label className="text-xs font-medium text-[var(--color-surface-500)] ml-1 mb-1.5 block">New Email Address</label>
+            <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="w-full bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-2.5 px-4 text-sm text-[var(--color-surface-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/40 focus:border-[var(--color-brand-500)]/50 transition-all" placeholder="new@email.com" />
           </div>
 
           {emailError && <p className="text-red-400 text-xs mt-3 flex items-center gap-1"><AlertCircle size={12} /> {emailError}</p>}
@@ -271,26 +271,26 @@ export default function SettingsPage() {
               <Bell size={18} className="text-purple-400" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Notifications</h2>
-              <p className="text-xs text-gray-500">Choose what you get notified about</p>
+              <h2 className="text-base font-bold text-[var(--color-surface-900)]">Notifications</h2>
+              <p className="text-xs text-[var(--color-surface-500)]">Choose what you get notified about</p>
             </div>
           </div>
 
           <div className="space-y-3">
-            <label className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/[0.07] transition-colors">
+            <label className="flex items-center justify-between p-3 bg-[var(--color-surface-50)] rounded-xl border border-[var(--color-surface-200)] cursor-pointer hover:bg-[var(--color-surface-100)] transition-colors">
               <div>
-                <p className="text-sm font-medium text-white">Email Notifications</p>
-                <p className="text-xs text-gray-500">Receive email updates for your account</p>
+                <p className="text-sm font-medium text-[var(--color-surface-900)]">Email Notifications</p>
+                <p className="text-xs text-[var(--color-surface-500)]">Receive email updates for your account</p>
               </div>
-              <input type="checkbox" checked={notifEmail} onChange={(e) => setNotifEmail(e.target.checked)} className="w-5 h-5 rounded border-white/20 bg-white/5 text-indigo-500 focus:ring-indigo-500/50 cursor-pointer" />
+              <input type="checkbox" checked={notifEmail} onChange={(e) => setNotifEmail(e.target.checked)} className="w-5 h-5 rounded border-[var(--color-surface-300)] bg-[var(--color-surface-50)] text-[var(--color-brand-600)] focus:ring-[var(--color-brand-500)]/50 cursor-pointer" />
             </label>
 
-            <label className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/[0.07] transition-colors">
+            <label className="flex items-center justify-between p-3 bg-[var(--color-surface-50)] rounded-xl border border-[var(--color-surface-200)] cursor-pointer hover:bg-[var(--color-surface-100)] transition-colors">
               <div>
-                <p className="text-sm font-medium text-white">Analysis Complete</p>
-                <p className="text-xs text-gray-500">Get notified when a contract analysis finishes</p>
+                <p className="text-sm font-medium text-[var(--color-surface-900)]">Analysis Complete</p>
+                <p className="text-xs text-[var(--color-surface-500)]">Get notified when a contract analysis finishes</p>
               </div>
-              <input type="checkbox" checked={notifComplete} onChange={(e) => setNotifComplete(e.target.checked)} className="w-5 h-5 rounded border-white/20 bg-white/5 text-indigo-500 focus:ring-indigo-500/50 cursor-pointer" />
+              <input type="checkbox" checked={notifComplete} onChange={(e) => setNotifComplete(e.target.checked)} className="w-5 h-5 rounded border-[var(--color-surface-300)] bg-[var(--color-surface-50)] text-[var(--color-brand-600)] focus:ring-[var(--color-brand-500)]/50 cursor-pointer" />
             </label>
           </div>
 
@@ -303,17 +303,17 @@ export default function SettingsPage() {
         </div>
 
         {/* ── Data & Privacy link ─────────────────────── */}
-        <Link href="/dashboard/settings/data" className="glass-card p-6 rounded-2xl flex items-center justify-between group hover:border-white/10 transition-all">
+        <Link href="/dashboard/settings/data" className="glass-card p-6 rounded-2xl flex items-center justify-between group hover:border-[var(--color-surface-300)] transition-all">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
               <Database size={18} className="text-red-400" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Data & Privacy</h2>
-              <p className="text-xs text-gray-500">Export your data or delete your account</p>
+              <h2 className="text-base font-bold text-[var(--color-surface-900)]">Data & Privacy</h2>
+              <p className="text-xs text-[var(--color-surface-500)]">Export your data or delete your account</p>
             </div>
           </div>
-          <ArrowRight size={16} className="text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1 transition-all" />
+          <ArrowRight size={16} className="text-[var(--color-surface-400)] group-hover:text-[var(--color-surface-500)] group-hover:translate-x-1 transition-all" />
         </Link>
       </div>
     </>

@@ -101,7 +101,7 @@ export default function DataPrivacyPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-[var(--color-brand-600)] animate-spin" />
       </div>
     );
   }
@@ -109,13 +109,13 @@ export default function DataPrivacyPage() {
   return (
     <>
       <div className="mb-8 animate-fade-in">
-        <Link href="/dashboard/settings" className="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1 mb-4">
+        <Link href="/dashboard/settings" className="text-xs text-[var(--color-surface-500)] hover:text-[var(--color-surface-700)] transition-colors flex items-center gap-1 mb-4">
           <ArrowLeft size={14} /> Back to Settings
         </Link>
         <h1 className="text-4xl font-bold tracking-tight">
           Data & <span className="gradient-text">Privacy</span>
         </h1>
-        <p className="mt-2 text-gray-400">
+        <p className="mt-2 text-[var(--color-surface-500)]">
           Export your data or permanently delete your account and all associated data.
         </p>
       </div>
@@ -124,25 +124,25 @@ export default function DataPrivacyPage() {
         {/* Data overview */}
         <div className="glass-card p-6 rounded-2xl">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-              <HardDrive size={18} className="text-indigo-400" />
+            <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] flex items-center justify-center">
+              <HardDrive size={18} className="text-[var(--color-brand-700)]" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Your Data</h2>
-              <p className="text-xs text-gray-500">Overview of stored data</p>
+              <h2 className="text-base font-bold text-[var(--color-surface-900)]">Your Data</h2>
+              <p className="text-xs text-[var(--color-surface-500)]">Overview of stored data</p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <div className="p-3 bg-white/5 rounded-xl border border-white/5 text-center">
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest">Documents</p>
+            <div className="p-3 bg-[var(--color-surface-50)] rounded-xl border border-[var(--color-surface-200)] text-center">
+              <p className="text-[10px] text-[var(--color-surface-500)] uppercase tracking-widest">Documents</p>
               <p className="text-xl font-bold mt-1">{stats.docs}</p>
             </div>
-            <div className="p-3 bg-white/5 rounded-xl border border-white/5 text-center">
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest">Jobs</p>
+            <div className="p-3 bg-[var(--color-surface-50)] rounded-xl border border-[var(--color-surface-200)] text-center">
+              <p className="text-[10px] text-[var(--color-surface-500)] uppercase tracking-widest">Jobs</p>
               <p className="text-xl font-bold mt-1">{stats.jobs}</p>
             </div>
-            <div className="p-3 bg-white/5 rounded-xl border border-white/5 text-center">
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest">Issues</p>
+            <div className="p-3 bg-[var(--color-surface-50)] rounded-xl border border-[var(--color-surface-200)] text-center">
+              <p className="text-[10px] text-[var(--color-surface-500)] uppercase tracking-widest">Issues</p>
               <p className="text-xl font-bold mt-1">{stats.issues}</p>
             </div>
           </div>
@@ -155,11 +155,11 @@ export default function DataPrivacyPage() {
               <FolderArchive size={18} className="text-green-400" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Export All Data</h2>
-              <p className="text-xs text-gray-500">Download a JSON file of all your documents, jobs, and issues</p>
+              <h2 className="text-base font-bold text-[var(--color-surface-900)]">Export All Data</h2>
+              <p className="text-xs text-[var(--color-surface-500)]">Download a JSON file of all your documents, jobs, and issues</p>
             </div>
           </div>
-          <p className="text-sm text-gray-400 leading-relaxed mb-4">
+          <p className="text-sm text-[var(--color-surface-500)] leading-relaxed mb-4">
             This will export all your data including document metadata, analysis results, and identified issues as a structured JSON file.
           </p>
           {exportDone && <p className="text-green-400 text-xs mb-3 flex items-center gap-1"><CheckCircle2 size={12} /> Export downloaded successfully.</p>}
@@ -177,10 +177,10 @@ export default function DataPrivacyPage() {
             </div>
             <div>
               <h2 className="text-base font-bold text-red-400">Delete Account</h2>
-              <p className="text-xs text-gray-500">Permanently delete your account and all associated data</p>
+              <p className="text-xs text-[var(--color-surface-500)]">Permanently delete your account and all associated data</p>
             </div>
           </div>
-          <p className="text-sm text-gray-400 leading-relaxed mb-4">
+          <p className="text-sm text-[var(--color-surface-500)] leading-relaxed mb-4">
             This action is irreversible. All your documents, analysis results, issues, and account information will be permanently deleted. This cannot be undone.
           </p>
 
@@ -195,19 +195,19 @@ export default function DataPrivacyPage() {
                 type="text"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
-                className="w-full bg-white/5 border border-red-500/20 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500/40 transition-all"
+                className="w-full bg-[var(--color-surface-50)] border border-red-500/20 rounded-xl py-2.5 px-4 text-sm text-[var(--color-surface-900)] focus:outline-none focus:ring-2 focus:ring-red-500/40 transition-all"
                 placeholder="DELETE"
               />
               <div className="flex gap-3">
                 <button
                   onClick={handleDelete}
                   disabled={deleteConfirmText !== "DELETE" || deleting}
-                  className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-600 text-[var(--color-surface-900)] hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center gap-2"
                 >
                   {deleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                   Permanently Delete
                 </button>
-                <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }} className="px-5 py-2.5 rounded-xl text-sm bg-white/5 text-gray-400 hover:text-white border border-white/10 transition-colors flex items-center gap-2">
+                <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }} className="px-5 py-2.5 rounded-xl text-sm bg-[var(--color-surface-50)] text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] border border-[var(--color-surface-300)] transition-colors flex items-center gap-2">
                   <X size={16} /> Cancel
                 </button>
               </div>
