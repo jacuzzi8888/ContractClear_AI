@@ -1,36 +1,37 @@
+
 import { createClient } from "@/lib/supabase/server";
+import { auth0 } from "@/lib/auth0";
 import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_DISPLAY, ACCEPTED_FILE_TYPES, STORAGE_BUCKET } from "@/lib/constants";
-
-export const dynamic = "force-dynamic";
-
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
-    const { fileName, contentType, fileSize } = await request.json();
-    const supabase = await createClient();
-
-    // 1. Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const session = await auth0.getSession();
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2. Server-side validation
+    const userId = session.user.sub;
+    const { fileName, contentType, fileSize } = await request.json();
+    const supabase = await createClient();
+
+    // Server-side validation
     if (contentType !== "application/pdf") {
       return NextResponse.json({ error: "Only PDF files are accepted." }, { status: 400 });
     }
 
     if (fileSize && fileSize > MAX_FILE_SIZE_BYTES) {
-      return NextResponse.json({ error: `File exceeds the ${MAX_FILE_SIZE_DISPLAY} limit.` }, { status: 400 });
+      return NextResponse.json({ error: "File exceeds the " + MAX_FILE_SIZE_DISPLAY + " limit." }, { status: 400 });
     }
 
-    // 3. Generate unique path: owner_id/uuid.pdf
+    // Generate unique path: owner_id/uuid.pdf
     const fileId = uuidv4();
-    const filePath = `${user.id}/${fileId}.pdf`;
+    const filePath = userId + "/" + fileId + ".pdf";
 
-    // 4. Create signed upload URL (valid for 10 minutes)
+    // Create signed upload URL (valid for 10 minutes)
     const { data, error } = await supabase.storage
       .from(STORAGE_BUCKET)
       .createSignedUploadUrl(filePath);
@@ -39,12 +40,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // 5. Create pending document record
+    // Create pending document record
     const { data: doc, error: docError } = await supabase
       .from("documents")
       .insert({
         id: fileId,
-        owner_id: user.id,
+        owner_id: userId,
         file_name: fileName,
         file_url: filePath,
         status: "pending",

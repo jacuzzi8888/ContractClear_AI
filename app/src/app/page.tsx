@@ -53,11 +53,11 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-3">
             {!isLoggedIn && (
-              <Link href="/login" className="btn-secondary text-sm hidden sm:inline-flex">
+              <Link href="/auth/login" className="btn-secondary text-sm hidden sm:inline-flex">
                 Sign In
               </Link>
             )}
-            <Link href="/dashboard" className="btn-primary text-sm">
+            <Link href="/auth/login?returnTo=/dashboard" className="btn-primary text-sm">
               Launch App <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -85,12 +85,12 @@ export default function HomePage() {
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             {isLoggedIn ? (
-              <Link href="/dashboard" className="btn-primary text-base px-6 py-3">
+              <Link href="/auth/login?returnTo=/dashboard" className="btn-primary text-base px-6 py-3">
                 Go to Dashboard <ArrowRight className="h-5 w-5" />
               </Link>
             ) : (
               <>
-                <Link href="/dashboard" className="btn-primary text-base px-6 py-3 w-full sm:w-auto">
+                <Link href="/auth/login?returnTo=/dashboard" className="btn-primary text-base px-6 py-3 w-full sm:w-auto">
                   <Upload className="h-5 w-5" />
                   Analyze a Contract
                 </Link>
@@ -263,7 +263,7 @@ export default function HomePage() {
               <Link href="/signup" className="bg-white text-[var(--color-brand-900)] font-semibold px-8 py-3 rounded-xl text-base hover:bg-[var(--color-brand-50)] transition-colors w-full sm:w-auto inline-flex items-center justify-center gap-2">
                 Get Started Free <ArrowRight className="h-5 w-5" />
               </Link>
-              <Link href="/login" className="border border-white/30 text-white font-semibold px-8 py-3 rounded-xl text-base hover:bg-white/10 transition-colors w-full sm:w-auto inline-flex items-center justify-center">
+              <Link href="/auth/login" className="border border-white/30 text-white font-semibold px-8 py-3 rounded-xl text-base hover:bg-white/10 transition-colors w-full sm:w-auto inline-flex items-center justify-center">
                 Sign In
               </Link>
             </div>

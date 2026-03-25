@@ -1,5 +1,7 @@
+
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { auth0 } from "@/lib/auth0";
 import { draftSummaryEmail } from "@/lib/gemini";
 
 export const dynamic = "force-dynamic";
@@ -12,26 +14,18 @@ export async function POST(
     const params = await props.params;
     const jobId = params.id;
 
-    const supabase = await createClient();
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const session = await auth0.getSession();
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const userId = session.user.sub;
+    const supabase = await createClient();
 
     // Fetch job with ownership check
     const { data: job, error: jobError } = await supabase
       .from("jobs")
-      .select(`
-        id,
-        documents!inner (
-          id,
-          owner_id
-        )
-      `)
+      .select("id, documents!inner (id, owner_id)")
       .eq("id", jobId)
       .single();
 
@@ -40,11 +34,11 @@ export async function POST(
     }
 
     const jobWithRelations = job as any;
-    if (jobWithRelations.documents?.owner_id !== user.id) {
+    if (jobWithRelations.documents?.owner_id !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Fetch all issues for this job, ordered by risk severity
+    // Fetch all issues for this job
     const severityOrder: Record<string, number> = {
       critical: 0, high: 1, medium: 2, low: 3, info: 4,
     };
@@ -55,15 +49,11 @@ export async function POST(
       .eq("job_id", jobId);
 
     if (issuesError || !issues || issues.length === 0) {
-      return NextResponse.json(
-        { error: "No issues found for this job" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "No issues found for this job" }, { status: 404 });
     }
 
     const sorted = [...issues].sort(
-      (a, b) =>
-        (severityOrder[a.risk_level] ?? 5) - (severityOrder[b.risk_level] ?? 5)
+      (a, b) => (severityOrder[a.risk_level] ?? 5) - (severityOrder[b.risk_level] ?? 5)
     );
 
     const draft = await draftSummaryEmail(
@@ -79,9 +69,6 @@ export async function POST(
     return NextResponse.json(draft);
   } catch (error: any) {
     console.error("Draft summary email error:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to generate summary email" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message || "Failed to generate summary email" }, { status: 500 });
   }
 }

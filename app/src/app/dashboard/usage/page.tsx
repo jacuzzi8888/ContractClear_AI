@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { auth0 } from "@/lib/auth0";
 import { createClient } from "@/lib/supabase/client";
 import {
   BarChart3,
@@ -34,8 +35,6 @@ export default function UsagePage() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/login"); return; }
 
       const { count: totalDocs } = await supabase
         .from("documents").select("*", { count: "exact", head: true });

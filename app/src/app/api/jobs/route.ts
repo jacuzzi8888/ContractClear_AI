@@ -1,30 +1,29 @@
-import { createClient } from "@/lib/supabase/server";
+
 import { inngest } from "@/lib/inngest/client";
 import { INNGEST_EVENT_NAME } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/client";
+import { auth0 } from "@/lib/auth0";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
-    const { documentId } = await request.json();
-    const supabase = await createClient();
-
-    // 1. Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const session = await auth0.getSession();
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2. Verify document ownership and check for active jobs
+    const userId = session.user.sub;
+    const { documentId } = await request.json();
+    const supabase = createClient();
+
+    // Verify document ownership and check for active jobs
     const { data: doc, error: docError } = await supabase
       .from("documents")
-      .select(`
-        *,
-        jobs ( id, status )
-      `)
+      .select("*, jobs ( id, status )")
       .eq("id", documentId)
-      .eq("owner_id", user.id)
+      .eq("owner_id", userId)
       .single();
 
     if (docError || !doc) {
@@ -41,7 +40,7 @@ export async function POST(request: Request) {
       });
     }
 
-    // 3. Trigger Inngest background job (Send FIRST to avoid stranded "queued" status)
+    // Trigger Inngest background job
     const isProd = process.env.NODE_ENV === "production";
     
     try {
@@ -49,12 +48,12 @@ export async function POST(request: Request) {
         name: INNGEST_EVENT_NAME,
         data: {
           documentId: doc.id,
-          ownerId: user.id,
+          ownerId: userId,
           fileName: doc.file_name,
         },
       });
       
-      // 4. Update status to queued ONLY after successful send
+      // Update status to queued ONLY after successful send
       await supabase
         .from("documents")
         .update({ status: "queued" })

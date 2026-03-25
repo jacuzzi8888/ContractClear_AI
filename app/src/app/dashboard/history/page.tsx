@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import { auth0 } from "@/lib/auth0";
 import { createClient } from "@/lib/supabase/client";
+import { redirect } from "next/navigation";
 import { RISK_LEVEL_CONFIG, HISTORY_ITEMS_PER_PAGE } from "@/lib/constants";
 import type { RiskLevel } from "@/types";
 import {

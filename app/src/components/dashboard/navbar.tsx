@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+
 import {
   Shield,
   LogOut,
-  Loader2,
   Menu,
   X,
   LayoutDashboard,
@@ -19,22 +18,12 @@ import {
 } from "lucide-react";
 
 interface NavbarProps {
-  user: { email?: string; user_metadata?: { full_name?: string; role?: string } } | null;
+  user: { sub?: string; name?: string; email?: string; picture?: string } | null;
 }
 
 export function Navbar({ user }: NavbarProps) {
-  const [isSignOutLoading, setIsSignOutLoading] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
-  const supabase = createClient();
-
-  const handleSignOut = async () => {
-    setIsSignOutLoading(true);
-    await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
-  };
 
   const isActive = (path: string) => pathname === path;
 
@@ -79,9 +68,9 @@ export function Navbar({ user }: NavbarProps) {
             {user && (
               <div className="hidden sm:flex flex-col items-end mr-1">
                 <span className="text-xs font-medium text-[var(--color-surface-900)]">
-                  {user.user_metadata?.full_name || user.email}
+                  {user.name || user.email}
                 </span>
-                <span className="text-[10px] text-[var(--color-surface-500)]">{user.user_metadata?.role || ""}</span>
+                
               </div>
             )}
 
@@ -93,18 +82,13 @@ export function Navbar({ user }: NavbarProps) {
             >
               <Settings className="h-5 w-5 text-[var(--color-surface-500)] hover:text-white transition-colors" />
             </Link>
-            <button
-              onClick={handleSignOut}
-              disabled={isSignOutLoading}
+            <a
+              href="/auth/logout"
               className="hidden md:flex p-2 rounded-xl bg-[var(--color-surface-100)] border border-[var(--color-surface-300)] hover:bg-white/10 transition-colors group"
               title="Sign Out"
             >
-              {isSignOutLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <LogOut className="h-5 w-5 text-[var(--color-surface-500)] group-hover:text-red-500 transition-colors" />
-              )}
-            </button>
+              <LogOut className="h-5 w-5 text-[var(--color-surface-500)] group-hover:text-red-500 transition-colors" />
+            </a>
 
             {/* Hamburger — mobile */}
             <button
@@ -147,9 +131,9 @@ export function Navbar({ user }: NavbarProps) {
             {user && (
               <div className="p-3 bg-[var(--color-surface-100)] rounded-xl border border-[var(--color-surface-200)] mb-6">
                 <p className="text-sm font-medium text-[var(--color-surface-900)] truncate">
-                  {user.user_metadata?.full_name || user.email}
+                  {user.name || user.email}
                 </p>
-                <p className="text-[10px] text-[var(--color-surface-500)] mt-0.5">{user.user_metadata?.role || ""}</p>
+                
               </div>
             )}
 
@@ -207,18 +191,13 @@ export function Navbar({ user }: NavbarProps) {
             </div>
 
             {/* Sign out */}
-            <button
-              onClick={handleSignOut}
-              disabled={isSignOutLoading}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors mt-4 w-full"
+            <a
+              href="/auth/logout"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors mt-4"
             >
-              {isSignOutLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <LogOut size={18} />
-              )}
+              <LogOut size={18} />
               Sign Out
-            </button>
+            </a>
           </div>
         </div>
       )}

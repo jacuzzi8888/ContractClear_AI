@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { auth0 } from "@/lib/auth0";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import {
@@ -39,8 +40,6 @@ export default function DataPrivacyPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/login"); return; }
 
       const { count: docs } = await supabase.from("documents").select("*", { count: "exact", head: true });
       const { count: jobs } = await supabase.from("jobs").select("*", { count: "exact", head: true });

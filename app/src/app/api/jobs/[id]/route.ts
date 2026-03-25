@@ -1,4 +1,6 @@
+
 import { createClient } from "@/lib/supabase/server";
+import { auth0 } from "@/lib/auth0";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -6,22 +8,19 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient();
-    const { id: jobId } = await params;
-
-    // 1. Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const session = await auth0.getSession();
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2. Fetch job with issues
+    const userId = session.user.sub;
+    const { id: jobId } = await params;
+    const supabase = await createClient();
+
+    // Fetch job with issues
     const { data: job, error: jobError } = await supabase
       .from("jobs")
-      .select(`
-        *,
-        issues (*)
-      `)
+      .select("*, issues (*)")
       .eq("id", jobId)
       .single();
 
@@ -29,14 +28,14 @@ export async function GET(
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
-    // 3. Verify ownership (via document join)
+    // Verify ownership
     const { data: doc, error: docError } = await supabase
       .from("documents")
       .select("owner_id")
       .eq("id", job.document_id)
       .single();
 
-    if (docError || doc.owner_id !== user.id) {
+    if (docError || doc.owner_id !== userId) {
        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

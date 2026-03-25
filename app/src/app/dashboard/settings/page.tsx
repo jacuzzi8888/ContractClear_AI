@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { auth0 } from "@/lib/auth0";
 import { createClient } from "@/lib/supabase/client";
 import {
   User,

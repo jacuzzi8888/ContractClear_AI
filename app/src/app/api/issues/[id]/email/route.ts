@@ -1,5 +1,7 @@
+
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { auth0 } from "@/lib/auth0";
 import { draftNegotiationEmail } from "@/lib/gemini";
 
 export const dynamic = "force-dynamic";
@@ -12,32 +14,18 @@ export async function POST(
     const params = await props.params;
     const id = params.id;
 
-    // Initialize Supabase configured for Next.js SSR
-    const supabase = await createClient();
-    
-    // Check if user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    const session = await auth0.getSession();
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Fetch the issue details from Supabase
-    // We join with jobs to ensure the user has access to this data (RLS will also help protect it)
+    const userId = session.user.sub;
+    const supabase = await createClient();
+
+    // Fetch the issue with ownership check
     const { data: issue, error: issueError } = await supabase
       .from("issues")
-      .select(`
-        id,
-        quote,
-        explanation,
-        recommended_action,
-        jobs!inner (
-          id,
-          documents!inner (
-            id,
-            owner_id
-          )
-        )
-      `)
+      .select("id, quote, explanation, recommended_action, jobs!inner (id, documents!inner (id, owner_id))")
       .eq("id", id)
       .single();
 
@@ -45,13 +33,11 @@ export async function POST(
       return NextResponse.json({ error: "Issue not found" }, { status: 404 });
     }
 
-    // Double check ownership (though RLS should handle this, it's good practice)
     const issueWithRelations = issue as any;
-    if (issueWithRelations.jobs?.documents?.owner_id !== user.id) {
+    if (issueWithRelations.jobs?.documents?.owner_id !== userId) {
        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Call Gemini to draft the email
     const draft = await draftNegotiationEmail(
       issue.quote,
       issue.explanation,
@@ -59,12 +45,8 @@ export async function POST(
     );
 
     return NextResponse.json(draft);
-
   } catch (error: any) {
     console.error("Draft email error:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to generate email draft" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message || "Failed to generate email draft" }, { status: 500 });
   }
 }
