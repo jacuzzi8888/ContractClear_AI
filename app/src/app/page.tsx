@@ -44,7 +44,7 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       {/* ── Navbar ──────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--color-surface-300)] bg-[var(--color-surface-50)]/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-2.5">
             <Shield className="h-6 w-6 text-[var(--color-brand-600)]" />
             <span className="text-lg font-bold tracking-tight text-[var(--color-surface-900)]">
@@ -72,7 +72,7 @@ export default function HomePage() {
             Powered by {GEMINI_MODEL_DISPLAY}
           </div>
 
-          <h1 className="text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl text-[var(--color-surface-900)]">
+          <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-7xl text-[var(--color-surface-900)]">
             Know your contracts.
             <br />
             <span className="gradient-text">Trust the evidence.</span>
@@ -160,12 +160,12 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
             <div className="text-center group">
               <div className="w-16 h-16 rounded-2xl bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] flex items-center justify-center mx-auto mb-5 group-hover:scale-105 transition-transform">
                 <FileUp className="h-7 w-7 text-[var(--color-brand-600)]" />
               </div>
-              <div className="text-[10px] font-bold text-[var(--color-brand-600)] uppercase tracking-widest mb-2">
+              <div className="text-xs font-bold text-[var(--color-brand-600)] uppercase tracking-widest mb-2">
                 Step 1
               </div>
               <h3 className="text-lg font-bold text-[var(--color-surface-900)] mb-2">Upload Your Contract</h3>
@@ -178,7 +178,7 @@ export default function HomePage() {
               <div className="w-16 h-16 rounded-2xl bg-[var(--color-accent-50)] border border-[var(--color-accent-200)] flex items-center justify-center mx-auto mb-5 group-hover:scale-105 transition-transform">
                 <ScanSearch className="h-7 w-7 text-[var(--color-accent-600)]" />
               </div>
-              <div className="text-[10px] font-bold text-[var(--color-accent-600)] uppercase tracking-widest mb-2">
+              <div className="text-xs font-bold text-[var(--color-accent-600)] uppercase tracking-widest mb-2">
                 Step 2
               </div>
               <h3 className="text-lg font-bold text-[var(--color-surface-900)] mb-2">AI Analyzes Every Clause</h3>
@@ -191,7 +191,7 @@ export default function HomePage() {
               <div className="w-16 h-16 rounded-2xl bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] flex items-center justify-center mx-auto mb-5 group-hover:scale-105 transition-transform">
                 <FileCheck className="h-7 w-7 text-[var(--color-brand-600)]" />
               </div>
-              <div className="text-[10px] font-bold text-[var(--color-brand-600)] uppercase tracking-widest mb-2">
+              <div className="text-xs font-bold text-[var(--color-brand-600)] uppercase tracking-widest mb-2">
                 Step 3
               </div>
               <h3 className="text-lg font-bold text-[var(--color-surface-900)] mb-2">Review & Take Action</h3>
@@ -221,7 +221,7 @@ export default function HomePage() {
                 <Lock className="h-5 w-5 text-[var(--color-low)]" />
               </div>
               <h3 className="text-sm font-bold text-[var(--color-surface-900)] mb-2">End-to-End Encryption</h3>
-              <p className="text-xs text-[var(--color-surface-600)] leading-relaxed">
+              <p className="text-sm text-[var(--color-surface-600)] leading-relaxed">
                 Documents are encrypted in transit and at rest. Your data never leaves the secure pipeline.
               </p>
             </div>
@@ -231,7 +231,7 @@ export default function HomePage() {
                 <Eye className="h-5 w-5 text-[var(--color-brand-600)]" />
               </div>
               <h3 className="text-sm font-bold text-[var(--color-surface-900)] mb-2">Evidence Grounding</h3>
-              <p className="text-xs text-[var(--color-surface-600)] leading-relaxed">
+              <p className="text-sm text-[var(--color-surface-600)] leading-relaxed">
                 Every claim is tied to an exact quote. No hallucinations — if there&apos;s no evidence, the issue is dropped.
               </p>
             </div>
@@ -241,7 +241,7 @@ export default function HomePage() {
                 <Trash2 className="h-5 w-5 text-[var(--color-critical)]" />
               </div>
               <h3 className="text-sm font-bold text-[var(--color-surface-900)] mb-2">Your Data, Your Control</h3>
-              <p className="text-xs text-[var(--color-surface-600)] leading-relaxed">
+              <p className="text-sm text-[var(--color-surface-600)] leading-relaxed">
                 Documents are stored in your private account. Delete them anytime — we don&apos;t retain copies.
               </p>
             </div>

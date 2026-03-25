@@ -159,7 +159,7 @@ export default function SettingsPage() {
   return (
     <>
       <div className="mb-8 animate-fade-in">
-        <h1 className="text-4xl font-bold tracking-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
           Account <span className="gradient-text">Settings</span>
         </h1>
         <p className="mt-2 text-[var(--color-surface-500)]">

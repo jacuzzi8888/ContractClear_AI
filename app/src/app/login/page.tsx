@@ -31,24 +31,34 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
+    if (!supabase) {
+      setError("Configuration error. Please try again later.");
       setLoading(false);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+      } else {
+        router.push("/dashboard");
+      }
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
+      setLoading(false);
     }
   };
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <div className="w-full max-w-md relative">
-        <div className="glass-card p-8 md:p-10">
+        <div className="glass-card p-6 sm:p-8 md:p-10">
           <div className="text-center mb-10">
             <h1 className="text-3xl font-bold text-[var(--color-surface-900)] mb-2">
               Welcome Back
@@ -85,7 +95,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs text-[var(--color-brand-600)] hover:text-[var(--color-brand-500)] transition-colors"
+                  className="text-sm text-[var(--color-brand-600)] hover:text-[var(--color-brand-500)] transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -105,7 +115,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--color-surface-400)] hover:text-[var(--color-surface-600)] transition-colors"
+                  className="absolute inset-y-0 right-0 p-2 flex items-center text-[var(--color-surface-400)] hover:text-[var(--color-surface-600)] transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>

@@ -21,7 +21,7 @@ export default function TermsPage() {
       </nav>
 
       <main className="mx-auto max-w-3xl px-6 pt-28 pb-16 animate-fade-in">
-        <h1 className="text-4xl font-bold tracking-tight mb-2">Terms of Service</h1>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-2">Terms of Service</h1>
         <p className="text-sm text-[var(--color-surface-500)] mb-10">Last updated: March 24, 2026</p>
 
         <div className="prose prose-sm max-w-none space-y-8 text-[var(--color-surface-600)] leading-relaxed">

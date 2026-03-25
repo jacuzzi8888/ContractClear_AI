@@ -168,7 +168,7 @@ export default function HelpPage() {
           <div className="w-16 h-16 rounded-2xl bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] flex items-center justify-center mx-auto mb-4">
             <HelpCircle size={28} className="text-[var(--color-brand-700)]" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-2">
             Help & <span className="gradient-text">FAQ</span>
           </h1>
           <p className="text-[var(--color-surface-500)] max-w-md mx-auto">

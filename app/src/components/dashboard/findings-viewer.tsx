@@ -100,7 +100,7 @@ function DeckCard({ finding }: { finding: RealTimeFinding }) {
       }}
     >
       {/* Header row */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between flex-wrap gap-2 mb-6">
         <div className="flex items-center gap-3">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center border"
@@ -279,7 +279,7 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
     <div className="space-y-6 animate-fade-in-up">
       {/* Status banner: completed */}
       {showCompleted && (
-        <div className="flex items-center gap-3 px-5 py-4 bg-green-50 border border-green-200 rounded-2xl animate-fade-in-up">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 px-5 py-4 bg-green-50 border border-green-200 rounded-2xl animate-fade-in-up">
           <CheckCircle2 className="text-green-600 flex-shrink-0" size={22} />
           <div className="flex-1">
             <p className="text-sm font-bold text-green-700">Analysis Complete</p>
@@ -306,7 +306,7 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
 
       {/* Status banner: failed */}
       {showFailed && (
-        <div className="flex items-center gap-3 px-5 py-4 bg-red-50 border border-red-200 rounded-2xl animate-fade-in-up">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 px-5 py-4 bg-red-50 border border-red-200 rounded-2xl animate-fade-in-up">
           <AlertTriangle className="text-red-600 flex-shrink-0" size={22} />
           <div className="flex-1">
             <p className="text-sm font-bold text-red-700">Analysis Failed</p>

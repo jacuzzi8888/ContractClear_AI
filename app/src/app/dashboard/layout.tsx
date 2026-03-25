@@ -62,7 +62,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-[var(--color-surface-100)]">
       <Navbar user={user} />
-      <main className="mx-auto max-w-7xl px-6 pt-28 pb-16">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 pt-28 pb-16">{children}</main>
     </div>
   );
 }

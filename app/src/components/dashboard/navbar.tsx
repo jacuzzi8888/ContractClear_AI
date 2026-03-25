@@ -47,7 +47,7 @@ export function Navbar({ user }: NavbarProps) {
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--color-surface-300)] bg-[var(--color-surface-50)]/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2.5">
               <Shield className="h-6 w-6 text-[var(--color-brand-600)]" />
@@ -109,7 +109,7 @@ export function Navbar({ user }: NavbarProps) {
             {/* Hamburger — mobile */}
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-[var(--color-surface-100)] border border-[var(--color-surface-300)] hover:bg-white/10 transition-colors"
+              className="md:hidden p-3 rounded-xl bg-[var(--color-surface-100)] border border-[var(--color-surface-300)] hover:bg-white/10 transition-colors"
             >
               <Menu className="h-5 w-5 text-gray-400" />
             </button>
@@ -127,7 +127,7 @@ export function Navbar({ user }: NavbarProps) {
           />
 
           {/* Drawer */}
-          <div className="absolute right-0 top-0 bottom-0 w-72 bg-[var(--color-surface-50)] border-l border-[var(--color-surface-300)] p-6 flex flex-col animate-fade-in-up">
+          <div className="absolute right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-[var(--color-surface-50)] border-l border-[var(--color-surface-300)] p-6 flex flex-col animate-fade-in-up">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-[var(--color-brand-600)]" />
@@ -137,7 +137,7 @@ export function Navbar({ user }: NavbarProps) {
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1.5 rounded-lg bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] transition-colors"
+                className="p-2.5 rounded-lg bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] transition-colors"
               >
                 <X className="h-4 w-4 text-gray-400" />
               </button>

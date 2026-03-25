@@ -120,12 +120,12 @@ export default function DashboardPage() {
           <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] flex items-center justify-center">
             <FileText size={20} className="text-[var(--color-brand-600)]" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-[var(--color-surface-900)]">Contract Analysis</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-surface-900)]">Contract Analysis</h1>
         </div>
-        <p className="text-sm text-[var(--color-surface-500)] ml-[52px]">Upload contracts and review AI-powered risk assessments.</p>
+        <p className="text-sm text-[var(--color-surface-500)] ml-0 sm:ml-[52px]">Upload contracts and review AI-powered risk assessments.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Left Column */}
         <div className="lg:col-span-2 space-y-12">
           <FileUpload onJobStart={handleJobStart} isExternalProcessing={analysis.isProcessing} />
@@ -160,7 +160,7 @@ export default function DashboardPage() {
           {/* Recent Extractions */}
           {!activeJobId && !selectedJobId && (
             <div className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between flex-wrap gap-2 mb-6">
                 <h2 className="text-xl font-bold text-[var(--color-surface-900)]">Recent Extractions</h2>
                 <Link
                   href="/dashboard/history"
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                 </div>
               ) : recentDocs.length === 0 ? (
                 /* New-user empty state */
-                <div className="bg-[var(--color-surface-50)] border border-dashed border-[var(--color-surface-300)] rounded-2xl p-12 text-center">
+                <div className="bg-[var(--color-surface-50)] border border-dashed border-[var(--color-surface-300)] rounded-2xl p-6 sm:p-12 text-center">
                   <div className="w-16 h-16 rounded-full bg-[var(--color-brand-50)] flex items-center justify-center mx-auto mb-5">
                     <Upload className="text-[var(--color-brand-600)]" size={28} />
                   </div>
@@ -250,7 +250,7 @@ export default function DashboardPage() {
                             </div>
                             {highestRisk && riskConfig && (
                               <span
-                                className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-full border flex-shrink-0"
+                                className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full border flex-shrink-0"
                                 style={{
                                   color: riskConfig.color,
                                   backgroundColor: riskConfig.bgColor,

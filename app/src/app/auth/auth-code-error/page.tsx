@@ -8,7 +8,7 @@ export default function AuthCodeErrorPage() {
         <div className="mb-8 flex justify-center">
           <Shield className="h-12 w-12 text-red-500" />
         </div>
-        <div className="glass-card p-8 md:p-10 border-red-200">
+        <div className="glass-card p-6 sm:p-8 md:p-10 border-red-200">
           <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <AlertCircle className="text-red-500" size={32} />
           </div>
@@ -19,7 +19,7 @@ export default function AuthCodeErrorPage() {
           <div className="space-y-4">
             <Link
               href="/login"
-              className="btn-primary w-full py-3 rounded-xl font-semibold flex items-center justify-center"
+              className="btn-primary w-full py-3.5 rounded-xl font-semibold flex items-center justify-center"
             >
               Back to Login
             </Link>

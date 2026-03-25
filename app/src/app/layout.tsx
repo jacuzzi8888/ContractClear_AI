@@ -5,6 +5,8 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
+export const viewport = { width: "device-width", initialScale: 1 };
+
 export const metadata: Metadata = {
   title: "ContractClear AI — AI-Powered Contract Risk Analysis",
   description:

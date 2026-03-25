@@ -112,7 +112,7 @@ export default function DataPrivacyPage() {
         <Link href="/dashboard/settings" className="text-xs text-[var(--color-surface-500)] hover:text-[var(--color-surface-700)] transition-colors flex items-center gap-1 mb-4">
           <ArrowLeft size={14} /> Back to Settings
         </Link>
-        <h1 className="text-4xl font-bold tracking-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
           Data & <span className="gradient-text">Privacy</span>
         </h1>
         <p className="mt-2 text-[var(--color-surface-500)]">

@@ -128,7 +128,7 @@ export default function HistoryPage() {
       {/* Page header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 animate-fade-in">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
             Analysis <span className="gradient-text">History</span>
           </h1>
           <p className="mt-2 text-[var(--color-surface-500)] max-w-md">
@@ -324,7 +324,7 @@ export default function HistoryPage() {
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="p-2 rounded-lg bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] disabled:opacity-30 disabled:hover:bg-[var(--color-surface-100)] transition-colors"
+                  className="p-3 rounded-lg bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] disabled:opacity-30 disabled:hover:bg-[var(--color-surface-100)] transition-colors"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -344,7 +344,7 @@ export default function HistoryPage() {
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="p-2 rounded-lg bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] disabled:opacity-30 disabled:hover:bg-[var(--color-surface-100)] transition-colors"
+                  className="p-3 rounded-lg bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] disabled:opacity-30 disabled:hover:bg-[var(--color-surface-100)] transition-colors"
                 >
                   <ChevronRight size={16} />
                 </button>

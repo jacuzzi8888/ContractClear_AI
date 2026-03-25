@@ -3,13 +3,17 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { Shield, Mail, ArrowLeft, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Shield, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
 
-export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
+export default function ResetPasswordPage() {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
   const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,16 +27,26 @@ export default function ForgotPasswordPage() {
       return;
     }
 
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
+      const { error } = await supabase.auth.updateUser({ password });
 
       if (error) {
         setError(error.message);
         setLoading(false);
       } else {
-        setSent(true);
+        setSuccess(true);
         setLoading(false);
       }
     } catch {
@@ -41,7 +55,7 @@ export default function ForgotPasswordPage() {
     }
   };
 
-  if (sent) {
+  if (success) {
     return (
       <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
         <div className="w-full max-w-md relative text-center">
@@ -51,17 +65,16 @@ export default function ForgotPasswordPage() {
                 <CheckCircle2 size={40} />
               </div>
             </div>
-            <h1 className="text-3xl font-bold text-[var(--color-surface-900)]">Check your email</h1>
+            <h1 className="text-3xl font-bold text-[var(--color-surface-900)]">Password Reset</h1>
             <p className="text-[var(--color-surface-500)] leading-relaxed">
-              We&apos;ve sent a password reset link to{" "}
-              <span className="text-[var(--color-surface-800)] font-medium">{email}</span>.
-              Check your inbox and follow the instructions.
+              Your password has been successfully reset. You can now sign in with your new password.
             </p>
             <Link
               href="/login"
-              className="block w-full text-[var(--color-brand-600)] hover:text-[var(--color-brand-500)] font-medium transition-colors pt-4"
+              className="btn-primary w-full py-4 rounded-xl text-white font-semibold flex items-center justify-center group transition-all"
             >
-              Back to Login
+              Sign In
+              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
             </Link>
           </div>
         </div>
@@ -81,27 +94,56 @@ export default function ForgotPasswordPage() {
           </Link>
         </div>
         <div className="glass-card p-6 sm:p-8 md:p-10">
-          <h1 className="text-2xl font-bold text-[var(--color-surface-900)] mb-2">Reset Password</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-surface-900)] mb-2">Set New Password</h1>
           <p className="text-[var(--color-surface-500)] mb-8 text-sm">
-            Enter your email and we&apos;ll send you a link to reset your password.
+            Enter your new password below.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label className="text-sm font-medium text-[var(--color-surface-600)] ml-1">
-                Email Address
+                New Password
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--color-surface-400)] group-focus-within:text-[var(--color-brand-500)] transition-colors">
-                  <Mail size={18} />
+                  <Lock size={18} />
                 </div>
                 <input
-                  type="email"
+                  type={showPassword ? "text" : "password"}
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-3 pl-10 pr-12 text-[var(--color-surface-800)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/40 focus:border-[var(--color-brand-500)] transition-all placeholder:text-[var(--color-surface-400)]"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 p-2 flex items-center text-[var(--color-surface-400)] hover:text-[var(--color-surface-600)] transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              <p className="text-xs text-[var(--color-surface-500)] ml-1">
+                Must be at least 8 characters long
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[var(--color-surface-600)] ml-1">
+                Confirm Password
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--color-surface-400)] group-focus-within:text-[var(--color-brand-500)] transition-colors">
+                  <Lock size={18} />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-3 pl-10 pr-4 text-[var(--color-surface-800)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/40 focus:border-[var(--color-brand-500)] transition-all placeholder:text-[var(--color-surface-400)]"
-                  placeholder="name@company.com"
+                  placeholder="••••••••"
                 />
               </div>
             </div>
@@ -121,20 +163,20 @@ export default function ForgotPasswordPage() {
                 <Loader2 className="animate-spin mr-2" size={20} />
               ) : (
                 <>
-                  Send Reset Link
-                  <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+                  Reset Password
+                  <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
                 </>
               )}
             </button>
           </form>
 
           <p className="text-center mt-8 text-sm text-[var(--color-surface-500)]">
-            Remember your password?{" "}
+            Remember your password?{"  "}
             <Link
               href="/login"
-              className="text-[var(--color-brand-600)] hover:text-[var(--color-brand-500)] font-medium transition-colors inline-flex items-center gap-1"
+              className="text-[var(--color-brand-600)] hover:text-[var(--color-brand-500)] font-medium transition-colors"
             >
-              <ArrowLeft size={14} /> Back to Login
+              Back to Login
             </Link>
           </p>
         </div>

@@ -52,7 +52,7 @@ export default async function ReportPage(props: { params: Promise<{ id: string }
       </div>
 
       <header className="border-b-2 border-slate-200 pb-8 mb-8">
-        <div className="flex justify-between items-end">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 mb-2">Contract Risk Summary</h1>
             <p className="text-slate-500 text-lg">ContractClear AI Analysis Report</p>
@@ -107,7 +107,7 @@ export default async function ReportPage(props: { params: Promise<{ id: string }
                 <div key={issue.id} className="break-inside-avoid border border-slate-200 rounded-xl p-6 bg-white shadow-sm">
                   
                   {/* Issue Header */}
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-bold text-slate-400">#{index + 1}</span>
                       <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full border ${badgeBg}`}>

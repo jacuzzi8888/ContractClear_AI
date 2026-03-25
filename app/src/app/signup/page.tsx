@@ -33,22 +33,39 @@ export default function SignupPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) {
-      setError(error.message);
+    if (!supabase) {
+      setError("Configuration error. Please try again later.");
       setLoading(false);
-    } else {
-      setSuccess(true);
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+      } else {
+        setSuccess(true);
+        setLoading(false);
+      }
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
     }
   };
@@ -57,7 +74,7 @@ export default function SignupPage() {
     return (
       <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
         <div className="w-full max-w-md relative text-center">
-          <div className="glass-card p-10 space-y-6">
+          <div className="glass-card p-6 sm:p-10 space-y-6">
             <div className="flex justify-center">
               <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center text-green-600">
                 <CheckCircle2 size={40} />
@@ -83,7 +100,7 @@ export default function SignupPage() {
   return (
     <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <div className="w-full max-w-md relative">
-        <div className="glass-card p-8 md:p-10">
+        <div className="glass-card p-6 sm:p-8 md:p-10">
           <div className="text-center mb-10">
             <h1 className="text-3xl font-bold text-[var(--color-surface-900)] mb-2">
               Get Started
@@ -151,12 +168,12 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--color-surface-400)] hover:text-[var(--color-surface-600)] transition-colors"
+                  className="absolute inset-y-0 right-0 p-2 flex items-center text-[var(--color-surface-400)] hover:text-[var(--color-surface-600)] transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              <p className="text-[10px] text-[var(--color-surface-500)] ml-1">
+              <p className="text-xs text-[var(--color-surface-500)] ml-1">
                 Must be at least 8 characters long
               </p>
             </div>
