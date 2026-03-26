@@ -25,18 +25,33 @@ async function getSessionFromCookie(cookieValue: string) {
 export async function POST(request: NextRequest) {
   let userId: string | null = null;
 
+  // Log all cookies for debugging
+  const allCookieNames = request.cookies.getAll().map(c => c.name);
+  console.log("[uploads/sign] Cookie names:", allCookieNames);
+  console.log("[uploads/sign] Has __session:", request.cookies.has("__session"));
+
   // Try to read the __session cookie directly
   const sessionCookie = request.cookies.get("__session")?.value;
 
   if (sessionCookie) {
+    console.log("[uploads/sign] Found __session cookie, length:", sessionCookie.length);
     const payload = await getSessionFromCookie(sessionCookie);
     if (payload?.sub) {
       userId = payload.sub as string;
+      console.log("[uploads/sign] Decrypted user:", userId);
+    } else {
+      console.log("[uploads/sign] Decryption returned null payload");
+    }
+  } else {
+    console.log("[uploads/sign] No __session cookie found");
+    // Check all cookie names
+    for (const c of request.cookies.getAll()) {
+      console.log("[uploads/sign] Cookie:", c.name, "length:", c.value.length);
     }
   }
 
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized", cookies: allCookieNames }, { status: 401 });
   }
 
   try {
