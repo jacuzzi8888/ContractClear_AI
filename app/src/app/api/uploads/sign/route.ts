@@ -9,18 +9,16 @@ export const dynamic = "force-dynamic";
 
 async function getSessionFromCookie(cookieValue: string) {
   const secret = process.env.AUTH0_SECRET;
-  console.log("[uploads/sign] AUTH0_SECRET exists:", !!secret);
-  if (!secret) return null;
+  if (!secret) return { error: "AUTH0_SECRET not set" };
 
   try {
     const encryptionSecret = await hkdf("sha256", secret, "", "JWE CEK", 32);
     const result = await jose.jwtDecrypt(cookieValue, encryptionSecret, {
       clockTolerance: 15,
     });
-    return result.payload;
+    return { payload: result.payload };
   } catch (e: any) {
-    console.error("[uploads/sign] Decryption error:", e?.code, e?.message);
-    return null;
+    return { error: e?.code + ": " + e?.message };
   }
 }
 
@@ -29,32 +27,19 @@ export async function POST(request: NextRequest) {
 
   // Log all cookies for debugging
   const allCookieNames = request.cookies.getAll().map(c => c.name);
-  console.log("[uploads/sign] Cookie names:", allCookieNames);
-  console.log("[uploads/sign] Has __session:", request.cookies.has("__session"));
 
   // Try to read the __session cookie directly
   const sessionCookie = request.cookies.get("__session")?.value;
 
   if (sessionCookie) {
-    console.log("[uploads/sign] Found __session cookie, length:", sessionCookie.length);
-    console.log("[uploads/sign] Cookie prefix:", sessionCookie.substring(0, 30));
-    const payload = await getSessionFromCookie(sessionCookie);
-    if (payload?.sub) {
-      userId = payload.sub as string;
-      console.log("[uploads/sign] Decrypted user:", userId);
+    const result = await getSessionFromCookie(sessionCookie);
+    if (result.payload?.sub) {
+      userId = result.payload.sub as string;
     } else {
-      console.log("[uploads/sign] Decryption returned null payload");
+      return NextResponse.json({ error: "Session invalid", detail: result.error || "no sub" }, { status: 401 });
     }
   } else {
-    console.log("[uploads/sign] No __session cookie found");
-    // Check all cookie names
-    for (const c of request.cookies.getAll()) {
-      console.log("[uploads/sign] Cookie:", c.name, "length:", c.value.length);
-    }
-  }
-
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized", cookies: allCookieNames }, { status: 401 });
+    return NextResponse.json({ error: "No __session cookie", cookies: allCookieNames }, { status: 401 });
   }
 
   try {
