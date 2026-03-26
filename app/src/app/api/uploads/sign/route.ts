@@ -7,19 +7,31 @@ import { v4 as uuidv4 } from "uuid";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  let session = null;
+
+  // Try 1: getSession without request param (App Router pattern)
   try {
-    let session;
+    session = await auth0.getSession();
+  } catch (e1: any) {
+    console.error("[uploads/sign] getSession() failed:", e1?.message, e1?.code);
+
+    // Try 2: getSession with request param
     try {
       session = await auth0.getSession(request);
-    } catch (e) {
-      console.error("[uploads/sign] Session error:", e);
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    } catch (e2: any) {
+      console.error("[uploads/sign] getSession(request) also failed:", e2?.message, e2?.code);
+      return NextResponse.json({
+        error: "Session unavailable",
+        debug: e2?.message || String(e2)
+      }, { status: 401 });
     }
+  }
 
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized - no session" }, { status: 401 });
+  }
 
+  try {
     const userId = session.user.sub;
     const body = await request.json();
     const { fileName, contentType, fileSize } = body;
@@ -67,8 +79,8 @@ export async function POST(request: NextRequest) {
       path: filePath,
     });
 
-  } catch (err) {
+  } catch (err: any) {
     console.error("[uploads/sign] Error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error: " + (err?.message || String(err)) }, { status: 500 });
   }
 }
