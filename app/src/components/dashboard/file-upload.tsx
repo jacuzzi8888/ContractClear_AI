@@ -51,6 +51,7 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
     try {
       const signRes = await fetch("/api/uploads/sign", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           fileName: file.name,
           contentType: file.type,
@@ -73,6 +74,7 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
 
       const jobRes = await fetch("/api/jobs", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ documentId }),
       });
 
