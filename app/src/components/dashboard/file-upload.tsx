@@ -59,7 +59,11 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
         }),
       });
 
-      if (!signRes.ok) throw new Error("Failed to get upload authorization");
+      if (!signRes.ok) {
+        const errData = await signRes.json().catch(() => ({}));
+        console.log("[upload] Server error:", errData);
+        throw new Error(errData.error || "Failed to get upload authorization");
+      }
       const { uploadUrl, documentId } = await signRes.json();
       setProgress(30);
 
