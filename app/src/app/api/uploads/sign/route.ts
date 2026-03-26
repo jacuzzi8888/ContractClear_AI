@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 async function getSessionFromCookie(cookieValue: string) {
   const secret = process.env.AUTH0_SECRET;
+  console.log("[uploads/sign] AUTH0_SECRET exists:", !!secret);
   if (!secret) return null;
 
   try {
@@ -17,7 +18,8 @@ async function getSessionFromCookie(cookieValue: string) {
       clockTolerance: 15,
     });
     return result.payload;
-  } catch {
+  } catch (e: any) {
+    console.error("[uploads/sign] Decryption error:", e?.code, e?.message);
     return null;
   }
 }
@@ -35,6 +37,7 @@ export async function POST(request: NextRequest) {
 
   if (sessionCookie) {
     console.log("[uploads/sign] Found __session cookie, length:", sessionCookie.length);
+    console.log("[uploads/sign] Cookie prefix:", sessionCookie.substring(0, 30));
     const payload = await getSessionFromCookie(sessionCookie);
     if (payload?.sub) {
       userId = payload.sub as string;
