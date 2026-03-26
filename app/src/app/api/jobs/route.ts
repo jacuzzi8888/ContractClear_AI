@@ -1,26 +1,43 @@
 import { inngest } from "@/lib/inngest/client";
 import { INNGEST_EVENT_NAME } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/server";
-import { auth0 } from "@/lib/auth0";
 import { NextRequest, NextResponse } from "next/server";
+import { hkdf } from "@panva/hkdf";
+import * as jose from "jose";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: NextRequest) {
+async function getSessionFromCookie(cookieValue: string) {
+  const secret = process.env.AUTH0_SECRET;
+  if (!secret) return null;
+
   try {
-    let session;
-    try {
-      session = await auth0.getSession(request);
-    } catch (e) {
-      console.error("[jobs] Session error:", e);
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const encryptionSecret = await hkdf("sha256", secret, "", "JWE CEK", 32);
+    const result = await jose.jwtDecrypt(cookieValue, encryptionSecret, {
+      clockTolerance: 15,
+    });
+    return result.payload;
+  } catch {
+    return null;
+  }
+}
 
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+export async function POST(request: NextRequest) {
+  let userId: string | null = null;
 
-    const userId = session.user.sub;
+  const sessionCookie = request.cookies.get("__session")?.value;
+  if (sessionCookie) {
+    const payload = await getSessionFromCookie(sessionCookie);
+    if (payload?.sub) {
+      userId = payload.sub as string;
+    }
+  }
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
     const { documentId } = await request.json();
     const supabase = await createClient();
 
@@ -62,7 +79,6 @@ export async function POST(request: NextRequest) {
         .eq("id", documentId);
 
     } catch (inngestErr: any) {
-      console.error("[jobs] Inngest failure:", inngestErr);
       return NextResponse.json({ 
         error: "Failed to queue analysis. Please try again.", 
         details: isProd ? undefined : inngestErr.message,
@@ -71,7 +87,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: "Analysis initialized" });
   } catch (err: any) {
-    console.error("[jobs] Error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
