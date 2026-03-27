@@ -1,28 +1,41 @@
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { auth0 } from "@/lib/auth0";
 import { draftSummaryEmail } from "@/lib/gemini";
+import { hkdf } from "@panva/hkdf";
+import * as jose from "jose";
 
 export const dynamic = "force-dynamic";
 
+async function getUserId(request: NextRequest): Promise<string | null> {
+  const sessionCookie = request.cookies.get("__session")?.value;
+  if (!sessionCookie) return null;
+  const secret = process.env.AUTH0_SECRET;
+  if (!secret) return null;
+  try {
+    const key = await hkdf("sha256", secret, "", "JWE CEK", 32);
+    const result = await jose.jwtDecrypt(sessionCookie, key, { clockTolerance: 15 });
+    return (result.payload as any)?.user?.sub || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(
-  request: Request,
+  request: NextRequest,
   props: { params: Promise<{ id: string }> }
 ) {
   try {
     const params = await props.params;
     const jobId = params.id;
 
-    const session = await auth0.getSession();
-    if (!session) {
+    const userId = await getUserId(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.sub;
     const supabase = await createClient();
 
-    // Fetch job with ownership check
     const { data: job, error: jobError } = await supabase
       .from("jobs")
       .select("id, documents!inner (id, owner_id)")
@@ -38,7 +51,6 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Fetch all issues for this job
     const severityOrder: Record<string, number> = {
       critical: 0, high: 1, medium: 2, low: 3, info: 4,
     };

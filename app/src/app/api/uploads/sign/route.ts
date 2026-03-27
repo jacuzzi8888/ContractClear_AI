@@ -7,39 +7,24 @@ import * as jose from "jose";
 
 export const dynamic = "force-dynamic";
 
-async function getSessionFromCookie(cookieValue: string) {
+async function getUserId(request: NextRequest): Promise<string | null> {
+  const sessionCookie = request.cookies.get("__session")?.value;
+  if (!sessionCookie) return null;
   const secret = process.env.AUTH0_SECRET;
-  if (!secret) return { error: "AUTH0_SECRET not set" };
-
+  if (!secret) return null;
   try {
-    const encryptionSecret = await hkdf("sha256", secret, "", "JWE CEK", 32);
-    const result = await jose.jwtDecrypt(cookieValue, encryptionSecret, {
-      clockTolerance: 15,
-    });
-    return { payload: result.payload };
-  } catch (e: any) {
-    return { error: e?.code + ": " + e?.message };
+    const key = await hkdf("sha256", secret, "", "JWE CEK", 32);
+    const result = await jose.jwtDecrypt(sessionCookie, key, { clockTolerance: 15 });
+    return (result.payload as any)?.user?.sub || null;
+  } catch {
+    return null;
   }
 }
 
 export async function POST(request: NextRequest) {
-  let userId: string | null = null;
-
-  // Log all cookies for debugging
-  const allCookieNames = request.cookies.getAll().map(c => c.name);
-
-  // Try to read the __session cookie directly
-  const sessionCookie = request.cookies.get("__session")?.value;
-
-  if (sessionCookie) {
-    const result = await getSessionFromCookie(sessionCookie);
-    if (result.payload?.sub) {
-      userId = result.payload.sub as string;
-    } else {
-      return NextResponse.json({ error: "Session invalid", detail: result.error || "no sub" }, { status: 401 });
-    }
-  } else {
-    return NextResponse.json({ error: "No __session cookie", cookies: allCookieNames }, { status: 401 });
+  const userId = await getUserId(request);
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {

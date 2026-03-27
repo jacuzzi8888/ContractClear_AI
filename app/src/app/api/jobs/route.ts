@@ -28,8 +28,9 @@ export async function POST(request: NextRequest) {
   const sessionCookie = request.cookies.get("__session")?.value;
   if (sessionCookie) {
     const payload = await getSessionFromCookie(sessionCookie);
-    if (payload?.sub) {
-      userId = payload.sub as string;
+    const sub = (payload as any)?.user?.sub;
+    if (sub) {
+      userId = sub as string;
     }
   }
 
