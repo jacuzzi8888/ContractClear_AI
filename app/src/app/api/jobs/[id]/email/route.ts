@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { draftSummaryEmail } from "@/lib/gemini";
 import { hkdf } from "@panva/hkdf";
 import * as jose from "jose";
@@ -34,7 +34,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const supabase = await createClient();
+    const supabase = getSupabaseAdmin();
 
     const { data: job, error: jobError } = await supabase
       .from("jobs")

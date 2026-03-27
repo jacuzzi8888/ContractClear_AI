@@ -1,5 +1,5 @@
 
-import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 import { hkdf } from "@panva/hkdf";
 import * as jose from "jose";
@@ -31,7 +31,7 @@ export async function GET(
     }
 
     const { id: jobId } = await params;
-    const supabase = await createClient();
+    const supabase = getSupabaseAdmin();
 
     const { data: job, error: jobError } = await supabase
       .from("jobs")

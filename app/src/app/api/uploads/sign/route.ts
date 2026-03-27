@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_DISPLAY, STORAGE_BUCKET } from "@/lib/constants";
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { fileName, contentType, fileSize } = body;
 
-    const supabase = await createClient();
+    const supabase = getSupabaseAdmin();
 
     if (contentType !== "application/pdf") {
       return NextResponse.json({ error: "Only PDF files are accepted." }, { status: 400 });

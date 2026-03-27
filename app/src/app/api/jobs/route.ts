@@ -1,6 +1,6 @@
 import { inngest } from "@/lib/inngest/client";
 import { INNGEST_EVENT_NAME } from "@/lib/constants";
-import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 import { hkdf } from "@panva/hkdf";
 import * as jose from "jose";
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const { documentId } = await request.json();
-    const supabase = await createClient();
+    const supabase = getSupabaseAdmin();
 
     const { data: doc, error: docError } = await supabase
       .from("documents")
