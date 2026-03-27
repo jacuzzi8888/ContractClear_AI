@@ -14,7 +14,7 @@ interface StatsData {
   lastAnalysis: string | null;
 }
 
-export function StatsPanel({ refreshKey }: { refreshKey?: number }) {
+export function StatsPanel({ refreshKey, userId }: { refreshKey?: number; userId: string | null }) {
   const [stats, setStats] = useState<StatsData>({
     totalDocs: 0,
     totalIssues: 0,
@@ -26,14 +26,17 @@ export function StatsPanel({ refreshKey }: { refreshKey?: number }) {
 
   useEffect(() => {
     const fetchStats = async () => {
+      if (!userId) return;
       try {
         const { count: docsCount } = await supabase
           .from("documents")
-          .select("*", { count: "exact", head: true });
+          .select("*", { count: "exact", head: true })
+          .eq("owner_id", userId);
 
         const { data: jobsData } = await supabase
           .from("jobs")
-          .select("issue_count, created_at, issues(risk_level)")
+          .select("issue_count, created_at, issues(risk_level), documents!inner(owner_id)")
+          .eq("documents.owner_id", userId)
           .order("created_at", { ascending: false });
 
         if (jobsData) {
@@ -61,7 +64,7 @@ export function StatsPanel({ refreshKey }: { refreshKey?: number }) {
       }
     };
     fetchStats();
-  }, [supabase, refreshKey]);
+  }, [supabase, refreshKey, userId]);
 
   const { totalDocs, totalIssues, dominantRisk, riskBreakdown, lastAnalysis } = stats;
 

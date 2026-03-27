@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/context/user-context";
 import {
   FileText,
   Loader2,
@@ -35,6 +36,7 @@ interface RecentDocument {
 
 export default function DashboardPage() {
   const supabase = createClient();
+  const { userId, isLoading: isLoadingUser } = useUser();
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [recentDocs, setRecentDocs] = useState<RecentDocument[]>([]);
   const [isLoadingDocs, setIsLoadingDocs] = useState(true);
@@ -47,7 +49,7 @@ export default function DashboardPage() {
 
   // ── Fetch recent documents ──────────────────────────────────
   const fetchRecentDocs = useCallback(async () => {
-    if (!supabase) return;
+    if (!supabase || !userId) return;
     setIsLoadingDocs(true);
     const { data, error } = await supabase
       .from("documents")
@@ -58,13 +60,14 @@ export default function DashboardPage() {
           issues ( id, risk_level )
         )
       `)
+      .eq("owner_id", userId)
       .order("created_at", { ascending: false })
       .order("created_at", { foreignTable: "jobs", ascending: false })
       .limit(RECENT_DOCS_LIMIT);
 
     if (!error && data) setRecentDocs(data as unknown as RecentDocument[]);
     setIsLoadingDocs(false);
-  }, [supabase]);
+  }, [supabase, userId]);
 
   // ── Realtime analysis subscription ──────────────────────────
   const analysis = useAnalysisSubscription({
@@ -94,8 +97,8 @@ export default function DashboardPage() {
 
   // ── Initial load ────────────────────────────────────────────
   useEffect(() => {
-    fetchRecentDocs();
-  }, [fetchRecentDocs]);
+    if (userId) fetchRecentDocs();
+  }, [fetchRecentDocs, userId]);
 
   const handleJobStart = (id: string) => {
     setActiveJobId(id);
@@ -273,7 +276,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Column */}
-        <StatsPanel refreshKey={statsKey} />
+        <StatsPanel refreshKey={statsKey} userId={userId} />
       </div>
     </>
   );

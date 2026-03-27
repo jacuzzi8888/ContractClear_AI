@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { auth0 } from "@/lib/auth0";
 import { createClient } from "@/lib/supabase/client";
-import { redirect } from "next/navigation";
+import { useUser } from "@/context/user-context";
 import { RISK_LEVEL_CONFIG, HISTORY_ITEMS_PER_PAGE } from "@/lib/constants";
 import type { RiskLevel } from "@/types";
 import {
@@ -61,9 +60,11 @@ export default function HistoryPage() {
   const [riskFilter, setRiskFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
   const supabase = createClient();
+  const { userId } = useUser();
 
   useEffect(() => {
     const fetchDocs = async () => {
+      if (!userId) return;
       setLoading(true);
       const { data, error } = await supabase
         .from("documents")
@@ -74,6 +75,7 @@ export default function HistoryPage() {
             issues ( id, risk_level )
           )
         `)
+        .eq("owner_id", userId)
         .order("created_at", { ascending: false })
         .order("created_at", { foreignTable: "jobs", ascending: false });
 
@@ -81,7 +83,7 @@ export default function HistoryPage() {
       setLoading(false);
     };
     fetchDocs();
-  }, [supabase]);
+  }, [supabase, userId]);
 
   // Filtered and searched docs
   const filtered = useMemo(() => {

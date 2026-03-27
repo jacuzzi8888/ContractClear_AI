@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { auth0 } from "@/lib/auth0";
 import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/context/user-context";
 import {
   BarChart3,
   FileText,
@@ -18,8 +17,8 @@ import { RISK_LEVEL_CONFIG } from "@/lib/constants";
 import type { RiskLevel } from "@/types";
 
 export default function UsagePage() {
-  const router = useRouter();
   const supabase = createClient();
+  const { userId } = useUser();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalDocs: 0,
@@ -35,18 +34,23 @@ export default function UsagePage() {
 
   useEffect(() => {
     const fetchStats = async () => {
+      if (!userId) return;
 
       const { count: totalDocs } = await supabase
-        .from("documents").select("*", { count: "exact", head: true });
+        .from("documents").select("*", { count: "exact", head: true })
+        .eq("owner_id", userId);
 
       const { count: completedDocs } = await supabase
-        .from("documents").select("*", { count: "exact", head: true }).eq("status", "completed");
+        .from("documents").select("*", { count: "exact", head: true })
+        .eq("status", "completed").eq("owner_id", userId);
 
       const { count: failedDocs } = await supabase
-        .from("documents").select("*", { count: "exact", head: true }).eq("status", "failed");
+        .from("documents").select("*", { count: "exact", head: true })
+        .eq("status", "failed").eq("owner_id", userId);
 
       const { data: jobsData } = await supabase
-        .from("jobs").select("issue_count, created_at, issues(risk_level)")
+        .from("jobs").select("issue_count, created_at, issues(risk_level), documents!inner(owner_id)")
+        .eq("documents.owner_id", userId)
         .order("created_at", { ascending: false });
 
       const totalIssues = (jobsData || []).reduce((sum: number, j: any) => sum + (j.issue_count || 0), 0);
@@ -66,6 +70,7 @@ export default function UsagePage() {
       startOfMonth.setHours(0, 0, 0, 0);
       const { count: docsThisMonth } = await supabase
         .from("documents").select("*", { count: "exact", head: true })
+        .eq("owner_id", userId)
         .gte("created_at", startOfMonth.toISOString());
 
       const lastAnalysis = jobsData?.[0]?.created_at || null;
@@ -84,7 +89,7 @@ export default function UsagePage() {
       setLoading(false);
     };
     fetchStats();
-  }, [supabase, router]);
+  }, [supabase, userId]);
 
   if (loading) {
     return (

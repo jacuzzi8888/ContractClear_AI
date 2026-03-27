@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { auth0 } from "@/lib/auth0";
 import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/context/user-context";
 import Link from "next/link";
 import {
   Download,
@@ -26,6 +26,7 @@ import {
 export default function DataPrivacyPage() {
   const router = useRouter();
   const supabase = createClient();
+  const { userId } = useUser();
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
@@ -40,29 +41,33 @@ export default function DataPrivacyPage() {
 
   useEffect(() => {
     const init = async () => {
+      if (!userId) return;
 
-      const { count: docs } = await supabase.from("documents").select("*", { count: "exact", head: true });
-      const { count: jobs } = await supabase.from("jobs").select("*", { count: "exact", head: true });
-      const { count: issues } = await supabase.from("issues").select("*", { count: "exact", head: true });
+      const { count: docs } = await supabase.from("documents").select("*", { count: "exact", head: true }).eq("owner_id", userId);
+      const { count: jobs } = await supabase.from("jobs").select("*, documents!inner(owner_id)", { count: "exact", head: true }).eq("documents.owner_id", userId);
+      const { count: issues } = await supabase.from("issues").select("*, jobs!inner(documents!inner(owner_id))", { count: "exact", head: true }).eq("jobs.documents.owner_id", userId);
       setStats({ docs: docs || 0, jobs: jobs || 0, issues: issues || 0 });
 
       const { data: historyData } = await supabase
         .from("documents")
         .select("id, file_name, status, created_at, jobs(id, issue_count)")
+        .eq("owner_id", userId)
         .order("created_at", { ascending: false });
       if (historyData) setHistoryDocs(historyData);
 
       setLoading(false);
     };
     init();
-  }, [supabase, router]);
+  }, [supabase, router, userId]);
 
   const handleExport = async () => {
+    if (!userId) return;
     setExporting(true);
     try {
       const { data: docs } = await supabase
         .from("documents")
         .select("*, jobs(*, issues(*))")
+        .eq("owner_id", userId)
         .order("created_at", { ascending: false });
 
       const blob = new Blob([JSON.stringify(docs, null, 2)], { type: "application/json" });
@@ -82,11 +87,11 @@ export default function DataPrivacyPage() {
   };
 
   const handleDelete = async () => {
+    if (!userId) return;
     if (deleteConfirmText !== "DELETE") return;
     setDeleting(true);
     try {
-      // Delete all user data (cascading via RLS and FK constraints)
-      const { data: docs } = await supabase.from("documents").select("id");
+      const { data: docs } = await supabase.from("documents").select("id").eq("owner_id", userId);
       if (docs) {
         for (const doc of docs) {
           // Delete jobs for this doc (issues will cascade from jobs)
@@ -101,10 +106,7 @@ export default function DataPrivacyPage() {
         }
       }
 
-      // Sign out and delete auth account
-      await supabase.auth.signOut();
-      // Note: actual account deletion requires admin API — sign out is sufficient for now
-      router.push("/");
+      window.location.href = "/auth/logout";
     } catch (err) {
       console.error("Deletion failed:", err);
     } finally {
@@ -113,9 +115,10 @@ export default function DataPrivacyPage() {
   };
 
   const refreshStats = async () => {
-    const { count: d } = await supabase.from("documents").select("*", { count: "exact", head: true });
-    const { count: j } = await supabase.from("jobs").select("*", { count: "exact", head: true });
-    const { count: i } = await supabase.from("issues").select("*", { count: "exact", head: true });
+    if (!userId) return;
+    const { count: d } = await supabase.from("documents").select("*", { count: "exact", head: true }).eq("owner_id", userId);
+    const { count: j } = await supabase.from("jobs").select("*, documents!inner(owner_id)", { count: "exact", head: true }).eq("documents.owner_id", userId);
+    const { count: i } = await supabase.from("issues").select("*, jobs!inner(documents!inner(owner_id))", { count: "exact", head: true }).eq("jobs.documents.owner_id", userId);
     setStats({ docs: d || 0, jobs: j || 0, issues: i || 0 });
   };
 
