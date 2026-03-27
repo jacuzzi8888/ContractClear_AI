@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
     }
 
     const fileId = uuidv4();
-    const filePath = userId + "/" + fileId + ".pdf";
+    const safeUserId = userId.replace(/\|/g, "-");
+    const filePath = safeUserId + "/" + fileId + ".pdf";
 
     const { data: signedUrlData, error: urlError } = await supabase.storage
       .from(STORAGE_BUCKET)
