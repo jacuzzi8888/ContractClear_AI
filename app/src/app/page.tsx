@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import { GEMINI_MODEL_DISPLAY, MAX_FILE_SIZE_DISPLAY } from "@/lib/constants";
 import {
   Shield,
@@ -26,10 +25,12 @@ export default function HomePage() {
 
   useEffect(() => {
     setHasMounted(true);
-    const supabase = createClient();
-    supabase.auth.getSession().then((result: any) => {
-      if (result?.data?.session) setIsLoggedIn(true);
-    });
+    fetch("/api/user")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.userId) setIsLoggedIn(true);
+      })
+      .catch(() => {});
   }, []);
 
   if (!hasMounted) {
