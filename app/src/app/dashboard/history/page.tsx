@@ -60,7 +60,8 @@ export default function HistoryPage() {
   const [riskFilter, setRiskFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
   const supabase = createClient();
-  const { userId } = useUser();
+  const { user } = useUser();
+  const userId = user.userId;
 
   useEffect(() => {
     const fetchDocs = async () => {

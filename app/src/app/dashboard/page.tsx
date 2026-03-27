@@ -36,7 +36,8 @@ interface RecentDocument {
 
 export default function DashboardPage() {
   const supabase = createClient();
-  const { userId, isLoading: isLoadingUser } = useUser();
+  const { user, isLoading: isLoadingUser } = useUser();
+  const userId = user.userId;
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [recentDocs, setRecentDocs] = useState<RecentDocument[]>([]);
   const [isLoadingDocs, setIsLoadingDocs] = useState(true);

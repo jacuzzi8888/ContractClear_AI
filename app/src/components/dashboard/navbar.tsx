@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 
 import {
@@ -15,6 +15,7 @@ import {
   Settings,
   BarChart3,
   HelpCircle,
+  Loader2,
 } from "lucide-react";
 
 interface NavbarProps {
@@ -23,9 +24,24 @@ interface NavbarProps {
 
 export function Navbar({ user }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const isActive = (path: string) => pathname === path;
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      // Clear local session
+      await fetch("/api/auth/logout", { method: "POST" });
+      // Redirect to Auth0 logout (which will clear Auth0 session and redirect to home)
+      window.location.href = "/auth/logout";
+    } catch {
+      // Still try Auth0 logout
+      window.location.href = "/auth/logout";
+    }
+  };
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -70,7 +86,6 @@ export function Navbar({ user }: NavbarProps) {
                 <span className="text-xs font-medium text-[var(--color-surface-900)]">
                   {user.name || user.email}
                 </span>
-                
               </div>
             )}
 
@@ -82,13 +97,18 @@ export function Navbar({ user }: NavbarProps) {
             >
               <Settings className="h-5 w-5 text-[var(--color-surface-500)] hover:text-white transition-colors" />
             </Link>
-            <a
-              href="/auth/logout"
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
               className="hidden md:flex p-2 rounded-xl bg-[var(--color-surface-100)] border border-[var(--color-surface-300)] hover:bg-white/10 transition-colors group"
               title="Sign Out"
             >
-              <LogOut className="h-5 w-5 text-[var(--color-surface-500)] group-hover:text-red-500 transition-colors" />
-            </a>
+              {isLoggingOut ? (
+                <Loader2 className="h-5 w-5 text-[var(--color-surface-500)] animate-spin" />
+              ) : (
+                <LogOut className="h-5 w-5 text-[var(--color-surface-500)] group-hover:text-red-500 transition-colors" />
+              )}
+            </button>
 
             {/* Hamburger — mobile */}
             <button
@@ -133,7 +153,6 @@ export function Navbar({ user }: NavbarProps) {
                 <p className="text-sm font-medium text-[var(--color-surface-900)] truncate">
                   {user.name || user.email}
                 </p>
-                
               </div>
             )}
 
@@ -191,13 +210,18 @@ export function Navbar({ user }: NavbarProps) {
             </div>
 
             {/* Sign out */}
-            <a
-              href="/auth/logout"
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors mt-4"
             >
-              <LogOut size={18} />
+              {isLoggingOut ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <LogOut size={18} />
+              )}
               Sign Out
-            </a>
+            </button>
           </div>
         </div>
       )}

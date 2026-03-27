@@ -26,7 +26,8 @@ import {
 export default function DataPrivacyPage() {
   const router = useRouter();
   const supabase = createClient();
-  const { userId } = useUser();
+  const { user } = useUser();
+  const userId = user.userId;
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);

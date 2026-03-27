@@ -18,7 +18,8 @@ import type { RiskLevel } from "@/types";
 
 export default function UsagePage() {
   const supabase = createClient();
-  const { userId } = useUser();
+  const { user } = useUser();
+  const userId = user.userId;
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalDocs: 0,
