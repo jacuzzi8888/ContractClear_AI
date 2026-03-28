@@ -1,4 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { getSessionTokenFromRequest, getAuth0UserIdFromRequest } from "./session";
+import { NextRequest } from "next/server";
 
 export interface UserRecord {
   id: string;
@@ -8,6 +10,24 @@ export interface UserRecord {
   full_name: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export async function resolveUserUUID(request: NextRequest): Promise<string | null> {
+  const localSession = await getSessionTokenFromRequest(request);
+  if (localSession?.userId) {
+    return localSession.userId;
+  }
+
+  const auth0Id = await getAuth0UserIdFromRequest(request);
+  if (auth0Id) {
+    let user = await getUserByAuth0Id(auth0Id);
+    if (!user) {
+      user = await createUser({ auth0Id });
+    }
+    return user.id;
+  }
+
+  return null;
 }
 
 export async function getUserById(userId: string): Promise<UserRecord | null> {

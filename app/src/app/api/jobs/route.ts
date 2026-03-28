@@ -2,38 +2,12 @@ import { inngest } from "@/lib/inngest/client";
 import { INNGEST_EVENT_NAME } from "@/lib/constants";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
-import { hkdf } from "@panva/hkdf";
-import * as jose from "jose";
+import { resolveUserUUID } from "@/lib/auth/get-user";
 
 export const dynamic = "force-dynamic";
 
-async function getSessionFromCookie(cookieValue: string) {
-  const secret = process.env.AUTH0_SECRET;
-  if (!secret) return null;
-
-  try {
-    const encryptionSecret = await hkdf("sha256", secret, "", "JWE CEK", 32);
-    const result = await jose.jwtDecrypt(cookieValue, encryptionSecret, {
-      clockTolerance: 15,
-    });
-    return result.payload;
-  } catch {
-    return null;
-  }
-}
-
 export async function POST(request: NextRequest) {
-  let userId: string | null = null;
-
-  const sessionCookie = request.cookies.get("__session")?.value;
-  if (sessionCookie) {
-    const payload = await getSessionFromCookie(sessionCookie);
-    const sub = (payload as any)?.user?.sub;
-    if (sub) {
-      userId = sub as string;
-    }
-  }
-
+  const userId = await resolveUserUUID(request);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

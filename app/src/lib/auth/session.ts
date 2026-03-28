@@ -71,3 +71,19 @@ export async function getSessionTokenFromRequest(request: NextRequest): Promise<
   if (!token) return null;
   return verifySession(token);
 }
+
+export async function getAuth0UserIdFromRequest(request: NextRequest): Promise<string | null> {
+  const sessionCookie = request.cookies.get("__session")?.value;
+  if (!sessionCookie) return null;
+  const secret = process.env.AUTH0_SECRET;
+  if (!secret) return null;
+  try {
+    const { hkdf } = await import("@panva/hkdf");
+    const jose = await import("jose");
+    const key = await hkdf("sha256", secret, "", "JWE CEK", 32);
+    const result = await jose.jwtDecrypt(sessionCookie, key, { clockTolerance: 15 });
+    return (result.payload as any)?.user?.sub || null;
+  } catch {
+    return null;
+  }
+}

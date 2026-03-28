@@ -2,24 +2,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { draftNegotiationEmail } from "@/lib/gemini";
-import { hkdf } from "@panva/hkdf";
-import * as jose from "jose";
+import { resolveUserUUID } from "@/lib/auth/get-user";
 
 export const dynamic = "force-dynamic";
-
-async function getUserId(request: NextRequest): Promise<string | null> {
-  const sessionCookie = request.cookies.get("__session")?.value;
-  if (!sessionCookie) return null;
-  const secret = process.env.AUTH0_SECRET;
-  if (!secret) return null;
-  try {
-    const key = await hkdf("sha256", secret, "", "JWE CEK", 32);
-    const result = await jose.jwtDecrypt(sessionCookie, key, { clockTolerance: 15 });
-    return (result.payload as any)?.user?.sub || null;
-  } catch {
-    return null;
-  }
-}
 
 export async function POST(
   request: NextRequest,
@@ -29,7 +14,7 @@ export async function POST(
     const params = await props.params;
     const id = params.id;
 
-    const userId = await getUserId(request);
+    const userId = await resolveUserUUID(request);
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
