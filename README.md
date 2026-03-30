@@ -1,6 +1,25 @@
 # ContractClear AI
 
-AI-powered contract risk analysis with strict evidence grounding. Upload any legal PDF and get instant risk assessments with exact quotes and page references.
+**Fighting Predatory Contracts, One Clause at a Time**
+
+Every day, millions of people sign contracts they don't fully understand—rental agreements, employment contracts, software licenses, and service terms. Predatory clauses hide in plain sight: automatic renewal traps, one-sided liability waivers, hidden fee escalators.
+
+For consumers and small businesses who can't afford $500/hour legal counsel, these hidden risks lead to financial loss and unfair obligations.
+
+**ContractClear AI democratizes legal protection**—helping anyone understand what they're signing before they sign it.
+
+---
+
+## Who It Helps
+
+| User | Problem | How We Help |
+|------|---------|-------------|
+| **Consumers** | Signing terms without understanding | Identify hidden fees, auto-renewals, liability waivers |
+| **Tenants** | Leases with unfair clauses | Spot illegal terms, hidden costs, one-sided rules |
+| **Freelancers** | Client contracts with traps | Find scope creep, IP grabs, non-compete clauses |
+| **Small Businesses** | Vendor agreements they can't negotiate | Get leverage with clear risk analysis |
+
+---
 
 ## Features
 
