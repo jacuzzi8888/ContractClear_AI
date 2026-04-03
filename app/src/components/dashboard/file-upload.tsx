@@ -207,7 +207,7 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
               )}
 
               {(status === "uploading" || status === "processing") && (
-                <div className="w-full space-y-3">
+                <div className="w-full space-y-3" aria-live="polite">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Loader2 className="animate-spin text-[var(--color-brand-600)]" size={16} />
@@ -217,17 +217,25 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
                     </div>
                     <span className="text-xs font-mono text-[var(--color-surface-500)]">{progress}%</span>
                   </div>
-                  <div className="h-2 w-full bg-[var(--color-surface-200)] rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-[var(--color-surface-200)] rounded-full overflow-hidden" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
                     <div
                       className="h-full bg-[var(--color-brand-600)] rounded-full transition-all duration-300 ease-out"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
+                  {status === "uploading" && (
+                    <button
+                      onClick={reset}
+                      className="w-full text-xs text-[var(--color-surface-500)] hover:text-[var(--color-surface-700)] py-2 transition-colors"
+                    >
+                      Cancel upload
+                    </button>
+                  )}
                 </div>
               )}
 
               {status === "success" && !isExternalProcessing && (
-                <div className="flex items-center gap-3 text-green-600">
+                <div className="flex items-center gap-3 text-green-600" aria-live="polite">
                   <CheckCircle2 size={24} />
                   <div>
                     <p className="text-sm font-bold">Analysis Queued</p>
@@ -237,7 +245,7 @@ export function FileUpload({ onJobStart, isExternalProcessing }: FileUploadProps
               )}
 
               {status === "error" && (
-                <div className="w-full bg-red-50 border border-red-200 rounded-xl p-4">
+                <div className="w-full bg-red-50 border border-red-200 rounded-xl p-4" aria-live="assertive">
                   <div className="flex items-center gap-3 text-red-600 mb-3">
                     <AlertTriangle size={20} />
                     <p className="text-sm font-bold">{errorMessage}</p>

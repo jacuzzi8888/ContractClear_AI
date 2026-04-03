@@ -2,20 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { hashPassword } from "@/lib/auth/password";
 import { createSession, setSessionCookie } from "@/lib/auth/session";
 import { createUser, getUserByEmail } from "@/lib/auth/get-user";
+import { registerSchema } from "@/lib/auth/validation";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, fullName } = await request.json();
+    const rateLimitError = await checkRateLimit(request);
+    if (rateLimitError) return rateLimitError;
 
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    const body = await request.json();
+    const result = registerSchema.safeParse(body);
+
+    if (!result.success) {
+      const errorMsg = result.error.issues.map((e: any) => e.message).join(", ");
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
 
-    if (password.length < 6) {
-      return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
-    }
+    const { email, password, fullName } = result.data;
 
     // Check if email already exists
     const existingUser = await getUserByEmail(email);
@@ -25,7 +30,8 @@ export async function POST(request: NextRequest) {
           error: "This email is already registered with Google. Please login with Google." 
         }, { status: 400 });
       }
-      return NextResponse.json({ error: "Email already registered" }, { status: 400 });
+      // Generic error to prevent enumeration
+      return NextResponse.json({ error: "Registration failed or email already registered" }, { status: 400 });
     }
 
     // Hash password and create user
@@ -53,7 +59,7 @@ export async function POST(request: NextRequest) {
       } 
     });
   } catch (error: any) {
-    console.error("[auth/register] Error:", error);
-    return NextResponse.json({ error: error.message || "Registration failed" }, { status: 500 });
+    console.error("[auth/register] Error"); // Sanitized
+    return NextResponse.json({ error: "Registration failed" }, { status: 500 });
   }
 }

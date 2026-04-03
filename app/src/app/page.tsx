@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { GEMINI_MODEL_DISPLAY, MAX_FILE_SIZE_DISPLAY } from "@/lib/constants";
 import {
-  Shield,
   FileSearch,
   Zap,
   Quote,
@@ -18,6 +17,7 @@ import {
   Eye,
   Trash2,
 } from "lucide-react";
+import { SharedNavbar } from "@/components/shared/navbar";
 
 export default function HomePage() {
   const [hasMounted, setHasMounted] = useState(false);
@@ -43,27 +43,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* ── Navbar ──────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--color-surface-300)] bg-[var(--color-surface-50)]/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-2.5">
-            <Shield className="h-6 w-6 text-[var(--color-brand-600)]" />
-            <span className="text-lg font-bold tracking-tight text-[var(--color-surface-900)]">
-              Contract<span className="gradient-text">Clear</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            {!isLoggedIn && (
-              <Link href="/auth/login" className="btn-secondary text-sm hidden sm:inline-flex">
-                Sign In
-              </Link>
-            )}
-            <Link href="/auth/login?returnTo=/dashboard" className="btn-primary text-sm">
-              Launch App <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SharedNavbar variant="home" user={isLoggedIn ? { name: "User" } : null} />
 
       {/* ── Hero ────────────────────────────────────────────── */}
       <section className="flex-1 flex flex-col items-center justify-center px-6 pt-32 pb-24 text-center relative">
@@ -86,16 +66,16 @@ export default function HomePage() {
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             {isLoggedIn ? (
-              <Link href="/auth/login?returnTo=/dashboard" className="btn-primary text-base px-6 py-3">
+              <Link href="/dashboard" className="btn-primary text-base px-6 py-3 min-h-[48px]">
                 Go to Dashboard <ArrowRight className="h-5 w-5" />
               </Link>
             ) : (
               <>
-                <Link href="/auth/login?returnTo=/dashboard" className="btn-primary text-base px-6 py-3 w-full sm:w-auto">
+                <Link href="/login" className="btn-primary text-base px-6 py-3 w-full sm:w-auto min-h-[48px]">
                   <Upload className="h-5 w-5" />
                   Analyze a Contract
                 </Link>
-                <Link href="/signup" className="btn-secondary text-base px-6 py-3 w-full sm:w-auto">
+                <Link href="/signup" className="btn-secondary text-base px-6 py-3 w-full sm:w-auto min-h-[48px]">
                   Create Free Account
                 </Link>
               </>
@@ -261,10 +241,10 @@ export default function HomePage() {
               Start analyzing contracts in seconds. No credit card required.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/signup" className="bg-white text-[var(--color-brand-900)] font-semibold px-8 py-3 rounded-xl text-base hover:bg-[var(--color-brand-50)] transition-colors w-full sm:w-auto inline-flex items-center justify-center gap-2">
+              <Link href="/signup" className="bg-white text-[var(--color-brand-900)] font-semibold px-8 py-3 rounded-xl text-base hover:bg-[var(--color-brand-50)] transition-colors w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px]">
                 Get Started Free <ArrowRight className="h-5 w-5" />
               </Link>
-              <Link href="/auth/login" className="border border-white/30 text-white font-semibold px-8 py-3 rounded-xl text-base hover:bg-white/10 transition-colors w-full sm:w-auto inline-flex items-center justify-center">
+              <Link href="/login" className="border border-white/30 text-white font-semibold px-8 py-3 rounded-xl text-base hover:bg-white/10 transition-colors w-full sm:w-auto inline-flex items-center justify-center min-h-[48px]">
                 Sign In
               </Link>
             </div>
@@ -274,12 +254,14 @@ export default function HomePage() {
 
       {/* ── Footer ──────────────────────────────────────────── */}
       <footer className="border-t border-[var(--color-surface-300)] py-8 text-center text-xs text-[var(--color-surface-500)]">
-        <div className="flex items-center justify-center gap-4 mb-3">
-          <Link href="/help" className="hover:text-[var(--color-surface-700)] transition-colors">Help</Link>
-          <span className="text-[var(--color-surface-300)]">|</span>
-          <Link href="/terms" className="hover:text-[var(--color-surface-700)] transition-colors">Terms</Link>
-          <span className="text-[var(--color-surface-300)]">|</span>
-          <Link href="/privacy" className="hover:text-[var(--color-surface-700)] transition-colors">Privacy</Link>
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-3">
+          <Link href="/help" className="hover:text-[var(--color-surface-700)] transition-colors py-2 px-1">Help</Link>
+          <span className="text-[var(--color-surface-300)]" aria-hidden="true">|</span>
+          <Link href="/terms" className="hover:text-[var(--color-surface-700)] transition-colors py-2 px-1">Terms</Link>
+          <span className="text-[var(--color-surface-300)]" aria-hidden="true">|</span>
+          <Link href="/privacy" className="hover:text-[var(--color-surface-700)] transition-colors py-2 px-1">Privacy</Link>
+          <span className="text-[var(--color-surface-300)]" aria-hidden="true">|</span>
+          <Link href="/login" className="hover:text-[var(--color-surface-700)] transition-colors py-2 px-1">Sign In</Link>
         </div>
         <p>
           ContractClear AI is not a substitute for legal counsel. All outputs

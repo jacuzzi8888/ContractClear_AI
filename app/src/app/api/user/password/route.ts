@@ -2,30 +2,31 @@ import { NextRequest, NextResponse } from "next/server";
 import { hashPassword } from "@/lib/auth/password";
 import { getSessionTokenFromRequest } from "@/lib/auth/session";
 import { getUserById, setUserPassword } from "@/lib/auth/get-user";
+import { changePasswordSchema } from "@/lib/auth/validation";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export async function PUT(request: NextRequest) {
   try {
+    const rateLimitError = await checkRateLimit(request);
+    if (rateLimitError) return rateLimitError;
+
     // Get current session
     const session = await getSessionTokenFromRequest(request);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { password, confirmPassword } = await request.json();
+    const body = await request.json();
+    const result = changePasswordSchema.safeParse(body);
 
-    if (!password || !confirmPassword) {
-      return NextResponse.json({ error: "Password and confirmation are required" }, { status: 400 });
+    if (!result.success) {
+      const errorMsg = result.error.issues.map((e: any) => e.message).join(", ");
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
 
-    if (password.length < 6) {
-      return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
-    }
-
-    if (password !== confirmPassword) {
-      return NextResponse.json({ error: "Passwords do not match" }, { status: 400 });
-    }
+    const { password } = result.data;
 
     // Check if user exists
     const user = await getUserById(session.userId);
@@ -39,7 +40,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: "Password updated successfully" });
   } catch (error: any) {
-    console.error("[user/password] Error:", error);
-    return NextResponse.json({ error: error.message || "Failed to update password" }, { status: 500 });
+    console.error("[user/password] Error"); // Sanitized
+    return NextResponse.json({ error: "Failed to update password" }, { status: 500 });
   }
 }

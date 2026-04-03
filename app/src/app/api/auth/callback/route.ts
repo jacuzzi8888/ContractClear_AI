@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, user: { id: user.id, email: user.email, fullName: user.full_name } });
   } catch (error: any) {
-    console.error("[auth/callback] Error:", error);
-    return NextResponse.json({ error: error.message || "Auth callback failed" }, { status: 500 });
+    console.error("[auth/callback] Error"); // Sanitized
+    return NextResponse.json({ error: "Auth callback failed" }, { status: 500 });
   }
 }

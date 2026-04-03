@@ -3,6 +3,7 @@ import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_DISPLAY, STORAGE_BUCKET } from "@/li
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { resolveUserUUID } from "@/lib/auth/get-user";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const rateLimitError = await checkRateLimit(request);
+    if (rateLimitError) return rateLimitError;
+
     const body = await request.json();
     const { fileName, contentType, fileSize } = body;
 

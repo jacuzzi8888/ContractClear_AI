@@ -34,15 +34,27 @@ interface RecentDocument {
   }[];
 }
 
+interface RealTimeFinding {
+  id: string;
+  job_id: string;
+  risk_level: RiskLevel;
+  quote: string;
+  page_number: number;
+  explanation: string;
+  recommended_action: string;
+  confidence: number;
+  created_at: string;
+}
+
 export default function DashboardPage() {
   const supabase = createClient();
-  const { user, isLoading: isLoadingUser } = useUser();
+  const { user } = useUser();
   const userId = user.userId;
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [recentDocs, setRecentDocs] = useState<RecentDocument[]>([]);
   const [isLoadingDocs, setIsLoadingDocs] = useState(true);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [pastFindings, setPastFindings] = useState<any[]>([]);
+  const [pastFindings, setPastFindings] = useState<RealTimeFinding[]>([]);
   const [isLoadingFindings, setIsLoadingFindings] = useState(false);
   const [statsKey, setStatsKey] = useState(0);
 
@@ -86,13 +98,13 @@ export default function DashboardPage() {
     setIsLoadingFindings(true);
     setActiveJobId(null);
 
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("issues")
       .select("*")
       .eq("job_id", jobId)
       .order("created_at", { ascending: true });
 
-    if (!error && data) setPastFindings(data);
+    if (data) setPastFindings(data as RealTimeFinding[]);
     setIsLoadingFindings(false);
   }, [supabase]);
 
@@ -141,9 +153,10 @@ export default function DashboardPage() {
               {selectedJobId && !activeJobId && (
                 <button
                   onClick={clearSelection}
-                  className="text-sm text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] transition-colors flex items-center gap-1.5"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--color-surface-100)] hover:bg-[var(--color-surface-200)] border border-[var(--color-surface-300)] rounded-xl text-sm font-medium text-[var(--color-surface-700)] hover:text-[var(--color-surface-900)] transition-colors min-h-[44px]"
                 >
-                  &larr; Back to recent extractions
+                  <ArrowRight size={16} className="rotate-180" />
+                  Back to recent extractions
                 </button>
               )}
               {isLoadingFindings ? (
@@ -177,7 +190,7 @@ export default function DashboardPage() {
               </div>
 
               {isLoadingDocs ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-live="polite">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="animate-pulse glass-card p-5 rounded-2xl border border-[var(--color-surface-200)]">
                       <div className="flex items-start gap-4">

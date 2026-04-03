@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { FileText, AlertTriangle, TrendingUp, Clock } from "lucide-react";
+import { FileText, AlertTriangle, TrendingUp, Clock, HelpCircle } from "lucide-react";
 import { RISK_LEVEL_CONFIG } from "@/lib/constants";
 import type { RiskLevel } from "@/types";
 
@@ -12,6 +12,34 @@ interface StatsData {
   dominantRisk: string;
   riskBreakdown: Record<string, number>;
   lastAnalysis: string | null;
+}
+
+function StatCard({ 
+  icon: Icon, 
+  value, 
+  label, 
+  tooltip,
+  iconColor 
+}: { 
+  icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
+  value: string | number;
+  label: string;
+  tooltip: string;
+  iconColor: string;
+}) {
+  return (
+    <div className="card-stats p-5 group relative">
+      <Icon size={20} style={{ color: iconColor }} />
+      <div className="stat-number text-[var(--color-surface-900)]">{value}</div>
+      <div className="stat-label flex items-center gap-1">
+        {label}
+        <HelpCircle size={10} className="text-[var(--color-surface-400)] opacity-0 group-hover:opacity-100 transition-opacity" />
+      </div>
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-[var(--color-surface-900)] text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+        {tooltip}
+      </div>
+    </div>
+  );
 }
 
 export function StatsPanel({ refreshKey, userId }: { refreshKey?: number; userId: string | null }) {
@@ -88,35 +116,37 @@ export function StatsPanel({ refreshKey, userId }: { refreshKey?: number; userId
 
       {/* Stat cards — 2×2 grid */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Documents */}
-        <div className="card-stats p-5">
-          <FileText size={20} style={{ color: "var(--color-brand-600)" }} />
-          <div className="stat-number text-[var(--color-surface-900)]">{totalDocs}</div>
-          <div className="stat-label">Documents</div>
-        </div>
+        <StatCard
+          icon={FileText}
+          value={totalDocs}
+          label="Documents"
+          tooltip="Total contracts analyzed"
+          iconColor="var(--color-brand-600)"
+        />
 
-        {/* Issues */}
-        <div className="card-stats p-5">
-          <AlertTriangle size={20} style={{ color: "var(--color-accent-600)" }} />
-          <div className="stat-number text-[var(--color-surface-900)]">{totalIssues}</div>
-          <div className="stat-label">Issues Found</div>
-        </div>
+        <StatCard
+          icon={AlertTriangle}
+          value={totalIssues}
+          label="Issues Found"
+          tooltip="Total risks identified across all documents"
+          iconColor="var(--color-accent-600)"
+        />
 
-        {/* Top Risk */}
-        <div className="card-stats p-5">
-          <TrendingUp size={20} style={{ color: dominantRiskColor }} />
-          <div className="stat-number capitalize" style={{ color: dominantRiskColor }}>
-            {dominantRisk}
-          </div>
-          <div className="stat-label">Top Risk</div>
-        </div>
+        <StatCard
+          icon={TrendingUp}
+          value={dominantRisk === "—" ? "—" : dominantRisk}
+          label="Top Risk"
+          tooltip="Most common risk level in your documents"
+          iconColor={dominantRiskColor}
+        />
 
-        {/* Last Run */}
-        <div className="card-stats p-5">
-          <Clock size={20} style={{ color: "var(--color-surface-500)" }} />
-          <div className="stat-number text-[var(--color-surface-700)]">{formattedDate}</div>
-          <div className="stat-label">Last Run</div>
-        </div>
+        <StatCard
+          icon={Clock}
+          value={formattedDate}
+          label="Last Run"
+          tooltip="Date of your most recent analysis"
+          iconColor="var(--color-surface-500)"
+        />
       </div>
 
       {/* Risk distribution chart */}

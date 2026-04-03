@@ -28,7 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="antialiased">
-        {children}
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-white focus:text-black">
+          Skip to main content
+        </a>
+        <div id="main-content">
+          {children}
+        </div>
         <Toaster theme="light" position="top-right" richColors closeButton />
       </body>
     </html>

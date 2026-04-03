@@ -2,21 +2,30 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSession, setSessionCookie } from "@/lib/auth/session";
 import { getUserByEmail } from "@/lib/auth/get-user";
+import { loginSchema } from "@/lib/auth/validation";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const rateLimitError = await checkRateLimit(request);
+    if (rateLimitError) return rateLimitError;
 
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    const body = await request.json();
+    const result = loginSchema.safeParse(body);
+
+    if (!result.success) {
+      const errorMsg = result.error.issues.map((e: any) => e.message).join(", ");
+      return NextResponse.json({ error: errorMsg }, { status: 400 });
     }
+
+    const { email, password } = result.data;
 
     // Check if user exists
     const user = await getUserByEmail(email);
     if (!user) {
-      return NextResponse.json({ error: "Account not found" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
     // Check if account is linked to Auth0 (Google)
@@ -29,14 +38,14 @@ export async function POST(request: NextRequest) {
     // Check if password is set
     if (!user.password_hash) {
       return NextResponse.json({ 
-        error: "No password set for this account. Please login with Google or set a password in Settings." 
+        error: "This email is linked to Google. Please login with Google." 
       }, { status: 400 });
     }
 
     // Verify password
     const isValid = await verifyPassword(password, user.password_hash);
     if (!isValid) {
-      return NextResponse.json({ error: "Invalid password" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
     // Create session
@@ -56,7 +65,7 @@ export async function POST(request: NextRequest) {
       } 
     });
   } catch (error: any) {
-    console.error("[auth/login] Error:", error);
-    return NextResponse.json({ error: error.message || "Login failed" }, { status: 500 });
+    console.error("[auth/login] Error"); // Sanitized
+    return NextResponse.json({ error: "Login failed" }, { status: 500 });
   }
 }

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Shield, ArrowRight, LogIn, Mail, Lock, Loader2, AlertCircle } from "lucide-react";
+import { Shield, ArrowRight, LogIn, Mail, Loader2, AlertCircle } from "lucide-react";
+import { PasswordInput } from "@/components/shared/password-input";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,10 +13,30 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+
+  const validateForm = () => {
+    const errors: { email?: string; password?: string } = {};
+    if (!email) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = "Please enter a valid email";
+    }
+    if (!password) {
+      errors.password = "Password is required";
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+    }
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!validateForm()) return;
+
     setIsLoading(true);
 
     try {
@@ -32,11 +53,9 @@ export default function LoginPage() {
         return;
       }
 
-      // Also trigger Auth0 callback to sync session
       await fetch("/api/auth/callback", { method: "POST" });
-      
       router.push("/dashboard");
-    } catch (err) {
+    } catch {
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -65,11 +84,12 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Tabs */}
-          <div className="flex border border-[var(--color-surface-200)] rounded-xl mb-6 overflow-hidden">
+          <div className="flex border border-[var(--color-surface-200)] rounded-xl mb-6 overflow-hidden" role="tablist">
             <button
               onClick={() => setActiveTab("google")}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              role="tab"
+              aria-selected={activeTab === "google"}
+              className={`flex-1 py-3 text-sm font-medium transition-colors min-h-[48px] ${
                 activeTab === "google"
                   ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)]"
                   : "bg-[var(--color-surface-50)] text-[var(--color-surface-500)] hover:bg-[var(--color-surface-100)]"
@@ -79,7 +99,9 @@ export default function LoginPage() {
             </button>
             <button
               onClick={() => setActiveTab("email")}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              role="tab"
+              aria-selected={activeTab === "email"}
+              className={`flex-1 py-3 text-sm font-medium transition-colors min-h-[48px] ${
                 activeTab === "email"
                   ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)]"
                   : "bg-[var(--color-surface-50)] text-[var(--color-surface-500)] hover:bg-[var(--color-surface-100)]"
@@ -93,7 +115,7 @@ export default function LoginPage() {
             <>
               <a
                 href="/auth/login?returnTo=/dashboard"
-                className="btn-primary w-full py-4 rounded-xl text-white font-semibold flex items-center justify-center group transition-all"
+                className="btn-primary w-full py-4 rounded-xl text-white font-semibold flex items-center justify-center group transition-all min-h-[52px]"
               >
                 <LogIn className="mr-2" size={20} />
                 Sign In with Google
@@ -110,47 +132,65 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={handleEmailLogin} className="space-y-4">
               {error && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm" role="alert">
                   <AlertCircle size={16} />
                   {error}
                 </div>
               )}
 
               <div>
-                <label className="text-xs font-medium text-[var(--color-surface-500)] ml-1 mb-1.5 block">Email</label>
+                <label htmlFor="email" className="text-xs font-medium text-[var(--color-surface-500)] ml-1 mb-1.5 block">
+                  Email
+                </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-surface-400)]" size={18} />
                   <input
                     type="email"
+                    id="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
+                    }}
                     required
-                    className="w-full bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--color-surface-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/40 focus:border-[var(--color-brand-500)]/50 transition-all"
+                    autoComplete="email"
+                    className={`w-full bg-[var(--color-surface-50)] border rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--color-surface-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/40 focus:border-[var(--color-brand-500)]/50 transition-all ${
+                      fieldErrors.email ? "border-red-300" : "border-[var(--color-surface-300)]"
+                    }`}
                     placeholder="you@example.com"
                   />
                 </div>
+                {fieldErrors.email && (
+                  <p className="text-xs text-red-500 mt-1.5 ml-1">{fieldErrors.email}</p>
+                )}
               </div>
 
-              <div>
-                <label className="text-xs font-medium text-[var(--color-surface-500)] ml-1 mb-1.5 block">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-surface-400)]" size={18} />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={6}
-                    className="w-full bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--color-surface-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/40 focus:border-[var(--color-brand-500)]/50 transition-all"
-                    placeholder="Min 6 characters"
-                  />
-                </div>
+              <PasswordInput
+                id="password"
+                value={password}
+                onChange={(v) => {
+                  setPassword(v);
+                  if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
+                }}
+                placeholder="Enter your password"
+                required
+                autoComplete="current-password"
+                error={fieldErrors.password}
+              />
+
+              <div className="flex justify-end">
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-[var(--color-brand-600)] hover:underline"
+                >
+                  Forgot password?
+                </Link>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="btn-primary w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center transition-all disabled:opacity-50"
+                className="btn-primary w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center transition-all disabled:opacity-50 min-h-[48px]"
               >
                 {isLoading ? (
                   <Loader2 className="animate-spin" size={20} />

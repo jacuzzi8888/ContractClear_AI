@@ -8,7 +8,7 @@ export async function POST() {
     await clearSessionCookie();
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("[auth/logout] Error:", error);
+    console.error("[auth/logout] Error"); // Sanitized
     return NextResponse.json({ error: "Logout failed" }, { status: 500 });
   }
 }

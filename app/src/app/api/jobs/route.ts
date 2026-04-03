@@ -3,6 +3,7 @@ import { INNGEST_EVENT_NAME } from "@/lib/constants";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 import { resolveUserUUID } from "@/lib/auth/get-user";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const rateLimitError = await checkRateLimit(request);
+    if (rateLimitError) return rateLimitError;
+
     const { documentId } = await request.json();
     const supabase = getSupabaseAdmin();
 

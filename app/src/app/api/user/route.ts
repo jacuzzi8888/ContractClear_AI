@@ -21,11 +21,32 @@ async function getAuth0UserId(request: NextRequest): Promise<string | null> {
 }
 
 export async function GET(request: NextRequest) {
-  // Try local session first
-  const localSession = await getSessionTokenFromRequest(request);
-  if (localSession) {
-    const user = await getUserById(localSession.userId);
-    if (user) {
+  try {
+    // Try local session first
+    const localSession = await getSessionTokenFromRequest(request);
+    if (localSession) {
+      const user = await getUserById(localSession.userId);
+      if (user) {
+        return NextResponse.json({ 
+          userId: user.id,
+          auth0Id: user.auth0_id,
+          email: user.email,
+          fullName: user.full_name,
+          hasPassword: !!user.password_hash,
+        });
+      }
+    }
+
+    // Try Auth0 session
+    const auth0Id = await getAuth0UserId(request);
+    if (auth0Id) {
+      let user = await getUserByAuth0Id(auth0Id);
+      
+      if (!user) {
+        // Create user record for Auth0 user
+        user = await createUser({ auth0Id });
+      }
+      
       return NextResponse.json({ 
         userId: user.id,
         auth0Id: user.auth0_id,
@@ -34,26 +55,10 @@ export async function GET(request: NextRequest) {
         hasPassword: !!user.password_hash,
       });
     }
-  }
 
-  // Try Auth0 session
-  const auth0Id = await getAuth0UserId(request);
-  if (auth0Id) {
-    let user = await getUserByAuth0Id(auth0Id);
-    
-    if (!user) {
-      // Create user record for Auth0 user
-      user = await createUser({ auth0Id });
-    }
-    
-    return NextResponse.json({ 
-      userId: user.id,
-      auth0Id: user.auth0_id,
-      email: user.email,
-      fullName: user.full_name,
-      hasPassword: !!user.password_hash,
-    });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    console.error("[user] GET Error"); // Sanitized
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
-
-  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }

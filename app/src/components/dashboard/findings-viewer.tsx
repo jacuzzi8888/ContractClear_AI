@@ -17,10 +17,11 @@ import {
   Mails,
   ChevronLeft,
   ChevronRight,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { RISK_LEVEL_CONFIG } from "@/lib/constants";
-import { SUCCESS_BANNER_DURATION_MS } from "@/lib/constants";
+import { RISK_LEVEL_CONFIG, SUCCESS_BANNER_DURATION_MS } from "@/lib/constants";
 import type { RiskLevel } from "@/types";
 
 interface RealTimeFinding {
@@ -60,7 +61,7 @@ const RiskIcon = ({ level, size = 20 }: { level: RiskLevel; size?: number }) => 
 
 const cfg = (level: RiskLevel) => RISK_LEVEL_CONFIG[level] || RISK_LEVEL_CONFIG.info;
 
-function DeckCard({ finding }: { finding: RealTimeFinding }) {
+function FindingCard({ finding, viewMode }: { finding: RealTimeFinding; viewMode: "card" | "list" }) {
   const [isDrafting, setIsDrafting] = useState(false);
   const [draftEmail, setDraftEmail] = useState<{ subject: string; body: string } | null>(null);
   const [isCopied, setIsCopied] = useState(false);
@@ -91,6 +92,89 @@ function DeckCard({ finding }: { finding: RealTimeFinding }) {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  if (viewMode === "list") {
+    return (
+      <div
+        className="glass-card p-5 rounded-xl border-l-4 animate-fade-in-up"
+        style={{
+          borderColor: riskConfig.borderColor,
+          borderLeftColor: riskConfig.color,
+          background: riskConfig.bgColor,
+        }}
+      >
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <RiskIcon level={finding.risk_level} size={18} />
+            <span
+              className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border"
+              style={{
+                color: riskConfig.color,
+                backgroundColor: riskConfig.bgColor,
+                borderColor: riskConfig.borderColor,
+              }}
+            >
+              {riskConfig.label}
+            </span>
+            <span className="text-xs text-[var(--color-surface-500)] font-mono">
+              Page {finding.page_number}
+            </span>
+          </div>
+          <span className="text-xs text-[var(--color-surface-500)] font-mono">
+            {Math.round(finding.confidence * 100)}% confidence
+          </span>
+        </div>
+        
+        <p className="text-sm text-[var(--color-surface-800)] leading-relaxed mt-3">
+          {finding.explanation}
+        </p>
+        
+        <div className="relative mt-3 p-3 bg-[var(--color-surface-50)]/80 rounded-lg border border-[var(--color-surface-200)]">
+          <Quote className="absolute top-2 left-2 text-[var(--color-surface-300)]" size={12} />
+          <p className="pl-5 text-xs text-[var(--color-surface-600)] font-mono italic leading-relaxed line-clamp-2">
+            &ldquo;{finding.quote}&rdquo;
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 mt-3">
+          <button
+            onClick={handleDraftEmail}
+            disabled={isDrafting || draftEmail !== null}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-surface-50)] hover:bg-[var(--color-surface-200)] text-[var(--color-surface-900)] text-xs font-semibold rounded-lg border border-[var(--color-surface-300)] transition-colors disabled:opacity-50"
+          >
+            {isDrafting ? <Loader2 size={12} className="animate-spin" /> : <Mail size={12} />}
+            {isDrafting ? "Drafting..." : draftEmail ? "Drafted" : "Draft Email"}
+          </button>
+        </div>
+
+        {error && (
+          <p className="text-red-600 text-xs mt-2 flex items-center gap-1">
+            <AlertCircle size={10} /> {error}
+          </p>
+        )}
+
+        {draftEmail && (
+          <div className="mt-3 p-3 bg-[var(--color-surface-50)] rounded-lg border border-[var(--color-surface-300)] text-xs">
+            <div className="flex items-center justify-between mb-2 pb-2 border-b border-[var(--color-surface-200)]">
+              <p className="font-semibold text-[var(--color-surface-700)] truncate">
+                {draftEmail.subject}
+              </p>
+              <button
+                onClick={copyToClipboard}
+                className="p-1.5 text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] bg-[var(--color-surface-200)] rounded transition-colors"
+                title="Copy to clipboard"
+              >
+                {isCopied ? <Check size={12} className="text-green-600" /> : <Copy size={12} />}
+              </button>
+            </div>
+            <p className="text-[var(--color-surface-700)] leading-relaxed whitespace-pre-wrap font-mono line-clamp-3">
+              {draftEmail.body}
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       className="deck-card p-8 border animate-fade-in-up"
@@ -99,7 +183,6 @@ function DeckCard({ finding }: { finding: RealTimeFinding }) {
         background: riskConfig.bgColor,
       }}
     >
-      {/* Header row */}
       <div className="flex items-start justify-between flex-wrap gap-2 mb-6">
         <div className="flex items-center gap-3">
           <div
@@ -135,12 +218,10 @@ function DeckCard({ finding }: { finding: RealTimeFinding }) {
         </div>
       </div>
 
-      {/* Explanation */}
       <p className="text-base text-[var(--color-surface-800)] leading-relaxed mb-5">
         {finding.explanation}
       </p>
 
-      {/* Verbatim Quote */}
       <div className="relative p-5 bg-[var(--color-surface-50)]/80 rounded-xl border border-[var(--color-surface-200)] mb-5">
         <Quote className="absolute top-3.5 left-3.5 text-[var(--color-surface-300)]" size={16} />
         <p className="pl-6 text-sm text-[var(--color-surface-600)] font-mono italic leading-relaxed">
@@ -148,7 +229,6 @@ function DeckCard({ finding }: { finding: RealTimeFinding }) {
         </p>
       </div>
 
-      {/* Recommended Action */}
       {finding.recommended_action && (
         <div className="flex items-start gap-3 p-4 bg-[var(--color-brand-50)] rounded-xl border border-[var(--color-brand-200)] mb-5">
           <CheckCircle2 className="text-[var(--color-brand-600)] mt-0.5 flex-shrink-0" size={16} />
@@ -161,7 +241,6 @@ function DeckCard({ finding }: { finding: RealTimeFinding }) {
         </div>
       )}
 
-      {/* Draft Email */}
       <div className="flex items-center gap-3">
         <button
           onClick={handleDraftEmail}
@@ -179,7 +258,6 @@ function DeckCard({ finding }: { finding: RealTimeFinding }) {
         </p>
       )}
 
-      {/* Draft Email Display */}
       {draftEmail && (
         <div className="mt-5 p-5 bg-[var(--color-surface-50)] rounded-xl border border-[var(--color-surface-300)] animate-fade-in-up">
           <div className="flex items-center justify-between mb-3 pb-3 border-b border-[var(--color-surface-200)]">
@@ -212,6 +290,7 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [isSummaryCopied, setIsSummaryCopied] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [viewMode, setViewMode] = useState<"card" | "list">("card");
 
   useEffect(() => {
     if (status === "completed") {
@@ -226,12 +305,10 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
     }
   }, [status]);
 
-  // Reset index when findings change
   useEffect(() => {
     setCurrentIndex(0);
   }, [findings.length]);
 
-  // Keyboard navigation
   const goPrev = useCallback(() => {
     setCurrentIndex((i) => Math.max(0, i - 1));
   }, []);
@@ -241,12 +318,14 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") goPrev();
-      if (e.key === "ArrowRight") goNext();
+      if (viewMode === "card") {
+        if (e.key === "ArrowLeft") goPrev();
+        if (e.key === "ArrowRight") goNext();
+      }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [goPrev, goNext]);
+  }, [goPrev, goNext, viewMode]);
 
   if (findings.length === 0 && !isProcessing && status !== "completed" && status !== "failed") return null;
 
@@ -275,9 +354,10 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
     setTimeout(() => setIsSummaryCopied(false), 2000);
   };
 
+  const isTouchDevice = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+
   return (
     <div className="space-y-6 animate-fade-in-up">
-      {/* Status banner: completed */}
       {showCompleted && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 px-5 py-4 bg-green-50 border border-green-200 rounded-2xl animate-fade-in-up">
           <CheckCircle2 className="text-green-600 flex-shrink-0" size={22} />
@@ -298,13 +378,12 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
               Export Report
             </a>
           )}
-          <button onClick={() => setShowCompleted(false)} className="p-1 text-green-400 hover:text-green-600 transition-colors">
+          <button onClick={() => setShowCompleted(false)} className="p-1 text-green-400 hover:text-green-600 transition-colors" aria-label="Dismiss">
             <X size={14} />
           </button>
         </div>
       )}
 
-      {/* Status banner: failed */}
       {showFailed && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 px-5 py-4 bg-red-50 border border-red-200 rounded-2xl animate-fade-in-up">
           <AlertTriangle className="text-red-600 flex-shrink-0" size={22} />
@@ -312,14 +391,13 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
             <p className="text-sm font-bold text-red-700">Analysis Failed</p>
             <p className="text-xs text-red-600">{errorMessage || "An unexpected error occurred."}</p>
           </div>
-          <button onClick={() => setShowFailed(false)} className="p-1 text-red-400 hover:text-red-600 transition-colors">
+          <button onClick={() => setShowFailed(false)} className="p-1 text-red-400 hover:text-red-600 transition-colors" aria-label="Dismiss">
             <X size={14} />
           </button>
         </div>
       )}
 
-      {/* Section header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold text-[var(--color-surface-900)]">Risk Analysis</h2>
           {findings.length > 0 && (
@@ -328,7 +406,7 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
             </span>
           )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
           {isProcessing && (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 rounded-full border border-red-200">
               <span className="relative flex h-2 w-2">
@@ -338,6 +416,30 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
               <span className="text-[10px] font-bold text-red-700 uppercase tracking-tighter">Analyzing...</span>
             </div>
           )}
+          
+          {findings.length > 1 && (
+            <div className="flex items-center border border-[var(--color-surface-200)] rounded-lg overflow-hidden">
+              <button
+                onClick={() => setViewMode("card")}
+                className={`p-2 transition-colors ${viewMode === "card" ? "bg-[var(--color-brand-50)] text-[var(--color-brand-600)]" : "text-[var(--color-surface-500)] hover:bg-[var(--color-surface-100)]"}`}
+                title="Card view"
+                aria-label="Card view"
+                aria-pressed={viewMode === "card"}
+              >
+                <LayoutGrid size={16} />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-2 transition-colors ${viewMode === "list" ? "bg-[var(--color-brand-50)] text-[var(--color-brand-600)]" : "text-[var(--color-surface-500)] hover:bg-[var(--color-surface-100)]"}`}
+                title="List view"
+                aria-label="List view"
+                aria-pressed={viewMode === "list"}
+              >
+                <List size={16} />
+              </button>
+            </div>
+          )}
+
           {findings.length > 0 && !isProcessing && (
             <button
               onClick={handleDraftSummaryEmail}
@@ -362,7 +464,6 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
         </div>
       </div>
 
-      {/* Summary Email */}
       {summaryError && <p className="text-red-600 text-xs flex items-center gap-1"><AlertCircle size={12} /> {summaryError}</p>}
 
       {summaryEmail && (
@@ -390,70 +491,85 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
         </div>
       )}
 
-      {/* Card Deck */}
       {findings.length > 0 && (
-        <div className="card-deck">
-          {/* Navigation arrows */}
-          <button
-            onClick={goPrev}
-            disabled={currentIndex === 0}
-            className="deck-nav deck-nav--prev"
-          >
-            <ChevronLeft size={18} className="text-[var(--color-surface-600)]" />
-          </button>
-          <button
-            onClick={goNext}
-            disabled={currentIndex === findings.length - 1}
-            className="deck-nav deck-nav--next"
-          >
-            <ChevronRight size={18} className="text-[var(--color-surface-600)]" />
-          </button>
-
-          {/* Active card */}
-          <DeckCard key={findings[currentIndex].id} finding={findings[currentIndex]} />
-
-          {/* Indicator + counter */}
-          <div className="flex items-center justify-center gap-4 mt-5">
+        viewMode === "list" ? (
+          <div className="space-y-4">
+            {findings.map((finding) => (
+              <FindingCard key={finding.id} finding={finding} viewMode="list" />
+            ))}
+          </div>
+        ) : (
+          <div className="card-deck">
             <button
               onClick={goPrev}
               disabled={currentIndex === 0}
-              className="text-xs text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] disabled:opacity-30 transition-colors flex items-center gap-1"
+              className={cn(
+                "deck-nav deck-nav--prev",
+                isTouchDevice && "opacity-100"
+              )}
+              aria-label="Previous finding"
             >
-              <ChevronLeft size={14} /> Previous
+              <ChevronLeft size={18} className="text-[var(--color-surface-600)]" />
             </button>
-
-            <div className="flex items-center gap-1.5">
-              {findings.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentIndex(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
-                    i === currentIndex
-                      ? "bg-red-500 scale-110"
-                      : "bg-[var(--color-surface-300)] hover:bg-[var(--color-surface-400)]"
-                  }`}
-                />
-              ))}
-            </div>
-
             <button
               onClick={goNext}
               disabled={currentIndex === findings.length - 1}
-              className="text-xs text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] disabled:opacity-30 transition-colors flex items-center gap-1"
+              className={cn(
+                "deck-nav deck-nav--next",
+                isTouchDevice && "opacity-100"
+              )}
+              aria-label="Next finding"
             >
-              Next <ChevronRight size={14} />
+              <ChevronRight size={18} className="text-[var(--color-surface-600)]" />
             </button>
-          </div>
 
-          <div className="text-center mt-2">
-            <span className="text-xs text-[var(--color-surface-400)] font-mono">
-              {currentIndex + 1} of {findings.length}
-            </span>
+            <FindingCard key={findings[currentIndex].id} finding={findings[currentIndex]} viewMode="card" />
+
+            <div className="flex items-center justify-center gap-4 mt-5">
+              <button
+                onClick={goPrev}
+                disabled={currentIndex === 0}
+                className="text-xs text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] disabled:opacity-30 transition-colors flex items-center gap-1 min-h-[32px] px-2"
+              >
+                <ChevronLeft size={14} /> Previous
+              </button>
+
+              <div className="flex items-center gap-1.5" role="tablist" aria-label="Findings pagination">
+                {findings.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentIndex(i)}
+                    role="tab"
+                    aria-selected={i === currentIndex}
+                    aria-label={`Go to finding ${i + 1}`}
+                    className={cn(
+                      "w-2.5 h-2.5 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] focus:ring-offset-2",
+                      i === currentIndex
+                        ? "bg-red-500 scale-110"
+                        : "bg-[var(--color-surface-300)] hover:bg-[var(--color-surface-400)]"
+                    )}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={goNext}
+                disabled={currentIndex === findings.length - 1}
+                className="text-xs text-[var(--color-surface-500)] hover:text-[var(--color-surface-900)] disabled:opacity-30 transition-colors flex items-center gap-1 min-h-[32px] px-2"
+              >
+                Next <ChevronRight size={14} />
+              </button>
+            </div>
+
+            <div className="text-center mt-2">
+              <span className="text-xs text-[var(--color-surface-400)] font-mono">
+                {currentIndex + 1} of {findings.length}
+              </span>
+            </div>
           </div>
-        </div>
+        )
       )}
 
-      {/* Skeleton loader while processing */}
       {isProcessing && findings.length === 0 && (
         <div className="card-findings p-8 rounded-2xl animate-pulse flex flex-col gap-5">
           <div className="flex items-center gap-3">

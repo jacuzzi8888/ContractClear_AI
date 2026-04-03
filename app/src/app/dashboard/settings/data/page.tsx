@@ -107,7 +107,12 @@ export default function DataPrivacyPage() {
         }
       }
 
-      window.location.href = "/auth/logout";
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if (response.ok) {
+        window.location.href = "/";
+      } else {
+        window.location.href = "/auth/logout";
+      }
     } catch (err) {
       console.error("Deletion failed:", err);
     } finally {

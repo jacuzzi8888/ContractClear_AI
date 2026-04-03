@@ -32,8 +32,12 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const handleSetPassword = async () => {
-    if (newPassword.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
+    if (newPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Passwords do not match");
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -165,7 +169,7 @@ export default function SettingsPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="w-full bg-[var(--color-surface-50)] border border-[var(--color-surface-300)] rounded-xl py-2.5 px-4 text-sm text-[var(--color-surface-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)]/40 focus:border-[var(--color-brand-500)]/50 transition-all"
-                    placeholder="Min 6 characters"
+                    placeholder="Min 8 characters"
                   />
                 </div>
                 <div>
