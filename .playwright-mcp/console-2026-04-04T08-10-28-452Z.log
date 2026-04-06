@@ -1,0 +1,11 @@
+[   15223ms] [ERROR] Access to fetch at 'https://transcend-cdn.com/cm/619e6e3b-1a5c-4516-be11-6d77bdcbd717/uiV2/translations/us-template-v01/en.json' from origin 'https://airtable.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://airtable.com/appDAldRN7ujOokwn/shrBNlj8Rup2CBkea:0
+[   15224ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://transcend-cdn.com/cm/619e6e3b-1a5c-4516-be11-6d77bdcbd717/uiV2/translations/us-template-v01/en.json:0
+[   15259ms] TypeError: Failed to fetch
+    at https://transcend-cdn.com/cm/619e6e3b-1a5c-4516-be11-6d77bdcbd717/uiV2.js:39:101307
+    at Nu (https://transcend-cdn.com/cm/619e6e3b-1a5c-4516-be11-6d77bdcbd717/uiV2.js:39:101405)
+    at Object.__ (https://transcend-cdn.com/cm/619e6e3b-1a5c-4516-be11-6d77bdcbd717/uiV2.js:39:101557)
+    at kn (https://transcend-cdn.com/cm/619e6e3b-1a5c-4516-be11-6d77bdcbd717/uiV2.js:8:19949)
+    at Array.forEach (<anonymous>)
+    at Fu (https://transcend-cdn.com/cm/619e6e3b-1a5c-4516-be11-6d77bdcbd717/uiV2.js:8:18689)
+[   20784ms] [WARNING] The resource https://airtable.com/icons/icon_definitions.svg?v=c1a3fcd488dae9a323ad18b59c67946b was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://airtable.com/appDAldRN7ujOokwn/shrBNlj8Rup2CBkea:0
+[   43446ms] [WARNING] The resource https://airtable.com/icons/icon_definitions.svg?v=c1a3fcd488dae9a323ad18b59c67946b was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://airtable.com/appDAldRN7ujOokwn/shrBNlj8Rup2CBkea:0

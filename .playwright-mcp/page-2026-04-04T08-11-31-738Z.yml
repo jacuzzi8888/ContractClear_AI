@@ -1,0 +1,374 @@
+- main [ref=e5]:
+  - generic [ref=e6]:
+    - generic [ref=e9]:
+      - img "Logo" [ref=e11]
+      - heading "Authorized to Act Hackathon Survey" [level=1] [ref=e12]
+      - paragraph [ref=e13]: Thanks for building with Auth0 for AI Agents using Token Vault! This survey helps us understand your real experience with Token Vault so we can make it better for developers like you. It should take 5–8 minutes to complete. Your honest feedback — positive or critical — is exactly what we need. Remember, by filling out this survey, you will be eligible to win one of the $50 feedback prizes. Eligible Feedback Submissions will be evaluated based on the completeness, viability, and potential impact of the feedback.
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]: Name
+          - textbox "Name" [ref=e21]
+        - generic [ref=e22]:
+          - generic [ref=e23]: Email *
+          - textbox "Email" [ref=e27]
+        - generic [ref=e28]:
+          - generic [ref=e29]: Devpost Username *
+          - textbox "Devpost Username" [ref=e33]
+        - generic [ref=e34]:
+          - generic [ref=e35]: Auth0 Tenant Name
+          - textbox "Auth0 Tenant Name" [ref=e39]
+        - generic [ref=e40]:
+          - generic [ref=e41]: What best describes your role? *
+          - radiogroup "What best describes your role?" [ref=e46]:
+            - radio "Frontend Developer" [ref=e47] [cursor=pointer]:
+              - generic "Frontend Developer" [ref=e54]
+            - radio "Backend Developer" [ref=e55] [cursor=pointer]:
+              - generic "Backend Developer" [ref=e62]
+            - radio "Full-Stack Developer" [ref=e63] [cursor=pointer]:
+              - generic "Full-Stack Developer" [ref=e70]
+            - radio "AI/ML Engineer" [ref=e71] [cursor=pointer]:
+              - generic "AI/ML Engineer" [ref=e78]
+            - radio "Security Engineer" [ref=e79] [cursor=pointer]:
+              - generic "Security Engineer" [ref=e86]
+            - radio "Architect" [ref=e87] [cursor=pointer]:
+              - generic "Architect" [ref=e94]
+            - radio "Product Manager" [ref=e95] [cursor=pointer]:
+              - generic "Product Manager" [ref=e102]
+            - radio "Designer" [ref=e103] [cursor=pointer]:
+              - generic "Designer" [ref=e110]
+            - radio "Other" [ref=e111] [cursor=pointer]:
+              - generic "Other" [ref=e118]
+        - generic [ref=e119]:
+          - generic [ref=e120]: Experience level with OAuth and token management? *
+          - radiogroup "Experience level with OAuth and token management?" [ref=e125]:
+            - radio "Beginner" [ref=e126] [cursor=pointer]:
+              - generic "Beginner" [ref=e133]
+            - radio "Intermediate" [ref=e134] [cursor=pointer]:
+              - generic "Intermediate" [ref=e141]
+            - radio "Advanced" [ref=e142] [cursor=pointer]:
+              - generic "Advanced" [ref=e149]
+            - radio "Expert" [ref=e150] [cursor=pointer]:
+              - generic "Expert" [ref=e157]
+        - generic [ref=e158]:
+          - generic [ref=e159]: Briefly describe what you built *
+          - textbox "Briefly describe what you built" [ref=e165]
+        - generic [ref=e166]:
+          - generic [ref=e167]: What was the core use case your agent handled? *
+          - listbox "What was the core use case your agent handled?" [ref=e171]:
+            - option "Calling APIs on behalf of user" [ref=e172] [cursor=pointer]:
+              - generic "Calling APIs on behalf of user" [ref=e178]
+            - option "Multi-agent / sub-agent workflow" [ref=e179] [cursor=pointer]:
+              - generic "Multi-agent / sub-agent workflow" [ref=e185]
+            - option "Async or background agent tasks" [ref=e186] [cursor=pointer]:
+              - generic "Async or background agent tasks" [ref=e192]
+            - option "RAG with authorization controls" [ref=e193] [cursor=pointer]:
+              - generic "RAG with authorization controls" [ref=e199]
+            - option "Other" [ref=e200] [cursor=pointer]:
+              - generic "Other" [ref=e206]
+        - generic [ref=e207]:
+          - generic [ref=e208]: Other Use Case
+          - textbox "Other Use Case" [ref=e212]
+        - generic [ref=e213]:
+          - generic [ref=e214]: Which integrations did you connect through Token Vault?
+          - listbox "Which integrations did you connect through Token Vault?" [ref=e218]:
+            - option "Google" [ref=e219] [cursor=pointer]:
+              - generic "Google" [ref=e225]
+            - option "GitHub" [ref=e226] [cursor=pointer]:
+              - generic "GitHub" [ref=e232]
+            - option "Slack" [ref=e233] [cursor=pointer]:
+              - generic "Slack" [ref=e239]
+            - option "Discord" [ref=e240] [cursor=pointer]:
+              - generic "Discord" [ref=e246]
+            - option "Microsoft/Azure" [ref=e247] [cursor=pointer]:
+              - generic "Microsoft/Azure" [ref=e253]
+            - option "Salesforce" [ref=e254] [cursor=pointer]:
+              - generic "Salesforce" [ref=e260]
+            - option "Linear" [ref=e261] [cursor=pointer]:
+              - generic "Linear" [ref=e267]
+            - option "A custom/internal API" [ref=e268] [cursor=pointer]:
+              - generic "A custom/internal API" [ref=e274]
+            - option "Other" [ref=e275] [cursor=pointer]:
+              - generic "Other" [ref=e281]
+        - generic [ref=e282]:
+          - generic [ref=e283]: How long did it take to get Token Vault working end-to-end?
+          - radiogroup "How long did it take to get Token Vault working end-to-end?" [ref=e288]:
+            - radio "Less than 1 hour" [ref=e289] [cursor=pointer]:
+              - generic "Less than 1 hour" [ref=e296]
+            - radio "<3 hours" [ref=e297] [cursor=pointer]:
+              - generic "<3 hours" [ref=e304]
+            - radio "4-8 hours" [ref=e305] [cursor=pointer]:
+              - generic "4-8 hours" [ref=e312]
+            - radio "<2 days" [ref=e313] [cursor=pointer]:
+              - generic "<2 days" [ref=e320]
+            - radio "Could not get it working" [ref=e321] [cursor=pointer]:
+              - generic "Could not get it working" [ref=e328]
+            - radio "Didn't try it" [ref=e329] [cursor=pointer]:
+              - generic "Didn't try it" [ref=e336]
+        - generic [ref=e337]:
+          - generic [ref=e338]: What was the single biggest friction point with Token Vault?
+          - textbox "What was the single biggest friction point with Token Vault?" [ref=e344]
+        - generic [ref=e345]:
+          - generic [ref=e346]: Token Vault was easy to set up.
+          - generic [ref=e347]: Rate your agreement with the statement above ^
+          - radiogroup [ref=e351]:
+            - radio "1 star" [ref=e352] [cursor=pointer]:
+              - img [ref=e353]
+            - radio "2 stars" [ref=e355] [cursor=pointer]:
+              - img [ref=e356]
+            - radio "3 stars" [ref=e358] [cursor=pointer]:
+              - img [ref=e359]
+            - radio "4 stars" [ref=e361] [cursor=pointer]:
+              - img [ref=e362]
+            - radio "5 stars" [ref=e364] [cursor=pointer]:
+              - img [ref=e365]
+        - generic [ref=e367]:
+          - generic [ref=e368]: The docs were clear.
+          - generic [ref=e369]: Rate your agreement with the statement above ^
+          - radiogroup [ref=e373]:
+            - radio "1 star" [ref=e374] [cursor=pointer]:
+              - img [ref=e375]
+            - radio "2 stars" [ref=e377] [cursor=pointer]:
+              - img [ref=e378]
+            - radio "3 stars" [ref=e380] [cursor=pointer]:
+              - img [ref=e381]
+            - radio "4 stars" [ref=e383] [cursor=pointer]:
+              - img [ref=e384]
+            - radio "5 stars" [ref=e386] [cursor=pointer]:
+              - img [ref=e387]
+        - generic [ref=e389]:
+          - generic [ref=e390]: The docs were complete.
+          - generic [ref=e391]: Rate your agreement with the statement above ^
+          - radiogroup [ref=e395]:
+            - radio "1 star" [ref=e396] [cursor=pointer]:
+              - img [ref=e397]
+            - radio "2 stars" [ref=e399] [cursor=pointer]:
+              - img [ref=e400]
+            - radio "3 stars" [ref=e402] [cursor=pointer]:
+              - img [ref=e403]
+            - radio "4 stars" [ref=e405] [cursor=pointer]:
+              - img [ref=e406]
+            - radio "5 stars" [ref=e408] [cursor=pointer]:
+              - img [ref=e409]
+        - generic [ref=e411]:
+          - generic [ref=e412]: Each step was clear.
+          - generic [ref=e413]: Rate your agreement with the statement above ^
+          - radiogroup [ref=e417]:
+            - radio "1 star" [ref=e418] [cursor=pointer]:
+              - img [ref=e419]
+            - radio "2 stars" [ref=e421] [cursor=pointer]:
+              - img [ref=e422]
+            - radio "3 stars" [ref=e424] [cursor=pointer]:
+              - img [ref=e425]
+            - radio "4 stars" [ref=e427] [cursor=pointer]:
+              - img [ref=e428]
+            - radio "5 stars" [ref=e430] [cursor=pointer]:
+              - img [ref=e431]
+        - generic [ref=e433]:
+          - generic [ref=e434]: It saved me time
+          - generic [ref=e435]: Rate your agreement with the statement above ^
+          - radiogroup [ref=e439]:
+            - radio "1 star" [ref=e440] [cursor=pointer]:
+              - img [ref=e441]
+            - radio "2 stars" [ref=e443] [cursor=pointer]:
+              - img [ref=e444]
+            - radio "3 stars" [ref=e446] [cursor=pointer]:
+              - img [ref=e447]
+            - radio "4 stars" [ref=e449] [cursor=pointer]:
+              - img [ref=e450]
+            - radio "5 stars" [ref=e452] [cursor=pointer]:
+              - img [ref=e453]
+        - generic [ref=e455]:
+          - generic [ref=e456]: I felt confident it was secure
+          - generic [ref=e457]: Rate your agreement with the statement above ^
+          - radiogroup [ref=e461]:
+            - radio "1 star" [ref=e462] [cursor=pointer]:
+              - img [ref=e463]
+            - radio "2 stars" [ref=e465] [cursor=pointer]:
+              - img [ref=e466]
+            - radio "3 stars" [ref=e468] [cursor=pointer]:
+              - img [ref=e469]
+            - radio "4 stars" [ref=e471] [cursor=pointer]:
+              - img [ref=e472]
+            - radio "5 stars" [ref=e474] [cursor=pointer]:
+              - img [ref=e475]
+        - generic [ref=e477]:
+          - generic [ref=e478]: Did you run into any of the following issues?
+          - listbox "Did you run into any of the following issues?" [ref=e482]:
+            - option "Authorization errors" [ref=e483] [cursor=pointer]:
+              - generic "Authorization errors" [ref=e489]
+            - option "Token refresh failures" [ref=e490] [cursor=pointer]:
+              - generic "Token refresh failures" [ref=e496]
+            - option "Scope confusion" [ref=e497] [cursor=pointer]:
+              - generic "Scope confusion" [ref=e503]
+            - option "Poor error messages" [ref=e504] [cursor=pointer]:
+              - generic "Poor error messages" [ref=e510]
+            - option "Documentation gaps" [ref=e511] [cursor=pointer]:
+              - generic "Documentation gaps" [ref=e517]
+            - option "Integration problems" [ref=e518] [cursor=pointer]:
+              - generic "Integration problems" [ref=e524]
+            - option "No issues" [ref=e525] [cursor=pointer]:
+              - generic "No issues" [ref=e531]
+            - option "Other" [ref=e532] [cursor=pointer]:
+              - generic "Other" [ref=e538]
+        - generic [ref=e539]:
+          - generic [ref=e540]: What resources did you use?
+          - listbox "What resources did you use?" [ref=e544]:
+            - option "Official docs" [ref=e545] [cursor=pointer]:
+              - generic "Official docs" [ref=e551]
+            - option "Quickstarts/guides" [ref=e552] [cursor=pointer]:
+              - generic "Quickstarts/guides" [ref=e558]
+            - option "Community forums" [ref=e559] [cursor=pointer]:
+              - generic "Community forums" [ref=e565]
+            - option "Colleagues/peers" [ref=e566] [cursor=pointer]:
+              - generic "Colleagues/peers" [ref=e572]
+            - option "Online search" [ref=e573] [cursor=pointer]:
+              - generic "Online search" [ref=e579]
+            - option "Support team" [ref=e580] [cursor=pointer]:
+              - generic "Support team" [ref=e586]
+            - option "Not Applicable" [ref=e587] [cursor=pointer]:
+              - generic "Not Applicable" [ref=e593]
+        - generic [ref=e594]:
+          - generic [ref=e595]: Was there something you expected Token Vault to do that it didn't?
+          - textbox "Was there something you expected Token Vault to do that it didn't?" [ref=e601]
+        - generic [ref=e602]:
+          - generic [ref=e603]: What problem does Token Vault solve for AI agents vs. traditional web apps?
+          - textbox "What problem does Token Vault solve for AI agents vs. traditional web apps?" [ref=e609]
+        - generic [ref=e610]:
+          - generic [ref=e611]: How would you have handled token management without Token Vault?
+          - textbox "How would you have handled token management without Token Vault?" [ref=e617]
+        - generic [ref=e618]:
+          - generic [ref=e619]: What was Token Vault's impact on your development time?
+          - textbox "What was Token Vault's impact on your development time?" [ref=e625]
+        - generic [ref=e626]:
+          - generic [ref=e627]: Which advanced features did you explore alongside Token Vault?
+          - listbox "Which advanced features did you explore alongside Token Vault?" [ref=e631]:
+            - option "Async / background authorization" [ref=e632] [cursor=pointer]:
+              - generic "Async / background authorization" [ref=e638]
+            - option "Step-up autthentication" [ref=e639] [cursor=pointer]:
+              - generic "Step-up autthentication" [ref=e645]
+            - option "Multi-agent token delegation" [ref=e646] [cursor=pointer]:
+              - generic "Multi-agent token delegation" [ref=e652]
+            - option "Authorization for RAG" [ref=e653] [cursor=pointer]:
+              - generic "Authorization for RAG" [ref=e659]
+            - option "None of the Above" [ref=e660] [cursor=pointer]:
+              - generic "None of the Above" [ref=e666]
+        - generic [ref=e667]:
+          - generic [ref=e668]: How well did Token Vault support multi-agent or async flows?
+          - radiogroup "How well did Token Vault support multi-agent or async flows?" [ref=e673]:
+            - radio "Very Well" [ref=e674] [cursor=pointer]:
+              - generic "Very Well" [ref=e681]
+            - radio "Well" [ref=e682] [cursor=pointer]:
+              - generic "Well" [ref=e689]
+            - radio "Adequately" [ref=e690] [cursor=pointer]:
+              - generic "Adequately" [ref=e697]
+            - radio "Not Well" [ref=e698] [cursor=pointer]:
+              - generic "Not Well" [ref=e705]
+            - radio "Not Applicable" [ref=e706] [cursor=pointer]:
+              - generic "Not Applicable" [ref=e713]
+        - generic [ref=e714]:
+          - generic [ref=e715]: What agent framework or tooling did you use?
+          - listbox "What agent framework or tooling did you use?" [ref=e719]:
+            - option "LangChain" [ref=e720] [cursor=pointer]:
+              - generic "LangChain" [ref=e726]
+            - option "LangGraph" [ref=e727] [cursor=pointer]:
+              - generic "LangGraph" [ref=e733]
+            - option "LlamaIndex" [ref=e734] [cursor=pointer]:
+              - generic "LlamaIndex" [ref=e740]
+            - option "OpenAI Assistsants API" [ref=e741] [cursor=pointer]:
+              - generic "OpenAI Assistsants API" [ref=e747]
+            - option "Vercel AI SDK" [ref=e748] [cursor=pointer]:
+              - generic "Vercel AI SDK" [ref=e754]
+            - option "AutoGen" [ref=e755] [cursor=pointer]:
+              - generic "AutoGen" [ref=e761]
+            - option "Custom / No Framework" [ref=e762] [cursor=pointer]:
+              - generic "Custom / No Framework" [ref=e768]
+            - option "OpenClaw" [ref=e769] [cursor=pointer]:
+              - generic "OpenClaw" [ref=e775]
+            - option "Other" [ref=e776] [cursor=pointer]:
+              - generic "Other" [ref=e782]
+        - generic [ref=e783]:
+          - generic [ref=e784]: How did Token Vault integrate with your chosen framework?
+          - radiogroup "How did Token Vault integrate with your chosen framework?" [ref=e789]:
+            - radio "Seamlessly" [ref=e790] [cursor=pointer]:
+              - generic "Seamlessly" [ref=e797]
+            - radio "Mostly Fine" [ref=e798] [cursor=pointer]:
+              - generic "Mostly Fine" [ref=e805]
+            - radio "Somewhat Difficult" [ref=e806] [cursor=pointer]:
+              - generic "Somewhat Difficult" [ref=e813]
+            - radio "Did Not Integrate Well" [ref=e814] [cursor=pointer]:
+              - generic "Did Not Integrate Well" [ref=e821]
+            - radio "Not Applicable" [ref=e822] [cursor=pointer]:
+              - generic "Not Applicable" [ref=e829]
+        - generic [ref=e830]:
+          - generic [ref=e831]: What would have made integrating Token Vault easier?
+          - textbox "What would have made integrating Token Vault easier?" [ref=e837]
+        - generic [ref=e838]:
+          - generic [ref=e839]: Rate the Auth0 for AI Agents documentation overall
+          - radiogroup [ref=e843]:
+            - radio "1 star" [ref=e844] [cursor=pointer]:
+              - img [ref=e845]
+            - radio "2 stars" [ref=e847] [cursor=pointer]:
+              - img [ref=e848]
+            - radio "3 stars" [ref=e850] [cursor=pointer]:
+              - img [ref=e851]
+            - radio "4 stars" [ref=e853] [cursor=pointer]:
+              - img [ref=e854]
+            - radio "5 stars" [ref=e856] [cursor=pointer]:
+              - img [ref=e857]
+        - generic [ref=e859]:
+          - generic [ref=e860]: What was missing from the documentation?
+          - textbox "What was missing from the documentation?" [ref=e866]
+        - generic [ref=e867]:
+          - generic [ref=e868]: Was there a specific guide or quickstart that was helpful?
+          - textbox "Was there a specific guide or quickstart that was helpful?" [ref=e874]
+        - generic [ref=e875]:
+          - generic [ref=e876]: Rate the overall developer experience (DX) of Auth0 for AI Agents
+          - radiogroup [ref=e880]:
+            - radio "1 star" [ref=e881] [cursor=pointer]:
+              - img [ref=e882]
+            - radio "2 stars" [ref=e884] [cursor=pointer]:
+              - img [ref=e885]
+            - radio "3 stars" [ref=e887] [cursor=pointer]:
+              - img [ref=e888]
+            - radio "4 stars" [ref=e890] [cursor=pointer]:
+              - img [ref=e891]
+            - radio "5 stars" [ref=e893] [cursor=pointer]:
+              - img [ref=e894]
+        - generic [ref=e896]:
+          - generic [ref=e897]: Likelihood to use Auth0 for AI Agents in a production project
+          - radiogroup [ref=e901]:
+            - radio "1 star" [ref=e902] [cursor=pointer]:
+              - img [ref=e903]
+            - radio "2 stars" [ref=e905] [cursor=pointer]:
+              - img [ref=e906]
+            - radio "3 stars" [ref=e908] [cursor=pointer]:
+              - img [ref=e909]
+            - radio "4 stars" [ref=e911] [cursor=pointer]:
+              - img [ref=e912]
+            - radio "5 stars" [ref=e914] [cursor=pointer]:
+              - img [ref=e915]
+        - generic [ref=e917]:
+          - generic [ref=e918]: Likelihood to recommend Auth0 for AI Agents to another developer
+          - radiogroup [ref=e922]:
+            - radio "1 star" [ref=e923] [cursor=pointer]:
+              - img [ref=e924]
+            - radio "2 stars" [ref=e926] [cursor=pointer]:
+              - img [ref=e927]
+            - radio "3 stars" [ref=e929] [cursor=pointer]:
+              - img [ref=e930]
+            - radio "4 stars" [ref=e932] [cursor=pointer]:
+              - img [ref=e933]
+            - radio "5 stars" [ref=e935] [cursor=pointer]:
+              - img [ref=e936]
+        - generic [ref=e938]:
+          - generic [ref=e939]: Any other feedback for the Auth0 for AI Agents team?
+          - textbox "Any other feedback for the Auth0 for AI Agents team?" [ref=e945]
+      - generic [ref=e946]:
+        - generic:
+          - paragraph
+        - button "Submit" [ref=e947] [cursor=pointer]:
+          - generic: Submit
+        - generic [ref=e949]:
+          - text: Do not submit passwords through this form.
+          - button "Report malicious form" [ref=e950] [cursor=pointer]

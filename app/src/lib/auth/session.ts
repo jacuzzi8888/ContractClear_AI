@@ -2,10 +2,15 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const JWT_SECRET = process.env.JWT_SECRET || "contractclear-jwt-secret-fallback-change-in-production";
-
 function getSecretKey() {
-  return new TextEncoder().encode(JWT_SECRET);
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable is not set. This is required for authentication.");
+  }
+  if (secret.length < 32) {
+    console.warn("[auth] JWT_SECRET should be at least 32 characters for security.");
+  }
+  return new TextEncoder().encode(secret);
 }
 
 export interface SessionPayload {

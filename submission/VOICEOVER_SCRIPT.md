@@ -1,12 +1,12 @@
 # AI Voiceover Script
-## For ContractClear AI Demo Video
+## For ContractClear AI Demo Video (2 Minutes)
 
 ---
 
 ## Voiceover Script (Copy into ElevenLabs or Murf.ai)
 
 **Voice Style:** Professional, warm, slightly conversational
-**Estimated Duration:** ~75 seconds
+**Duration:** 2 minutes (~320 words)
 
 ---
 
@@ -14,30 +14,38 @@
 
 Welcome to ContractClear AI—the tool that helps anyone understand what they're signing.
 
-Every day, millions of people sign contracts they don't fully understand. Rental agreements. Employment contracts. Software terms. Hidden clauses can cost them thousands.
+Every day, millions of people sign contracts they don't fully understand. Rental agreements. Employment contracts. Software terms. Service agreements. They click "I agree" without reading the fine print—and hidden clauses can cost them thousands.
 
-Legal help? That's five hundred dollars an hour. Most people can't afford it.
+Auto-renewal traps that lock you in for years. One-sided liability waivers that protect companies, not you. Hidden fee escalators that triple your costs. Non-compete clauses that limit your future opportunities.
 
-ContractClear AI changes that. Upload any contract PDF, and our AI analyzes every clause in seconds.
+These aren't rare. They're everywhere. And legal help? That's five hundred dollars an hour. Most people simply can't afford it.
 
-Each risk is identified with an exact quote and page number—so you can verify everything yourself. No hallucinations. No guesswork.
+That's why we built ContractClear AI.
 
-Risks are ranked by severity: critical, high, medium, and low—so you know what matters most.
+Upload any contract PDF, and our AI analyzes every clause in seconds. Whether it's a lease, a freelancer agreement, or a vendor contract—you'll know exactly what you're signing.
 
-Need to negotiate? Generate a professional email draft with one click.
+Here's how it works. First, upload your document. Drag and drop any PDF up to 50 megabytes. Next, watch as our AI scans every page, identifying potential risks in real-time.
 
-All your analyses are saved and searchable. Review past contracts anytime.
+Each risk comes with an exact verbatim quote and page number—so you can verify everything yourself. No hallucinations. No guesswork. Just the facts from your document.
 
-Built for consumers, tenants, freelancers, and small businesses—the people who need it most.
+Risks are ranked by severity: critical, high, medium, and low. You'll instantly know which clauses need your attention first.
 
-ContractClear AI. Leveling the playing field, one contract at a time. Try it free at contract-clear-ai.vercel.app.
+Found something concerning? With one click, generate a professional negotiation email ready to send. No legal knowledge required.
+
+All your analyses are saved and searchable. Filter by status. Search by filename. Review past contracts anytime.
+
+We built this for consumers facing confusing terms of service. For tenants reviewing lease agreements. For freelancers negotiating client contracts. For small businesses dealing with vendors. The people who need it most.
+
+ContractClear AI. Leveling the playing field, one contract at a time.
+
+Try it free at contract-clear-ai.vercel.app.
 
 **End of Script**
 
 ---
 
-## Word Count: ~165 words
-## Reading Speed: Normal conversational pace
+## Word Count: ~320 words
+## Duration: 2 minutes at normal conversational pace
 
 ---
 

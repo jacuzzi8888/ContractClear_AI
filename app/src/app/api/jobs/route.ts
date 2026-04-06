@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 import { resolveUserUUID } from "@/lib/auth/get-user";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { auth0 } from "@/lib/auth0";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,11 @@ export async function POST(request: NextRequest) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // Get Auth0 session to extract tokens for Token Vault exchange
+  const session = await auth0.getSession();
+  const auth0SubjectToken = session?.refreshToken || session?.accessToken || null;
+  const isRefreshToken = !!session?.refreshToken;
 
   try {
     const rateLimitError = await checkRateLimit(request);
@@ -49,6 +55,8 @@ export async function POST(request: NextRequest) {
           documentId: doc.id,
           ownerId: userId,
           fileName: doc.file_name,
+          auth0SubjectToken,
+          isRefreshToken,
         },
       });
 

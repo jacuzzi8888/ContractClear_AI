@@ -1,3 +1,4 @@
+import { createClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionTokenFromRequest, getAuth0UserIdFromRequest } from "./session";
 import { NextRequest } from "next/server";
@@ -31,7 +32,7 @@ export async function resolveUserUUID(request: NextRequest): Promise<string | nu
 }
 
 export async function getUserById(userId: string): Promise<UserRecord | null> {
-  const supabase = getSupabaseAdmin();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("users")
     .select("*")
@@ -43,7 +44,7 @@ export async function getUserById(userId: string): Promise<UserRecord | null> {
 }
 
 export async function getUserByAuth0Id(auth0Id: string): Promise<UserRecord | null> {
-  const supabase = getSupabaseAdmin();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("users")
     .select("*")
@@ -55,6 +56,7 @@ export async function getUserByAuth0Id(auth0Id: string): Promise<UserRecord | nu
 }
 
 export async function getUserByEmail(email: string): Promise<UserRecord | null> {
+  // Use admin client for email lookup during login since we don't have a session yet
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("users")
@@ -72,6 +74,7 @@ export async function createUser(params: {
   passwordHash?: string | null;
   fullName?: string | null;
 }): Promise<UserRecord> {
+  // Use admin client to create user before they have a session
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("users")
@@ -94,7 +97,7 @@ export async function updateUser(userId: string, params: {
   passwordHash?: string | null;
   fullName?: string | null;
 }): Promise<UserRecord> {
-  const supabase = getSupabaseAdmin();
+  const supabase = await createClient();
   const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
   
   if (params.auth0Id !== undefined) updateData.auth0_id = params.auth0Id;
@@ -114,7 +117,17 @@ export async function updateUser(userId: string, params: {
 }
 
 export async function linkAuth0ToUser(userId: string, auth0Id: string): Promise<UserRecord> {
-  return updateUser(userId, { auth0Id });
+  // Use admin here since this might happen during the callback before session is set
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("users")
+    .update({ auth0_id: auth0Id, updated_at: new Date().toISOString() })
+    .eq("id", userId)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data as UserRecord;
 }
 
 export async function setUserPassword(userId: string, passwordHash: string): Promise<UserRecord> {
