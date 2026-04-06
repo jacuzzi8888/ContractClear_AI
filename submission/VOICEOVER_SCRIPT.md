@@ -1,44 +1,76 @@
 # AI Voiceover Script
-## For ContractClear AI Demo Video (2 Minutes)
+## For ContractClear AI Demo Video (3 Minutes)
 
 ---
 
 ## Voiceover Script (Copy into ElevenLabs or Murf.ai)
 
 **Voice Style:** Professional, warm, slightly conversational
-**Duration:** 2 minutes (~320 words)
+**Duration:** ~2 minutes, 45 seconds (~400 words)
 
 ---
 
-**Start of Script:**
+**[Scene: Screen showing a person looking confused at a dense 20-page legal PDF contract]**
 
-Welcome to ContractClear AI—the tool that helps anyone understand what they're signing.
+Every day, millions of people sign contracts they don't fully understand. Rental agreements. Employment contracts. Freelance agreements. 
 
-Every day, millions of people sign contracts they don't fully understand. Rental agreements. Employment contracts. Software terms. Service agreements. They click "I agree" without reading the fine print—and hidden clauses can cost them thousands.
-
-Auto-renewal traps that lock you in for years. One-sided liability waivers that protect companies, not you. Hidden fee escalators that triple your costs. Non-compete clauses that limit your future opportunities.
+They click "I agree" without reading the fine print—and hidden clauses can cost them thousands. Auto-renewal traps. One-sided liability waivers. Insane late fee escalators.
 
 These aren't rare. They're everywhere. And legal help? That's five hundred dollars an hour. Most people simply can't afford it.
 
-That's why we built ContractClear AI.
+**[Scene: Transition to the ContractClear AI homepage]**
 
-Upload any contract PDF, and our AI analyzes every clause in seconds. Whether it's a lease, a freelancer agreement, or a vendor contract—you'll know exactly what you're signing.
+That's why we built ContractClear AI. 
 
-Here's how it works. First, upload your document. Drag and drop any PDF up to 50 megabytes. Next, watch as our AI scans every page, identifying potential risks in real-time.
+ContractClear is an AI agent that analyzes any contract in seconds, finds the predatory clauses, and then acts on your behalf to negotiate better terms.
 
-Each risk comes with an exact verbatim quote and page number—so you can verify everything yourself. No hallucinations. No guesswork. Just the facts from your document.
+**[Scene: Screen recording clicking the "Login" button, showing the Auth0 Universal Login screen]**
 
-Risks are ranked by severity: critical, high, medium, and low. You'll instantly know which clauses need your attention first.
+Because our AI acts on behalf of our users, security is our top priority. We integrated Auth0 Token Vault to handle external authorization securely.
 
-Found something concerning? With one click, generate a professional negotiation email ready to send. No legal knowledge required.
+Watch as I log in. We are using Auth0's step-up authorization to specifically request the "Gmail Compose" scope. 
 
-All your analyses are saved and searchable. Filter by status. Search by filename. Review past contracts anytime.
+**[Scene: Showing the Google OAuth consent screen asking for Gmail draft permissions]**
 
-We built this for consumers facing confusing terms of service. For tenants reviewing lease agreements. For freelancers negotiating client contracts. For small businesses dealing with vendors. The people who need it most.
+Auth0 Token Vault securely stores this external access token. Our frontend never sees it, and we don't have to build complex refresh-token rotation logic in our database.
 
-ContractClear AI. Leveling the playing field, one contract at a time.
+**[Scene: User is logged into the dashboard. They drag and drop a PDF contract to upload]**
 
-Try it free at contract-clear-ai.vercel.app.
+Now, I'll upload a standard freelance consulting agreement. 
+
+Our application uses Next.js, Supabase, and Google's Gemini Flash model to analyze the document. 
+
+**[Scene: The dashboard updates, showing the analysis results with a "Critical" risk highlighted]**
+
+In seconds, Gemini extracts the risks. Look here—it found a critical issue on Page 3: a hidden "Non-Compete" clause that would prevent me from working with any other clients for two years. 
+
+It provides the exact quote, the page number, and a recommended action. No hallucinations. Just the facts from the document.
+
+**[Scene: Transitioning the screen to the Inngest background job dashboard or terminal logs (optional, but good for tech judges)]**
+
+But ContractClear isn't just an analyzer; it's an Agent. 
+
+When the analysis finished, our asynchronous background worker, powered by Inngest, woke up. It securely exchanged an M2M token with the Auth0 Management API to retrieve my active Google Access Token from the Token Vault.
+
+**[Scene: Switching to the user's actual Gmail inbox, opening the "Drafts" folder]**
+
+Let's check my Gmail. 
+
+Without me doing a thing, the ContractClear Agent has already connected to the Gmail API and drafted a professional negotiation email. 
+
+**[Scene: Opening the drafted email, showing the AI-generated text referencing the specific non-compete clause]**
+
+It references the specific Non-Compete clause, quotes the exact text, and asks for it to be removed before signing. 
+
+All I have to do is click send. 
+
+**[Scene: Final splash screen with the ContractClear AI logo and a URL]**
+
+ContractClear AI, powered by Auth0 Token Vault. 
+
+Giving AI the authorization to act safely, and leveling the playing field, one contract at a time. 
+
+---
 
 **End of Script**
 
