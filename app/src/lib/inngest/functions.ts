@@ -154,12 +154,22 @@ export const analyzeContract = inngest.createFunction(
     await step.run("agentic-draft-email", async () => {
       console.log(`[Inngest] Attempting to auto-draft email via Auth0 Token Vault...`);
       
-      // Pull the token that was passed during the job initialization
+      // Pull the token that was passed during the job initialization, or fallback to the DB
       const { auth0SubjectToken, isRefreshToken } = event.data;
+      
+      const supabaseAdmin = getSupabaseAdmin();
+      const { data: user } = await supabaseAdmin
+        .from("users")
+        .select("auth0_id, google_refresh_token")
+        .eq("id", ownerId)
+        .single();
 
-      if (auth0SubjectToken) {
+      const subjectTokenToUse = auth0SubjectToken || user?.google_refresh_token;
+      const useRefreshTokenFlag = auth0SubjectToken ? isRefreshToken : true;
+
+      if (subjectTokenToUse) {
         const { getGoogleTokenFromAuth0Vault } = await import("../auth0-vault");
-        const token = await getGoogleTokenFromAuth0Vault(auth0SubjectToken, isRefreshToken);
+        const token = await getGoogleTokenFromAuth0Vault(subjectTokenToUse, useRefreshTokenFlag);
 
         if (token) {
           console.log(`[Inngest] Got Google Token from Vault via token exchange!`);
@@ -196,7 +206,7 @@ export const analyzeContract = inngest.createFunction(
           console.log(`[Inngest] Token exchange failed or Google Token not returned.`);
         }
       } else {
-        console.log(`[Inngest] No Auth0 subject token provided in event payload, skipping email draft.`);
+        console.log(`[Inngest] No Auth0 subject token provided or found in DB, skipping email draft.`);
       }
     });
 

@@ -9,6 +9,7 @@ export interface UserRecord {
   email: string | null;
   password_hash: string | null;
   full_name: string | null;
+  google_refresh_token: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -96,6 +97,7 @@ export async function updateUser(userId: string, params: {
   email?: string | null;
   passwordHash?: string | null;
   fullName?: string | null;
+  googleRefreshToken?: string | null;
 }): Promise<UserRecord> {
   const supabase = await createClient();
   const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
@@ -104,6 +106,7 @@ export async function updateUser(userId: string, params: {
   if (params.email !== undefined) updateData.email = params.email;
   if (params.passwordHash !== undefined) updateData.password_hash = params.passwordHash;
   if (params.fullName !== undefined) updateData.full_name = params.fullName;
+  if (params.googleRefreshToken !== undefined) updateData.google_refresh_token = params.googleRefreshToken;
   
   const { data, error } = await supabase
     .from("users")
