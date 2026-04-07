@@ -21,7 +21,7 @@ export const auth0 = new Auth0Client({
     }
     
     try {
-      if (session?.user && session?.accessToken) {
+      if (session?.user) {
         const auth0Id = session.user.sub as string;
         const supabase = getSupabaseAdmin();
         
@@ -38,12 +38,12 @@ export const auth0 = new Auth0Client({
               auth0_id: auth0Id,
               email: session.user.email as string,
               full_name: session.user.name as string,
-              google_refresh_token: session.accessToken as string,
+              ...(session.accessToken ? { google_refresh_token: session.accessToken as string } : {}),
             })
             .select()
             .single();
           user = newUser;
-        } else {
+        } else if (session.accessToken) {
           await supabase
             .from("users")
             .update({ 
