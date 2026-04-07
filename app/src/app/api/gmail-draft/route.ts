@@ -27,6 +27,12 @@ export async function POST(request: NextRequest) {
       .eq("id", userId)
       .single();
 
+    console.log("[gmail-draft] User lookup:", { 
+      userId, 
+      hasToken: !!user?.google_refresh_token, 
+      error: userError 
+    });
+
     if (userError || !user?.google_refresh_token) {
       return NextResponse.json({ 
         error: "No Google account connected. Please log out and log back in with Google." 
@@ -43,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     if (!googleToken) {
       return NextResponse.json({ 
-        error: "Failed to get Google access token. Please try logging in again." 
+        error: "Failed to get Google access token from Token Vault. Check Vercel logs for details." 
       }, { status: 500 });
     }
 
@@ -67,6 +73,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error("[gmail-draft] Error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error", details: error.message }, { status: 500 });
   }
 }

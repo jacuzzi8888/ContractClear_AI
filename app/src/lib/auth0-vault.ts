@@ -10,6 +10,13 @@ export async function getGoogleTokenFromAuth0Vault(subjectToken: string, useRefr
       ? process.env.AUTH0_CLIENT_SECRET 
       : process.env.AUTH0_M2M_CLIENT_SECRET;
 
+    console.log("[Token Vault] Config check:", {
+      domain: domain ? "set" : "missing",
+      clientId: clientId ? "set" : "missing",
+      clientSecret: clientSecret ? "set" : "missing",
+      useRefreshToken
+    });
+
     if (!domain || !clientId || !clientSecret) {
       console.error("[Token Vault] Missing Auth0 credentials in environment variables");
       return null;
