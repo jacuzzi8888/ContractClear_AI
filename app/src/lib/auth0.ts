@@ -11,6 +11,39 @@ export const auth0 = new Auth0Client({
     prompt: 'consent'
   },
   async beforeSessionSaved(session, idToken) {
+    try {
+      if (session?.user && session?.accessToken) {
+        const auth0Id = session.user.sub as string;
+        const supabase = getSupabaseAdmin();
+        
+        const { data: existingUser } = await supabase
+          .from("users")
+          .select("id")
+          .eq("auth0_id", auth0Id)
+          .single();
+        
+        if (existingUser) {
+          await supabase
+            .from("users")
+            .update({ 
+              google_refresh_token: session.accessToken as string,
+              updated_at: new Date().toISOString()
+            })
+            .eq("id", existingUser.id);
+        } else {
+          await supabase
+            .from("users")
+            .insert({
+              auth0_id: auth0Id,
+              email: session.user.email as string,
+              full_name: session.user.name as string,
+              google_refresh_token: session.accessToken as string,
+            });
+        }
+      }
+    } catch (e) {
+      console.error("[auth0] Error in beforeSessionSaved:", e);
+    }
     return session;
   },
   async onCallback(error, context, session) {
@@ -38,19 +71,10 @@ export const auth0 = new Auth0Client({
               auth0_id: auth0Id,
               email: session.user.email as string,
               full_name: session.user.name as string,
-              ...(session.accessToken ? { google_refresh_token: session.accessToken as string } : {}),
             })
             .select()
             .single();
           user = newUser;
-        } else if (session.accessToken) {
-          await supabase
-            .from("users")
-            .update({ 
-              google_refresh_token: session.accessToken as string,
-              updated_at: new Date().toISOString()
-            })
-            .eq("id", user.id);
         }
         
         if (user) {
