@@ -28,11 +28,11 @@ ContractClear is an AI agent that analyzes any contract in seconds, finds the pr
 
 Because our AI acts on behalf of our users, security is our top priority. We integrated Auth0 Token Vault to handle external authorization securely.
 
-Watch as I log in. We are using Auth0's step-up authorization to specifically request the "Gmail Compose" scope. 
+Watch as I log in. We are using Auth0 to specifically request the "Gmail Compose" scope. 
 
 **[Scene: Showing the Google OAuth consent screen asking for Gmail draft permissions]**
 
-Auth0 Token Vault securely stores this external access token. Our frontend never sees it, and we don't have to build complex refresh-token rotation logic in our database.
+Auth0 Token Vault securely stores this authorization. Our frontend never sees the refresh token, and we don't have to build complex token rotation logic in our database.
 
 **[Scene: User is logged into the dashboard. They drag and drop a PDF contract to upload]**
 
@@ -46,21 +46,19 @@ In seconds, Gemini extracts the risks. Look here—it found a critical issue on 
 
 It provides the exact quote, the page number, and a recommended action. No hallucinations. Just the facts from the document.
 
-**[Scene: Transitioning the screen to the Inngest background job dashboard or terminal logs (optional, but good for tech judges)]**
+**[Scene: User clicks the "Draft Summary Email" button, then the "Create Gmail Draft" button]**
 
-But ContractClear isn't just an analyzer; it's an Agent. 
+Now here's where it gets powerful. When I find a clause I want to push back on, I just click "Create Gmail Draft".
 
-When the analysis finished, our asynchronous background worker, powered by Inngest, woke up. It securely exchanged an M2M token with the Auth0 Management API to retrieve my active Google Access Token from the Token Vault.
+Our backend securely uses Auth0 Token Vault to exchange an M2M token for a fresh Google Access Token—all without exposing sensitive credentials to our frontend.
 
 **[Scene: Switching to the user's actual Gmail inbox, opening the "Drafts" folder]**
 
 Let's check my Gmail. 
 
-Without me doing a thing, the ContractClear Agent has already connected to the Gmail API and drafted a professional negotiation email. 
-
 **[Scene: Opening the drafted email, showing the AI-generated text referencing the specific non-compete clause]**
 
-It references the specific Non-Compete clause, quotes the exact text, and asks for it to be removed before signing. 
+The ContractClear Agent has created a professional negotiation email directly in my drafts folder. It references the specific Non-Compete clause, quotes the exact text, and asks for it to be removed before signing. 
 
 All I have to do is click send. 
 
@@ -68,7 +66,7 @@ All I have to do is click send.
 
 ContractClear AI, powered by Auth0 Token Vault. 
 
-Giving AI the authorization to act safely, and leveling the playing field, one contract at a time. 
+Securely authorizing AI agents to act on your behalf, and leveling the playing field—one contract at a time. 
 
 ---
 
@@ -76,8 +74,8 @@ Giving AI the authorization to act safely, and leveling the playing field, one c
 
 ---
 
-## Word Count: ~320 words
-## Duration: 2 minutes at normal conversational pace
+## Word Count: ~380 words
+## Duration: ~2 minutes 45 seconds at normal conversational pace
 
 ---
 
@@ -120,14 +118,13 @@ Giving AI the authorization to act safely, and leveling the playing field, one c
 
 | Voiceover Section | Video Action |
 |-------------------|--------------|
-| "Welcome to ContractClear AI..." | Show landing page |
-| "Every day, millions..." | Stay on landing, scroll if needed |
-| "Legal help? That's five hundred..." | Optional: text overlay "$500/hr" |
-| "ContractClear AI changes that..." | Transition to dashboard |
-| "Upload any contract PDF..." | Show upload action |
-| "Each risk is identified..." | Show completed analysis findings |
-| "Risks are ranked by severity..." | Scroll through risk cards |
-| "Need to negotiate?" | Show email draft modal |
-| "All your analyses are saved..." | Show history page |
-| "Built for consumers..." | Optional: icons/text |
-| "ContractClear AI. Leveling..." | Show logo and URL |
+| "Every day, millions..." | Show confused person with PDF |
+| "That's why we built ContractClear AI..." | Transition to landing page |
+| "Watch as I log in..." | Show Auth0 login screen |
+| "Auth0 Token Vault securely stores..." | Show Google OAuth consent screen |
+| "Now, I'll upload..." | Show drag-and-drop upload |
+| "In seconds, Gemini extracts..." | Show completed analysis findings |
+| "Now here's where it gets powerful..." | Show clicking "Create Gmail Draft" button |
+| "Let's check my Gmail..." | Switch to Gmail drafts folder |
+| "The ContractClear Agent has created..." | Show opened draft email |
+| "ContractClear AI, powered by Auth0..." | Show logo and URL |
