@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseAdmin();
 
-    // Get the user's Google refresh token
     const { data: user, error: userError } = await supabase
       .from("users")
       .select("google_refresh_token")
@@ -34,8 +33,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Exchange the refresh token for a Google access token via Auth0 Token Vault
-    const googleToken = await getGoogleTokenFromAuth0Vault(user.google_refresh_token);
+    // Try refresh token exchange first (with app credentials), then access token exchange (with M2M)
+    let googleToken = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, true);
+    
+    if (!googleToken) {
+      console.log("[gmail-draft] Refresh token exchange failed, trying access token exchange...");
+      googleToken = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, false);
+    }
 
     if (!googleToken) {
       return NextResponse.json({ 
@@ -43,7 +47,6 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Create the Gmail draft
     const result = await createGmailDraft({
       token: googleToken,
       subject,

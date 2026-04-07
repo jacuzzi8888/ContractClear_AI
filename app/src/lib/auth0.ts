@@ -12,33 +12,38 @@ export const auth0 = new Auth0Client({
   },
   async beforeSessionSaved(session, idToken) {
     try {
-      if (session?.user && session?.tokenSet?.accessToken) {
+      if (session?.user) {
         const auth0Id = session.user.sub as string;
         const supabase = getSupabaseAdmin();
         
-        const { data: existingUser } = await supabase
-          .from("users")
-          .select("id")
-          .eq("auth0_id", auth0Id)
-          .single();
+        // Prefer refresh token for Token Vault, fall back to access token
+        const tokenToStore = session.tokenSet?.refreshToken || session.tokenSet?.accessToken;
         
-        if (existingUser) {
-          await supabase
+        if (tokenToStore) {
+          const { data: existingUser } = await supabase
             .from("users")
-            .update({ 
-              google_refresh_token: session.tokenSet.accessToken as string,
-              updated_at: new Date().toISOString()
-            })
-            .eq("id", existingUser.id);
-        } else {
-          await supabase
-            .from("users")
-            .insert({
-              auth0_id: auth0Id,
-              email: session.user.email as string,
-              full_name: session.user.name as string,
-              google_refresh_token: session.tokenSet.accessToken as string,
-            });
+            .select("id")
+            .eq("auth0_id", auth0Id)
+            .single();
+          
+          if (existingUser) {
+            await supabase
+              .from("users")
+              .update({ 
+                google_refresh_token: tokenToStore,
+                updated_at: new Date().toISOString()
+              })
+              .eq("id", existingUser.id);
+          } else {
+            await supabase
+              .from("users")
+              .insert({
+                auth0_id: auth0Id,
+                email: session.user.email as string,
+                full_name: session.user.name as string,
+                google_refresh_token: tokenToStore,
+              });
+          }
         }
       }
     } catch (e) {
