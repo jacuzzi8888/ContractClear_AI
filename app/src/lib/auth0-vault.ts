@@ -1,4 +1,4 @@
-export async function getGoogleTokenFromAuth0Vault(subjectToken: string, isRefreshToken: boolean = false) {
+export async function getGoogleTokenFromAuth0Vault(subjectToken: string) {
   try {
     const domain = process.env.AUTH0_DOMAIN || process.env.NEXT_PUBLIC_AUTH0_DOMAIN;
     const clientId = process.env.AUTH0_M2M_CLIENT_ID;
@@ -9,8 +9,6 @@ export async function getGoogleTokenFromAuth0Vault(subjectToken: string, isRefre
       return null;
     }
 
-    // Use the official Auth0 Token Vault Token Exchange flow!
-    // This securely exchanges the user's Auth0 token for their Google Access Token.
     const response = await fetch(`https://${domain}/oauth/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -19,9 +17,7 @@ export async function getGoogleTokenFromAuth0Vault(subjectToken: string, isRefre
         client_secret: clientSecret,
         subject_token: subjectToken,
         grant_type: "urn:auth0:params:oauth:grant-type:token-exchange:federated-connection-access-token",
-        subject_token_type: isRefreshToken 
-          ? "urn:ietf:params:oauth:token-type:refresh_token" 
-          : "urn:ietf:params:oauth:token-type:access_token",
+        subject_token_type: "urn:ietf:params:oauth:token-type:access_token",
         requested_token_type: "http://auth0.com/oauth/token-type/federated-connection-access-token",
         connection: "google-oauth2"
       })

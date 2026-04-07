@@ -11,39 +11,6 @@ export const auth0 = new Auth0Client({
     prompt: 'consent'
   },
   async beforeSessionSaved(session, idToken) {
-    try {
-      if (session.refreshToken) {
-        const auth0Id = session.user.sub as string;
-        const supabase = getSupabaseAdmin();
-        
-        const { data: existingUser } = await supabase
-          .from("users")
-          .select("*")
-          .eq("auth0_id", auth0Id)
-          .single();
-        
-        if (existingUser) {
-          await supabase
-            .from("users")
-            .update({ 
-              google_refresh_token: session.refreshToken as string,
-              updated_at: new Date().toISOString()
-            })
-            .eq("id", existingUser.id);
-        } else {
-          await supabase
-            .from("users")
-            .insert({
-              auth0_id: auth0Id,
-              email: session.user.email as string,
-              full_name: session.user.name as string,
-              google_refresh_token: session.refreshToken as string,
-            });
-        }
-      }
-    } catch (e) {
-      console.error("[auth0] Error in beforeSessionSaved:", e);
-    }
     return session;
   },
   async onCallback(error, context, session) {
@@ -54,7 +21,7 @@ export const auth0 = new Auth0Client({
     }
     
     try {
-      if (session?.user) {
+      if (session?.user && session?.accessToken) {
         const auth0Id = session.user.sub as string;
         const supabase = getSupabaseAdmin();
         
@@ -71,10 +38,19 @@ export const auth0 = new Auth0Client({
               auth0_id: auth0Id,
               email: session.user.email as string,
               full_name: session.user.name as string,
+              google_refresh_token: session.accessToken as string,
             })
             .select()
             .single();
           user = newUser;
+        } else {
+          await supabase
+            .from("users")
+            .update({ 
+              google_refresh_token: session.accessToken as string,
+              updated_at: new Date().toISOString()
+            })
+            .eq("id", user.id);
         }
         
         if (user) {

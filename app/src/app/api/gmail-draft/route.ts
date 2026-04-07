@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Exchange the refresh token for a Google access token via Auth0 Token Vault
-    const googleToken = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, true);
+    const googleToken = await getGoogleTokenFromAuth0Vault(user.google_refresh_token);
 
     if (!googleToken) {
       return NextResponse.json({ 
