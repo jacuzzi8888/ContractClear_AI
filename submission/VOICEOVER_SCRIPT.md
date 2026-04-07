@@ -1,12 +1,12 @@
 # AI Voiceover Script
-## For ContractClear AI Demo Video (3 Minutes)
+## For ContractClear AI Demo Video (3+ Minutes)
 
 ---
 
 ## Voiceover Script (Copy into ElevenLabs or Murf.ai)
 
 **Voice Style:** Professional, warm, slightly conversational
-**Duration:** ~2 minutes, 45 seconds (~400 words)
+**Duration:** ~3 minutes, 30 seconds (~550 words)
 
 ---
 
@@ -32,25 +32,37 @@ Watch as I log in. We are using Auth0 to specifically request the "Gmail Compose
 
 **[Scene: Showing the Google OAuth consent screen asking for Gmail draft permissions]**
 
-Auth0 Token Vault securely stores this authorization. Our frontend never sees the refresh token, and we don't have to build complex token rotation logic in our database.
+Auth0 Token Vault securely stores this authorization. Our frontend never sees the refresh token, and we don't have to build complex token rotation logic in our database. This is zero-trust security by design.
 
 **[Scene: User is logged into the dashboard. They drag and drop a PDF contract to upload]**
 
 Now, I'll upload a standard freelance consulting agreement. 
 
-Our application uses Next.js, Supabase, and Google's Gemini Flash model to analyze the document. 
+Behind the scenes, our application uses Next.js on the frontend, Supabase for secure multi-tenant storage with row-level security, and Google's Gemini Flash model to analyze the document.
 
-**[Scene: The dashboard updates, showing the analysis results with a "Critical" risk highlighted]**
+**[Scene: The upload completes, analysis starts. Show the streaming progress as findings appear one by one]**
 
-In seconds, Gemini extracts the risks. Look here—it found a critical issue on Page 3: a hidden "Non-Compete" clause that would prevent me from working with any other clients for two years. 
+The analysis is now running. Watch as risks appear in real-time using Supabase Realtime channels. The AI reads through the entire document, identifies potential issues, and cross-references each one against the actual contract text.
 
-It provides the exact quote, the page number, and a recommended action. No hallucinations. Just the facts from the document.
+This evidence-grounding approach is critical. Every finding must have a verbatim quote and page number. If Gemini can't find the exact text in the document, the risk is automatically rejected. Zero hallucinations.
 
-**[Scene: User clicks the "Draft Summary Email" button, then the "Create Gmail Draft" button]**
+**[Scene: The dashboard shows completed analysis with several findings. Highlight a Critical risk]**
 
-Now here's where it gets powerful. When I find a clause I want to push back on, I just click "Create Gmail Draft".
+In just seconds, the analysis is complete. Look here—it found a critical issue on Page 3: a hidden "Non-Compete" clause that would prevent me from working with any other clients for two years. 
 
-Our backend securely uses Auth0 Token Vault to exchange an M2M token for a fresh Google Access Token—all without exposing sensitive credentials to our frontend.
+It provides the exact quote, the page number, a plain-language explanation of why this is risky, and a recommended action. 
+
+Scrolling down, we also see a high-severity unlimited liability clause and a medium-severity automatic renewal trap. Each one is backed by evidence I can verify myself.
+
+**[Scene: User clicks the "Draft Summary Email" button to preview the email, then clicks "Create Gmail Draft"]**
+
+Now here's where ContractClear becomes a true AI agent—not just an analyzer, but an actor on your behalf.
+
+When I find a clause I want to push back on, I can click "Draft Summary Email" to preview the negotiation message. Then I click "Create Gmail Draft" to have the agent create this directly in my Gmail account.
+
+**[Scene: Show a brief loading indicator as the Gmail draft is being created]**
+
+Behind the scenes, our backend is performing a secure token exchange. It uses an Auth0 Machine-to-Machine credential to request access from the Token Vault. Token Vault validates the request and returns a fresh, short-lived Google Access Token—without ever exposing the long-lived refresh token to our application.
 
 **[Scene: Switching to the user's actual Gmail inbox, opening the "Drafts" folder]**
 
@@ -58,15 +70,17 @@ Let's check my Gmail.
 
 **[Scene: Opening the drafted email, showing the AI-generated text referencing the specific non-compete clause]**
 
-The ContractClear Agent has created a professional negotiation email directly in my drafts folder. It references the specific Non-Compete clause, quotes the exact text, and asks for it to be removed before signing. 
+The ContractClear Agent has created a professional negotiation email directly in my drafts folder. It references the specific Non-Compete clause, quotes the exact text, and politely asks for it to be removed before signing. 
 
-All I have to do is click send. 
+All I have to do is review it and click send. 
 
 **[Scene: Final splash screen with the ContractClear AI logo and a URL]**
 
+This is the future of AI agents—securely authorized to act on your behalf.
+
 ContractClear AI, powered by Auth0 Token Vault. 
 
-Securely authorizing AI agents to act on your behalf, and leveling the playing field—one contract at a time. 
+Leveling the playing field, one contract at a time. 
 
 ---
 
@@ -74,8 +88,8 @@ Securely authorizing AI agents to act on your behalf, and leveling the playing f
 
 ---
 
-## Word Count: ~380 words
-## Duration: ~2 minutes 45 seconds at normal conversational pace
+## Word Count: ~580 words
+## Duration: ~3 minutes 30 seconds at normal conversational pace
 
 ---
 
@@ -123,8 +137,13 @@ Securely authorizing AI agents to act on your behalf, and leveling the playing f
 | "Watch as I log in..." | Show Auth0 login screen |
 | "Auth0 Token Vault securely stores..." | Show Google OAuth consent screen |
 | "Now, I'll upload..." | Show drag-and-drop upload |
-| "In seconds, Gemini extracts..." | Show completed analysis findings |
-| "Now here's where it gets powerful..." | Show clicking "Create Gmail Draft" button |
+| "Behind the scenes, our application..." | Show upload progress |
+| "The analysis is now running..." | Show real-time findings appearing |
+| "This evidence-grounding approach..." | Continue showing findings streaming in |
+| "In just seconds, the analysis is complete..." | Show completed analysis |
+| "Scrolling down..." | Scroll through risk cards |
+| "Now here's where ContractClear becomes..." | Show "Draft Summary Email" button |
+| "Behind the scenes, our backend..." | Show loading indicator during draft creation |
 | "Let's check my Gmail..." | Switch to Gmail drafts folder |
 | "The ContractClear Agent has created..." | Show opened draft email |
-| "ContractClear AI, powered by Auth0..." | Show logo and URL |
+| "This is the future of AI agents..." | Show logo and URL |
