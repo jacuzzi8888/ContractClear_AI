@@ -29,8 +29,8 @@ export async function POST(request: NextRequest) {
 
     console.log("[gmail-draft] User lookup:", { 
       userId, 
-      hasToken: !!user?.google_refresh_token, 
-      error: userError 
+      hasToken: !!user?.google_refresh_token,
+      tokenLength: user?.google_refresh_token?.length || 0
     });
 
     if (userError || !user?.google_refresh_token) {
@@ -39,35 +39,38 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Try refresh token exchange first (with app credentials), then access token exchange (with M2M)
-    let googleToken = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, true);
+    // Try refresh token exchange first
+    let result = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, true);
+    console.log("[gmail-draft] Refresh token exchange result:", result);
     
-    if (!googleToken) {
+    if (!result.token) {
       console.log("[gmail-draft] Refresh token exchange failed, trying access token exchange...");
-      googleToken = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, false);
+      result = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, false);
+      console.log("[gmail-draft] Access token exchange result:", result);
     }
 
-    if (!googleToken) {
+    if (!result.token) {
       return NextResponse.json({ 
-        error: "Failed to get Google access token from Token Vault. Check Vercel logs for details." 
+        error: "Failed to get Google access token from Token Vault",
+        details: result.error
       }, { status: 500 });
     }
 
-    const result = await createGmailDraft({
-      token: googleToken,
+    const gmailResult = await createGmailDraft({
+      token: result.token,
       subject,
       body
     });
 
-    if (!result.success) {
+    if (!gmailResult.success) {
       return NextResponse.json({ 
-        error: result.error || "Failed to create Gmail draft" 
+        error: gmailResult.error || "Failed to create Gmail draft" 
       }, { status: 500 });
     }
 
     return NextResponse.json({ 
       success: true, 
-      draftId: result.draftId,
+      draftId: gmailResult.draftId,
       message: "Draft created! Check your Gmail drafts folder."
     });
 
