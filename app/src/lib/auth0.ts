@@ -8,7 +8,7 @@ export const auth0 = new Auth0Client({
     connection: 'google-oauth2',
     scope: 'openid profile email offline_access https://www.googleapis.com/auth/gmail.compose',
     access_type: 'offline',
-    prompt: 'consent'
+    prompt: 'login consent'
   },
   async beforeSessionSaved(session, idToken) {
     try {
@@ -24,7 +24,6 @@ export const auth0 = new Auth0Client({
         const auth0Id = session.user.sub as string;
         const supabase = getSupabaseAdmin();
         
-        // Prefer refresh token for Token Vault, fall back to access token
         const tokenToStore = session.tokenSet?.refreshToken || session.tokenSet?.accessToken;
         
         console.log("[auth0] Token to store:", {
@@ -69,6 +68,12 @@ export const auth0 = new Auth0Client({
     return session;
   },
   async onCallback(error, context, session) {
+    console.log("[auth0] onCallback called:", {
+      hasError: !!error,
+      hasSession: !!session,
+      hasUser: !!session?.user
+    });
+    
     if (error) {
       return NextResponse.redirect(
         new URL("/login?error=" + encodeURIComponent(error.message), process.env.APP_BASE_URL)
