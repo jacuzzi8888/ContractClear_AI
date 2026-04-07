@@ -289,6 +289,9 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
   const [summaryEmail, setSummaryEmail] = useState<{ subject: string; body: string } | null>(null);
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [isSummaryCopied, setIsSummaryCopied] = useState(false);
+  const [isSendingToGmail, setIsSendingToGmail] = useState(false);
+  const [gmailDraftId, setGmailDraftId] = useState<string | null>(null);
+  const [gmailError, setGmailError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
 
@@ -352,6 +355,30 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
     navigator.clipboard.writeText(`Subject: ${summaryEmail.subject}\n\n${summaryEmail.body}`);
     setIsSummaryCopied(true);
     setTimeout(() => setIsSummaryCopied(false), 2000);
+  };
+
+  const handleSendToGmail = async () => {
+    if (!jobId || !summaryEmail) return;
+    setIsSendingToGmail(true);
+    setGmailError(null);
+    try {
+      const res = await fetch("/api/gmail-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId,
+          subject: summaryEmail.subject,
+          body: summaryEmail.body
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create Gmail draft");
+      setGmailDraftId(data.draftId);
+    } catch (err: any) {
+      setGmailError(err.message);
+    } finally {
+      setIsSendingToGmail(false);
+    }
   };
 
   const isTouchDevice = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
@@ -488,6 +515,31 @@ export function FindingsViewer({ findings, isProcessing, status = "idle", errorM
           <div className="text-sm text-[var(--color-surface-700)] leading-relaxed whitespace-pre-wrap font-mono [tab-size:2]">
             {summaryEmail.body}
           </div>
+          <div className="flex items-center gap-3 mt-4 pt-4 border-t border-[var(--color-surface-200)]">
+            <button
+              onClick={handleSendToGmail}
+              disabled={isSendingToGmail || gmailDraftId !== null}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-brand-600)] hover:bg-[var(--color-brand-700)] text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSendingToGmail ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+              {isSendingToGmail ? "Creating Draft..." : gmailDraftId ? "Draft in Gmail!" : "Create Gmail Draft"}
+            </button>
+            {gmailDraftId && (
+              <a
+                href="https://mail.google.com/mail/u/0/#drafts"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-sm text-[var(--color-brand-600)] hover:text-[var(--color-brand-700)] font-medium"
+              >
+                Open Gmail <ArrowUpRight size={14} />
+              </a>
+            )}
+          </div>
+          {gmailError && (
+            <p className="text-red-600 text-xs mt-2 flex items-center gap-1">
+              <AlertCircle size={12} /> {gmailError}
+            </p>
+          )}
         </div>
       )}
 
