@@ -12,12 +12,25 @@ export const auth0 = new Auth0Client({
   },
   async beforeSessionSaved(session, idToken) {
     try {
+      console.log("[auth0] beforeSessionSaved called:", {
+        hasUser: !!session?.user,
+        hasAccessToken: !!session?.tokenSet?.accessToken,
+        hasRefreshToken: !!session?.tokenSet?.refreshToken,
+        accessTokenLength: session?.tokenSet?.accessToken?.length || 0,
+        refreshTokenLength: session?.tokenSet?.refreshToken?.length || 0
+      });
+
       if (session?.user) {
         const auth0Id = session.user.sub as string;
         const supabase = getSupabaseAdmin();
         
         // Prefer refresh token for Token Vault, fall back to access token
         const tokenToStore = session.tokenSet?.refreshToken || session.tokenSet?.accessToken;
+        
+        console.log("[auth0] Token to store:", {
+          type: session.tokenSet?.refreshToken ? "refresh_token" : "access_token",
+          length: tokenToStore?.length || 0
+        });
         
         if (tokenToStore) {
           const { data: existingUser } = await supabase
@@ -34,6 +47,7 @@ export const auth0 = new Auth0Client({
                 updated_at: new Date().toISOString()
               })
               .eq("id", existingUser.id);
+            console.log("[auth0] Updated existing user with token");
           } else {
             await supabase
               .from("users")
@@ -43,7 +57,10 @@ export const auth0 = new Auth0Client({
                 full_name: session.user.name as string,
                 google_refresh_token: tokenToStore,
               });
+            console.log("[auth0] Created new user with token");
           }
+        } else {
+          console.log("[auth0] No token to store - user will need to re-login");
         }
       }
     } catch (e) {
