@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { resolveUserUUID } from "@/lib/auth/get-user";
-import { getGoogleTokenFromAuth0Vault } from "@/lib/auth0-vault";
+import { auth0 } from "@/lib/auth0";
 import { createGmailDraft } from "@/lib/gmail-api";
 
 export const dynamic = "force-dynamic";
@@ -19,55 +19,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Subject and body are required" }, { status: 400 });
     }
 
-    const supabase = getSupabaseAdmin();
+    // Use Auth0 SDK's built-in getAccessTokenForConnection method
+    let googleToken: string | null = null;
+    let errorMsg: string | null = null;
 
-    const { data: user, error: userError } = await supabase
-      .from("users")
-      .select("google_refresh_token")
-      .eq("id", userId)
-      .single();
+    try {
+      const result = await auth0.getAccessTokenForConnection({
+        connection: "google-oauth2"
+      });
+      googleToken = result.token;
+      console.log("[gmail-draft] Got Google token via SDK, length:", googleToken?.length);
+    } catch (e: any) {
+      console.error("[gmail-draft] SDK getAccessTokenForConnection error:", e);
+      errorMsg = e.message || String(e);
+    }
 
-    console.log("[gmail-draft] User lookup:", { 
-      userId, 
-      hasToken: !!user?.google_refresh_token,
-      tokenLength: user?.google_refresh_token?.length || 0
-    });
-
-    if (userError || !user?.google_refresh_token) {
+    if (!googleToken) {
       return NextResponse.json({ 
-        error: "No Google account connected. Please log out and log back in with Google." 
-      }, { status: 400 });
-    }
-
-    const errors: string[] = [];
-
-    // Try refresh token exchange first
-    let result = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, true);
-    console.log("[gmail-draft] Refresh token exchange result:", result);
-    
-    if (result.error) {
-      errors.push(`Refresh token exchange: ${result.error}`);
-    }
-    
-    if (!result.token) {
-      console.log("[gmail-draft] Refresh token exchange failed, trying access token exchange...");
-      result = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, false);
-      console.log("[gmail-draft] Access token exchange result:", result);
-      
-      if (result.error) {
-        errors.push(`Access token exchange: ${result.error}`);
-      }
-    }
-
-    if (!result.token) {
-      return NextResponse.json({ 
-        error: "Failed to get Google access token from Token Vault",
-        details: errors.join(" | ")
+        error: "Failed to get Google access token",
+        details: errorMsg || "Token not available"
       }, { status: 500 });
     }
 
     const gmailResult = await createGmailDraft({
-      token: result.token,
+      token: googleToken,
       subject,
       body
     });
