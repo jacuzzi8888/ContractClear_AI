@@ -1,6 +1,7 @@
 import { Auth0Client } from "@auth0/nextjs-auth0/server";
 import { NextResponse } from "next/server";
-import { updateUser, getUserByAuth0Id, createUser } from "./auth/get-user";
+import { getSupabaseAdmin } from "./supabase/admin";
+import { createSession } from "./auth/session";
 
 export const auth0 = new Auth0Client({
   authorizationParameters: {
@@ -13,16 +14,31 @@ export const auth0 = new Auth0Client({
     try {
       if (session.refreshToken) {
         const auth0Id = session.user.sub as string;
-        let user = await getUserByAuth0Id(auth0Id);
-        if (!user) {
-          user = await createUser({ 
-            auth0Id, 
-            email: session.user.email as string, 
-            fullName: session.user.name as string 
-          });
-        }
-        if (user) {
-          await updateUser(user.id, { googleRefreshToken: session.refreshToken as string });
+        const supabase = getSupabaseAdmin();
+        
+        const { data: existingUser } = await supabase
+          .from("users")
+          .select("*")
+          .eq("auth0_id", auth0Id)
+          .single();
+        
+        if (existingUser) {
+          await supabase
+            .from("users")
+            .update({ 
+              google_refresh_token: session.refreshToken as string,
+              updated_at: new Date().toISOString()
+            })
+            .eq("id", existingUser.id);
+        } else {
+          await supabase
+            .from("users")
+            .insert({
+              auth0_id: auth0Id,
+              email: session.user.email as string,
+              full_name: session.user.name as string,
+              google_refresh_token: session.refreshToken as string,
+            });
         }
       }
     } catch (e) {
@@ -30,12 +46,63 @@ export const auth0 = new Auth0Client({
     }
     return session;
   },
-  async onCallback(error, context) {
+  async onCallback(error, context, session) {
     if (error) {
       return NextResponse.redirect(
         new URL("/login?error=" + encodeURIComponent(error.message), process.env.APP_BASE_URL)
       );
     }
+    
+    try {
+      if (session?.user) {
+        const auth0Id = session.user.sub as string;
+        const supabase = getSupabaseAdmin();
+        
+        let { data: user } = await supabase
+          .from("users")
+          .select("*")
+          .eq("auth0_id", auth0Id)
+          .single();
+        
+        if (!user) {
+          const { data: newUser } = await supabase
+            .from("users")
+            .insert({
+              auth0_id: auth0Id,
+              email: session.user.email as string,
+              full_name: session.user.name as string,
+            })
+            .select()
+            .single();
+          user = newUser;
+        }
+        
+        if (user) {
+          const localSession = await createSession({
+            userId: user.id,
+            email: user.email,
+            auth0Id: user.auth0_id,
+          });
+          
+          const response = NextResponse.redirect(
+            new URL(context.returnTo || "/dashboard", process.env.APP_BASE_URL)
+          );
+          
+          response.cookies.set("session", localSession, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 7,
+            path: "/",
+          });
+          
+          return response;
+        }
+      }
+    } catch (e) {
+      console.error("[auth0] Error in onCallback:", e);
+    }
+    
     return NextResponse.redirect(
       new URL(context.returnTo || "/dashboard", process.env.APP_BASE_URL)
     );
