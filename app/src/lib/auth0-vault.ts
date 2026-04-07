@@ -9,6 +9,16 @@ export async function getGoogleTokenFromAuth0Vault(subjectToken: string, useRefr
       ? process.env.AUTH0_CLIENT_SECRET 
       : process.env.AUTH0_M2M_CLIENT_SECRET;
 
+    // Debug: log all available AUTH0 env vars
+    console.log("[Token Vault] Available env vars:", {
+      AUTH0_DOMAIN: !!process.env.AUTH0_DOMAIN,
+      AUTH0_CLIENT_ID: !!process.env.AUTH0_CLIENT_ID,
+      AUTH0_CLIENT_SECRET: !!process.env.AUTH0_CLIENT_SECRET,
+      AUTH0_M2M_CLIENT_ID: !!process.env.AUTH0_M2M_CLIENT_ID,
+      AUTH0_M2M_CLIENT_SECRET: !!process.env.AUTH0_M2M_CLIENT_SECRET,
+      NEXT_PUBLIC_AUTH0_DOMAIN: !!process.env.NEXT_PUBLIC_AUTH0_DOMAIN,
+    });
+
     console.log("[Token Vault] Starting exchange:", {
       domain: domain || "missing",
       clientId: clientId ? `${clientId.slice(0, 8)}...` : "missing",
