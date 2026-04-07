@@ -35,14 +35,24 @@ async function getManagementToken(): Promise<string> {
     throw new Error(`Missing env vars for Management API: ${missing.join(", ")}`);
   }
 
-  const cleanDomain = domain.replace(/[\r\n]/g, "").trim();
+  const cleanDomain = domain.replace(/[\r\n\s]/g, "").trim();
+  const cleanClientId = clientId.replace(/[\r\n\s]/g, "").trim();
+  const cleanClientSecret = clientSecret.replace(/[\r\n\s]/g, "").trim();
+
+  console.log("[auth0-mgmt] Token request:", {
+    domain: cleanDomain,
+    clientId: cleanClientId,
+    clientIdLength: cleanClientId.length,
+    secretLength: cleanClientSecret.length,
+    audience: `https://${cleanDomain}/api/v2/`,
+  });
 
   const response = await fetch(`https://${cleanDomain}/oauth/token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      client_id: clientId,
-      client_secret: clientSecret,
+      client_id: cleanClientId,
+      client_secret: cleanClientSecret,
       audience: `https://${cleanDomain}/api/v2/`,
       grant_type: "client_credentials",
       scope: "read:users read:user_idp_tokens",
