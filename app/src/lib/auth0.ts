@@ -12,7 +12,7 @@ export const auth0 = new Auth0Client({
   },
   async beforeSessionSaved(session, idToken) {
     try {
-      if (session?.user && session?.accessToken) {
+      if (session?.user && session?.tokenSet?.accessToken) {
         const auth0Id = session.user.sub as string;
         const supabase = getSupabaseAdmin();
         
@@ -26,7 +26,7 @@ export const auth0 = new Auth0Client({
           await supabase
             .from("users")
             .update({ 
-              google_refresh_token: session.accessToken as string,
+              google_refresh_token: session.tokenSet.accessToken as string,
               updated_at: new Date().toISOString()
             })
             .eq("id", existingUser.id);
@@ -37,7 +37,7 @@ export const auth0 = new Auth0Client({
               auth0_id: auth0Id,
               email: session.user.email as string,
               full_name: session.user.name as string,
-              google_refresh_token: session.accessToken as string,
+              google_refresh_token: session.tokenSet.accessToken as string,
             });
         }
       }
