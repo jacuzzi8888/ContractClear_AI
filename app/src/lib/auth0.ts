@@ -14,7 +14,7 @@ export const auth0 = new Auth0Client({
       const auth0Id = session.user.sub as string;
       let user = await getUserByAuth0Id(auth0Id);
       if (!user) {
-         user = await createUser({ auth0Id });
+         user = await createUser({ auth0Id, email: session.user.email as string, fullName: session.user.name as string });
       }
       if (user) {
         await updateUser(user.id, { googleRefreshToken: session.refreshToken as string });
@@ -29,7 +29,7 @@ export const auth0 = new Auth0Client({
       );
     }
     return NextResponse.redirect(
-      new URL(context.returnTo || "/dashboard", process.env.APP_BASE_URL)
+      new URL("/api/auth/session-sync?returnTo=" + encodeURIComponent(context.returnTo || "/dashboard"), process.env.APP_BASE_URL)
     );
   },
 });
