@@ -39,20 +39,30 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    const errors: string[] = [];
+
     // Try refresh token exchange first
     let result = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, true);
     console.log("[gmail-draft] Refresh token exchange result:", result);
+    
+    if (result.error) {
+      errors.push(`Refresh token exchange: ${result.error}`);
+    }
     
     if (!result.token) {
       console.log("[gmail-draft] Refresh token exchange failed, trying access token exchange...");
       result = await getGoogleTokenFromAuth0Vault(user.google_refresh_token, false);
       console.log("[gmail-draft] Access token exchange result:", result);
+      
+      if (result.error) {
+        errors.push(`Access token exchange: ${result.error}`);
+      }
     }
 
     if (!result.token) {
       return NextResponse.json({ 
         error: "Failed to get Google access token from Token Vault",
-        details: result.error
+        details: errors.join(" | ")
       }, { status: 500 });
     }
 
